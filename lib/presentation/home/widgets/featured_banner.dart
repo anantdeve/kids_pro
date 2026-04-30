@@ -34,7 +34,7 @@ class FeaturedBanner extends StatelessWidget {
                   width: double.infinity,
                   height: cardHeight,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFAEEB), // Base pink color
+                     // Base pink color
                     border: Border.all(color: Colors.white, width: 8),
                     borderRadius: BorderRadius.circular(10)// Thick white border
 
@@ -44,9 +44,13 @@ class FeaturedBanner extends StatelessWidget {
                     children: [
                       // 2. The Main Pink/Purple Gradient
                       Positioned.fill(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            gradient: AppColors.magicBookGradient,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20), // adjust as needed
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              gradient: AppColors.magicBookGradient,
+                              borderRadius: BorderRadius.all(Radius.circular(20)),
+                            ),
                           ),
                         ),
                       ),
@@ -70,7 +74,7 @@ class FeaturedBanner extends StatelessWidget {
                         left: 24,
                         top: 0,
                         bottom: 0,
-                        right: imageWidth * 0.7,
+                        right: imageWidth * 0.55, // Relaxed constraint for more text space
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -82,18 +86,22 @@ class FeaturedBanner extends StatelessWidget {
                                 color: Colors.white.withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: const Row(
+                              child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.star, color: Colors.white, size: 16),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'NEW ADVENTURE',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 0.5,
+                                  const Icon(Icons.star, color: Colors.white, size: 16),
+                                  const SizedBox(width: 8),
+                                  const Flexible(
+                                    child: Text(
+                                      'NEW ADVENTURE',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
