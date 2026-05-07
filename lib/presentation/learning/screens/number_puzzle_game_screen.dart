@@ -1,0 +1,350 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'dart:math';
+import 'dart:ui';
+
+enum PuzzlePart { top, bottom }
+
+class PuzzlePieceData {
+  final int number;
+  final PuzzlePart part;
+  PuzzlePieceData({required this.number, required this.part});
+}
+
+class NumberPuzzleGameScreen extends StatefulWidget {
+  const NumberPuzzleGameScreen({super.key});
+
+  @override
+  State<NumberPuzzleGameScreen> createState() => _NumberPuzzleGameScreenState();
+}
+
+class _NumberPuzzleGameScreenState extends State<NumberPuzzleGameScreen> with TickerProviderStateMixin {
+  final Random random = Random();
+  late int targetNumber;
+  List<PuzzlePart> placedParts = [];
+  List<PuzzlePart> availablePieces = [];
+  bool isCompleted = false;
+
+  late AnimationController _successController;
+  late Animation<double> _successScale;
+
+  final List<Color> themeColors = [
+    const Color(0xFF5CD6A1), // Green
+    const Color(0xFF67E1F5), // Blue
+    const Color(0xFFFF7B9C), // Pink
+    const Color(0xFFFFB347), // Orange
+    const Color(0xFFB497FF), // Purple
+  ];
+
+  late Color currentThemeColor;
+
+  @override
+  void initState() {
+    super.initState();
+    currentThemeColor = themeColors[0];
+    _successController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _successScale = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.2), weight: 50),
+      TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 50),
+    ]).animate(CurvedAnimation(parent: _successController, curve: Curves.easeInOut));
+    
+    _generateLevel();
+  }
+
+  @override
+  void dispose() {
+    _successController.dispose();
+    super.dispose();
+  }
+
+  void _generateLevel() {
+    setState(() {
+      targetNumber = random.nextInt(10);
+      currentThemeColor = themeColors[random.nextInt(themeColors.length)];
+      placedParts = [];
+      availablePieces = [PuzzlePart.top, PuzzlePart.bottom];
+      availablePieces.shuffle();
+      isCompleted = false;
+    });
+    _successController.reset();
+  }
+
+  void _onPartPlaced(PuzzlePart part) {
+    setState(() {
+      placedParts.add(part);
+      if (placedParts.length == 2) {
+        isCompleted = true;
+        _successController.forward();
+        _showSuccessEffect();
+      }
+    });
+  }
+
+  void _showSuccessEffect() {
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) _generateLevel();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Background with soft mesh gradient effect
+          Positioned.fill(
+            child: Container(
+              color: const Color(0xFFFFF9F5),
+            ),
+          ),
+          Positioned(
+            top: 100,
+            left: -50,
+            child: _buildBlurredBlob(300, const Color(0xFFFFD1E1).withValues(alpha: 0.4)),
+          ),
+          Positioned(
+            top: -50,
+            right: -50,
+            child: _buildBlurredBlob(350, const Color(0xFFE1F5FE).withValues(alpha: 0.5)),
+          ),
+          Positioned(
+            bottom: 100,
+            right: -80,
+            child: _buildBlurredBlob(400, const Color(0xFFF3E5F5).withValues(alpha: 0.4)),
+          ),
+          Positioned(
+            bottom: -50,
+            left: -20,
+            child: _buildBlurredBlob(300, const Color(0xFFFFF9C4).withValues(alpha: 0.3)),
+          ),
+
+          SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(),
+                const Spacer(flex: 1),
+                Text(
+                  'Assemble the number $targetNumber',
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF5C677D),
+                    letterSpacing: -0.2,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                ScaleTransition(
+                  scale: _successScale,
+                  child: _buildAssemblyArea(),
+                ),
+                const Spacer(flex: 2),
+                _buildPiecesArea(),
+                const SizedBox(height: 60),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => context.pop(),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF5F0).withValues(alpha: 0.5),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_back, color: Color(0xFF2D3142), size: 28),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Put the pieces together!',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF8D99AE),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  'Number Puzzle',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF67E1F5).withValues(alpha: 0.9),
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAssemblyArea() {
+    return Container(
+      width: 220,
+      height: 300,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(50),
+        border: Border.all(
+          color: Colors.white,
+          width: 2.5,
+        ),
+      ),
+      child: Column(
+        children: [
+          Expanded(child: _buildDropTarget(PuzzlePart.top)),
+          Expanded(child: _buildDropTarget(PuzzlePart.bottom)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDropTarget(PuzzlePart part) {
+    final bool isPlaced = placedParts.contains(part);
+
+    return DragTarget<PuzzlePieceData>(
+      onWillAcceptWithDetails: (details) => details.data.part == part && !isPlaced,
+      onAcceptWithDetails: (details) => _onPartPlaced(part),
+      builder: (context, candidateData, rejectedData) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            color: candidateData.isNotEmpty 
+                ? currentThemeColor.withValues(alpha: 0.1) 
+                : Colors.transparent,
+            borderRadius: part == PuzzlePart.top 
+                ? const BorderRadius.vertical(top: Radius.circular(36))
+                : const BorderRadius.vertical(bottom: Radius.circular(36)),
+          ),
+          child: Center(
+            child: isPlaced
+                ? _buildNumberPart(targetNumber, part, size: 300, color: currentThemeColor)
+                : Icon(
+                    part == PuzzlePart.top ? Icons.add_circle_outline : Icons.add_circle_outline,
+                    color: Colors.grey.withValues(alpha: 0.2),
+                    size: 40,
+                  ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPiecesArea() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: availablePieces.map((part) {
+        final bool isPlaced = placedParts.contains(part);
+        return AnimatedOpacity(
+          duration: const Duration(milliseconds: 300),
+          opacity: isPlaced ? 0.0 : 1.0,
+          child: IgnorePointer(
+            ignoring: isPlaced,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Draggable<PuzzlePieceData>(
+                data: PuzzlePieceData(number: targetNumber, part: part),
+                feedback: _buildDraggablePiece(part, isFeedback: true),
+                childWhenDragging: const SizedBox(width: 120, height: 120),
+                child: _buildDraggablePiece(part),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildDraggablePiece(PuzzlePart part, {bool isFeedback = false}) {
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        width: 140,
+        height: 140,
+        decoration: BoxDecoration(
+          color: const Color(0xFF86E3C1),
+          borderRadius: BorderRadius.circular(35),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF86E3C1).withValues(alpha: isFeedback ? 0.4 : 0.2),
+              blurRadius: isFeedback ? 20 : 10,
+              offset: Offset(0, isFeedback ? 10 : 4),
+            ),
+          ],
+        ),
+        child: Center(
+          child: _buildNumberPart(targetNumber, part, size: 120),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNumberPart(int number, PuzzlePart part, {required double size, Color? color}) {
+    // The 'size' is the full height of the number.
+    // Each piece should be half that height.
+    final double pieceHeight = size / 2;
+    
+    return SizedBox(
+      width: size,
+      height: pieceHeight,
+      child: ClipRect(
+        child: OverflowBox(
+          alignment: part == PuzzlePart.top ? Alignment.topCenter : Alignment.bottomCenter,
+          maxHeight: size,
+          maxWidth: size,
+          child: SizedBox(
+            width: size,
+            height: size,
+            child: Center(
+              child: Text(
+                '$number',
+                style: TextStyle(
+                  fontSize: size * 0.9,
+                  fontWeight: FontWeight.w900,
+                  color: color ?? Colors.white,
+                  height: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBlurredBlob(double size, Color color) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+      ),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+        child: Container(color: Colors.transparent),
+      ),
+    );
+  }
+}
