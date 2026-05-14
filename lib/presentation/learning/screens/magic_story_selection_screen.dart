@@ -38,7 +38,7 @@ class _MagicStorySelectionScreenState extends State<MagicStorySelectionScreen> {
     try {
       // IMPORTANT: Replace with your actual API key. 
       // Do not commit your key to GitHub!
-      const apiKey = 'YOUR_OPENAI_API_KEY'; 
+      const apiKey = 'OPEN API KEY';
       final response = await http.post(
         Uri.parse('https://api.openai.com/v1/chat/completions'),
         headers: {

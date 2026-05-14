@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math';
+import '../widgets/success_overlay.dart';
 
 class LookAndMatchGameScreen extends StatefulWidget {
   const LookAndMatchGameScreen({super.key});
@@ -33,6 +35,7 @@ class _LookAndMatchGameScreenState extends State<LookAndMatchGameScreen> {
   Offset? currentStart;
   Offset? currentEnd;
   int? activeLeftId;
+  bool _isSuccess = false;
 
   @override
   void initState() {
@@ -61,6 +64,7 @@ class _LookAndMatchGameScreenState extends State<LookAndMatchGameScreen> {
       for (var item in rightItems) {
         rightKeys[item.id] = GlobalKey();
       }
+      _isSuccess = false;
     });
   }
 
@@ -74,27 +78,16 @@ class _LookAndMatchGameScreenState extends State<LookAndMatchGameScreen> {
     );
   }
 
-  void _onPanStart(DragStartDetails details) {
-    final localPosition = details.globalPosition;
+  void _onPanStart(DragStartDetails details, int leftId) {
+    if (matchedPairs.any((p) => p.leftId == leftId)) return;
     
-    // Check if touch started on a left item
-    for (var item in leftItems) {
-      if (matchedPairs.any((p) => p.leftId == item.id)) continue;
-      
-      final RenderBox? box = leftKeys[item.id]?.currentContext?.findRenderObject() as RenderBox?;
-      if (box == null) continue;
-      
-      final pos = box.localToGlobal(Offset.zero);
-      final rect = pos & box.size;
-      
-      if (rect.contains(localPosition)) {
-        setState(() {
-          activeLeftId = item.id;
-          currentStart = _getCenterOfWidget(leftKeys[item.id]!);
-          currentEnd = localPosition;
-        });
-        break;
-      }
+    final RenderBox? gameBox = context.findRenderObject() as RenderBox?;
+    if (gameBox != null) {
+      setState(() {
+        activeLeftId = leftId;
+        currentStart = _getCenterOfWidget(leftKeys[leftId]!);
+        currentEnd = details.globalPosition;
+      });
     }
   }
 
@@ -116,13 +109,16 @@ class _LookAndMatchGameScreenState extends State<LookAndMatchGameScreen> {
         final pos = box.localToGlobal(Offset.zero);
         final rect = pos & box.size;
         
-        if (rect.inflate(20).contains(currentEnd!)) {
+        if (rect.inflate(25).contains(currentEnd!)) {
           foundRightId = item.id;
           break;
         }
       }
 
       if (foundRightId != null && foundRightId == activeLeftId) {
+        // Haptic feedback for a successful match
+        HapticFeedback.mediumImpact();
+
         setState(() {
           matchedPairs.add(MatchedPair(
             leftId: activeLeftId!,
@@ -147,41 +143,16 @@ class _LookAndMatchGameScreenState extends State<LookAndMatchGameScreen> {
   }
 
   void _showSuccess() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('Great Job!'),
-        content: const Text('You matched all the numbers!'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _generateLevel();
-            },
-            child: const Text('Play Again'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.pop();
-            },
-            child: const Text('Back'),
-          ),
-        ],
-      ),
-    );
+    setState(() {
+      _isSuccess = true;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GestureDetector(
-        onPanStart: _onPanStart,
-        onPanUpdate: _onPanUpdate,
-        onPanEnd: _onPanEnd,
-        child: Stack(
-          children: [
+      body: Stack(
+        children: [
             // Background
             Positioned.fill(
               child: Container(color: const Color(0xFFFFF9F5)),
@@ -263,9 +234,16 @@ class _LookAndMatchGameScreenState extends State<LookAndMatchGameScreen> {
                 ],
               ),
             ),
+
+            // Success Overlay
+            SuccessOverlay(
+              isVisible: _isSuccess,
+              onFinished: () {
+                _generateLevel();
+              },
+            ),
           ],
         ),
-      ),
     );
   }
 
@@ -329,30 +307,39 @@ class _LookAndMatchGameScreenState extends State<LookAndMatchGameScreen> {
 
   Widget _buildLeftItem(MatchItem item, double fontSize) {
     bool isMatched = matchedPairs.any((p) => p.leftId == item.id);
-    return Container(
-      key: leftKeys[item.id],
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return GestureDetector(
+      onPanStart: (d) => _onPanStart(d, item.id),
+      onPanUpdate: _onPanUpdate,
+      onPanEnd: _onPanEnd,
+      child: Container(
+        key: leftKeys[item.id],
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: isMatched || activeLeftId == item.id ? item.color! : Colors.transparent,
+            width: 2,
           ),
-        ],
-      ),
-      child: Center(
-        child: Text(
-          item.text,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w800,
-            color: isMatched ? Colors.grey.withValues(alpha: 0.5) : const Color(0xFF5C677D),
-            letterSpacing: 0.5,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            item.text,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w800,
+              color: isMatched ? Colors.grey.withValues(alpha: 0.5) : const Color(0xFF5C677D),
+              letterSpacing: 0.5,
+            ),
           ),
         ),
       ),
@@ -432,48 +419,87 @@ class LinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..strokeWidth = 4.0
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-
-    // Draw matched lines with arrows
+    // Draw matched lines with sticker-style trails
     for (var pair in matchedPairs) {
-      paint.color = pair.color.withValues(alpha: 0.6);
-      _drawArrowLine(canvas, pair.start, pair.end, paint);
+      _drawMagicalTrail(canvas, pair.start, pair.end, pair.color);
     }
 
     // Draw current line
     if (currentStart != null && currentEnd != null) {
-      paint.color = Colors.grey.withValues(alpha: 0.4);
-      _drawArrowLine(canvas, currentStart!, currentEnd!, paint);
+      _drawMagicalTrail(canvas, currentStart!, currentEnd!, Colors.grey.withValues(alpha: 0.5), isDrawing: true);
     }
   }
 
-  void _drawArrowLine(Canvas canvas, Offset start, Offset end, Paint paint) {
-    canvas.drawLine(start, end, paint);
-    
-    // Draw circle at start
-    final dotPaint = Paint()..color = paint.color.withValues(alpha: 0.8)..style = PaintingStyle.fill;
-    canvas.drawCircle(start, 5, dotPaint);
+  void _drawMagicalTrail(Canvas canvas, Offset start, Offset end, Color color, {bool isDrawing = false}) {
+    final paint = Paint()
+      ..strokeWidth = 8.0
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
 
-    // Calculate arrowhead
-    final double arrowSize = 12.0;
-    final double angle = (end - start).direction;
+    if (!isDrawing) {
+      paint.shader = LinearGradient(
+        colors: [color, color.withValues(alpha: 0.5)],
+      ).createShader(Rect.fromPoints(start, end));
+    } else {
+      paint.color = color;
+    }
+
+    // Cubic Bezier for elegant S-curve
+    final path = Path()..moveTo(start.dx, start.dy);
+    final controlPoint1 = Offset(start.dx + (end.dx - start.dx) / 2, start.dy);
+    final controlPoint2 = Offset(start.dx + (end.dx - start.dx) / 2, end.dy);
     
-    final Path arrowPath = Path()
-      ..moveTo(end.dx, end.dy)
-      ..relativeLineTo(
-        arrowSize * cos(angle + 4 * pi / 5),
-        arrowSize * sin(angle + 4 * pi / 5),
-      )
-      ..moveTo(end.dx, end.dy)
-      ..relativeLineTo(
-        arrowSize * cos(angle - 4 * pi / 5),
-        arrowSize * sin(angle - 4 * pi / 5),
+    path.cubicTo(
+      controlPoint1.dx, controlPoint1.dy,
+      controlPoint2.dx, controlPoint2.dy,
+      end.dx, end.dy,
+    );
+
+    if (!isDrawing) {
+      canvas.drawPath(
+        path,
+        Paint()
+          ..color = color.withValues(alpha: 0.2)
+          ..strokeWidth = 14.0
+          ..strokeCap = StrokeCap.round
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6.0)
+          ..style = PaintingStyle.stroke,
       );
+    }
+    
+    canvas.drawPath(path, paint);
+    
+    // Start Dot
+    canvas.drawCircle(start, 8, Paint()..color = color);
+    canvas.drawCircle(start, 10, Paint()..color = Colors.white.withValues(alpha: 0.3)..style = PaintingStyle.stroke..strokeWidth = 2);
 
-    canvas.drawPath(arrowPath, paint);
+    // End Arrow
+    _drawStickerArrowHead(canvas, controlPoint2, end, color);
+  }
+
+  void _drawStickerArrowHead(Canvas canvas, Offset controlPoint, Offset end, Color color) {
+    final double arrowSize = 22.0;
+    final double angle = (end - controlPoint).direction;
+    
+    final paint = Paint()..color = color..style = PaintingStyle.fill;
+    final borderPaint = Paint()..color = Colors.white..style = PaintingStyle.stroke..strokeWidth = 3.0;
+
+    final path = Path();
+    path.moveTo(end.dx, end.dy);
+    path.lineTo(
+      end.dx + arrowSize * cos(angle + 3.4 * pi / 4),
+      end.dy + arrowSize * sin(angle + 3.4 * pi / 4),
+    );
+    path.quadraticBezierTo(
+      end.dx + (arrowSize * 0.5) * cos(angle + pi),
+      end.dy + (arrowSize * 0.5) * sin(angle + pi),
+      end.dx + arrowSize * cos(angle - 3.4 * pi / 4),
+      end.dy + arrowSize * sin(angle - 3.4 * pi / 4),
+    );
+    path.close();
+
+    canvas.drawPath(path, borderPaint);
+    canvas.drawPath(path, paint);
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,19 +10,30 @@ class ColorMatchScreen extends StatefulWidget {
 }
 
 class _ColorMatchScreenState extends State<ColorMatchScreen> {
-  final List<ColorItem> labels = [
+  final Map<String, List<String>> emojiPool = {
+    'yellow': ['🍌', '🍋', '🐥', '🧀', '🌻', '🟡', '🌽'],
+    'pink': ['🌸', '🐷', '🎀', '🍭', '💗', '🍬', '🦩'],
+    'blue': ['🐳', '🐋', '🚙', '🧊', '🔵', '🌊', '🐬'],
+    'purple': ['🍇', '🍆', '🐙', '🌂', '🟣', '🔮', '👿'],
+    'red': ['🍎', '🍓', '🚗', '🎈', '🔴', '🍒', '🍅'],
+    'green': ['🥦', '🌲', '🐸', '🐢', '🟢', '🥬', '🍐'],
+    'orange': ['🥕', '🍊', '🦊', '🏀', '🟠', '🎃', '🐯'],
+    'brown': ['🐻', '🍩', '🥔', '👞', '🟤', '🍫', '🍪'],
+  };
+
+  final List<ColorItem> allAvailableColors = [
     ColorItem(id: 'yellow', label: 'YELLOW', color: const Color(0xFFFFD166)),
     ColorItem(id: 'pink', label: 'PINK', color: const Color(0xFFFF7B9C)),
     ColorItem(id: 'blue', label: 'BLUE', color: const Color(0xFF67E1F5)),
     ColorItem(id: 'purple', label: 'PURPLE', color: const Color(0xFFB497FF)),
+    ColorItem(id: 'red', label: 'RED', color: const Color(0xFFFF595E)),
+    ColorItem(id: 'green', label: 'GREEN', color: const Color(0xFF8AC926)),
+    ColorItem(id: 'orange', label: 'ORANGE', color: const Color(0xFFFF9248)),
+    ColorItem(id: 'brown', label: 'BROWN', color: const Color(0xFF967259)),
   ];
 
-  final List<ObjectItem> objects = [
-    ObjectItem(id: 'blue', emoji: '🐟', color: const Color(0xFF67E1F5)),
-    ObjectItem(id: 'yellow', emoji: '⭐', color: const Color(0xFFFFD166)),
-    ObjectItem(id: 'pink', emoji: '🌸', color: const Color(0xFFFF7B9C)),
-    ObjectItem(id: 'purple', emoji: '🍇', color: const Color(0xFFB497FF)),
-  ];
+  List<ColorItem> labels = [];
+  List<ObjectItem> objects = [];
 
   final Map<String, GlobalKey> labelKeys = {};
   final Map<String, GlobalKey> objectKeys = {};
@@ -35,12 +47,40 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
   @override
   void initState() {
     super.initState();
+    _setupGame();
+  }
+
+  void _setupGame() {
+    final random = Random();
+    
+    // Pick 4 random colors from the available pool for this round
+    final shuffledColors = List<ColorItem>.from(allAvailableColors)..shuffle();
+    final selectedColors = shuffledColors.take(4).toList();
+    
+    // Shuffled labels for the left column
+    labels = List<ColorItem>.from(selectedColors)..shuffle();
+    
+    // Create objects with random emojis for each selected color for the right column
+    objects = selectedColors.map((colorItem) {
+      final pool = emojiPool[colorItem.id] ?? ['❓'];
+      final emoji = pool[random.nextInt(pool.length)];
+      return ObjectItem(id: colorItem.id, emoji: emoji, color: colorItem.color);
+    }).toList();
+    
+    // Shuffle objects column
+    objects.shuffle();
+
+    // Re-initialize keys
+    labelKeys.clear();
+    objectKeys.clear();
     for (var item in labels) {
       labelKeys[item.id] = GlobalKey();
     }
     for (var item in objects) {
       objectKeys[item.id] = GlobalKey();
     }
+    
+    matches.clear();
   }
 
   void _onPanStart(DragStartDetails details, String labelId) {
@@ -71,18 +111,18 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
 
     // Check if dragCurrent is over an object
     String? targetObjectId;
-    for (var entry in objectKeys.entries) {
-      final RenderBox? box = entry.value.currentContext?.findRenderObject() as RenderBox?;
-      if (box != null) {
-        final Offset position = box.localToGlobal(Offset.zero);
-        final Size size = box.size;
-        final Rect rect = Rect.fromLTWH(position.dx, position.dy, size.width, size.height);
-        
-        // Convert dragCurrent (local to gameArea) to global
-        final RenderBox? gameBox = _gameAreaKey.currentContext?.findRenderObject() as RenderBox?;
-        if (gameBox != null) {
-          final Offset globalPos = gameBox.localToGlobal(dragCurrent!);
-          if (rect.contains(globalPos)) {
+    final RenderBox? gameBox = _gameAreaKey.currentContext?.findRenderObject() as RenderBox?;
+    
+    if (gameBox != null) {
+      for (var entry in objectKeys.entries) {
+        final RenderBox? box = entry.value.currentContext?.findRenderObject() as RenderBox?;
+        if (box != null) {
+          final Offset position = box.localToGlobal(Offset.zero);
+          final Offset localPos = gameBox.globalToLocal(position);
+          final Size size = box.size;
+          final Rect rect = Rect.fromLTWH(localPos.dx, localPos.dy, size.width, size.height);
+          
+          if (rect.inflate(20).contains(dragCurrent!)) { // Added some tolerance
             targetObjectId = entry.key;
             break;
           }
@@ -94,6 +134,13 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
       setState(() {
         matches[activeLabelId!] = targetObjectId!;
       });
+
+      // Check for completion
+      if (matches.length == labels.length) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _showSuccessDialog();
+        });
+      }
     }
 
     setState(() {
@@ -101,6 +148,86 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
       dragStart = null;
       dragCurrent = null;
     });
+  }
+
+  void _showSuccessDialog() {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierLabel: '',
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (context, anim1, anim2) {
+        return const SizedBox.shrink();
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(parent: anim1, curve: Curves.elasticOut),
+          child: AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  '🎉',
+                  style: TextStyle(fontSize: 60),
+                ),
+                const SizedBox(height: 16),
+                ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [Color(0xFFFF7B9C), Color(0xFFB497FF)],
+                  ).createShader(bounds),
+                  child: const Text(
+                    'AMAZING!',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'You matched all the colors!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      _setupGame();
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF67E1F5),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 5,
+                  ),
+                  child: const Text(
+                    'PLAY AGAIN',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -190,15 +317,16 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
                       // Canvas for lines
                       Positioned.fill(
                         child: CustomPaint(
-                          painter: LinePainter(
-                            matches: matches,
-                            activeLabelId: activeLabelId,
-                            dragStart: dragStart,
-                            dragCurrent: dragCurrent,
-                            labelKeys: labelKeys,
-                            objectKeys: objectKeys,
-                            gameAreaKey: _gameAreaKey,
-                          ),
+                            painter: LinePainter(
+                              matches: matches,
+                              activeLabelId: activeLabelId,
+                              dragStart: dragStart,
+                              dragCurrent: dragCurrent,
+                              labelKeys: labelKeys,
+                              objectKeys: objectKeys,
+                              gameAreaKey: _gameAreaKey,
+                              labels: labels,
+                            ),
                         ),
                       ),
 
@@ -258,17 +386,34 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
                             Column(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: objects.map((item) {
+                                final isMatched = matches.containsValue(item.id);
                                 return Container(
                                   key: objectKeys[item.id],
-                                  width: 80,
-                                  height: 80,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.transparent,
+                                  width: 85,
+                                  height: 85,
+                                  decoration: BoxDecoration(
+                                    color: item.color.withValues(alpha: 0.25), // Slightly darker tinted background
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: isMatched 
+                                          ? item.color 
+                                          : item.color.withValues(alpha: 0.5), // More visible border
+                                      width: isMatched ? 4 : 2,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: isMatched 
+                                            ? item.color.withValues(alpha: 0.4) 
+                                            : Colors.black.withValues(alpha: 0.05),
+                                        blurRadius: isMatched ? 15 : 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
                                     item.emoji,
-                                    style: const TextStyle(fontSize: 50),
+                                    style: const TextStyle(fontSize: 45),
                                   ),
                                 );
                               }).toList(),
@@ -310,6 +455,7 @@ class LinePainter extends CustomPainter {
   final Map<String, GlobalKey> labelKeys;
   final Map<String, GlobalKey> objectKeys;
   final GlobalKey gameAreaKey;
+  final List<ColorItem> labels;
 
   LinePainter({
     required this.matches,
@@ -319,13 +465,13 @@ class LinePainter extends CustomPainter {
     required this.labelKeys,
     required this.objectKeys,
     required this.gameAreaKey,
+    required this.labels,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.grey.withValues(alpha: 0.4)
-      ..strokeWidth = 4
+    final basePaint = Paint()
+      ..strokeWidth = 6
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
@@ -334,13 +480,15 @@ class LinePainter extends CustomPainter {
       final start = _getWidgetCenter(labelKeys[labelId], isLeft: true);
       final end = _getWidgetCenter(objectKeys[objectId], isLeft: false);
       if (start != null && end != null) {
-        _drawCurve(canvas, start, end, paint);
+        final color = labels.firstWhere((l) => l.id == labelId).color;
+        _drawCurve(canvas, start, end, basePaint..color = color.withValues(alpha: 0.6));
       }
     });
 
     // Draw active drag
-    if (dragStart != null && dragCurrent != null) {
-      _drawCurve(canvas, dragStart!, dragCurrent!, paint);
+    if (dragStart != null && dragCurrent != null && activeLabelId != null) {
+      final color = labels.firstWhere((l) => l.id == activeLabelId).color;
+      _drawCurve(canvas, dragStart!, dragCurrent!, basePaint..color = color.withValues(alpha: 0.8));
     }
   }
 

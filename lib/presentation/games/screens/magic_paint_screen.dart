@@ -15,6 +15,8 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
   Color selectedColor = Colors.red;
   double strokeWidth = 5.0;
   bool isEraser = false;
+  final GlobalKey _canvasKey = GlobalKey();
+  int? activePointerId;
 
   final List<Color> colors = [
     const Color(0xFFFF3D41), // Red
@@ -72,12 +74,17 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
           children: [
             _buildTopBar(),
             Expanded(
-              child: GestureDetector(
-                onPanUpdate: (details) {
+              child: Listener(
+                onPointerDown: (event) {
+                  if (activePointerId != null) return;
+                  
+                  final RenderBox? renderBox = _canvasKey.currentContext?.findRenderObject() as RenderBox?;
+                  if (renderBox == null) return;
+                  
                   setState(() {
-                    RenderBox renderBox = context.findRenderObject() as RenderBox;
+                    activePointerId = event.pointer;
                     points.add(DrawingPoint(
-                      offset: renderBox.globalToLocal(details.globalPosition),
+                      offset: renderBox.globalToLocal(event.position),
                       paint: Paint()
                         ..color = isEraser ? Colors.white : selectedColor
                         ..strokeCap = StrokeCap.round
@@ -86,11 +93,15 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
                     ));
                   });
                 },
-                onPanStart: (details) {
+                onPointerMove: (event) {
+                  if (event.pointer != activePointerId) return;
+                  
+                  final RenderBox? renderBox = _canvasKey.currentContext?.findRenderObject() as RenderBox?;
+                  if (renderBox == null) return;
+                  
                   setState(() {
-                    RenderBox renderBox = context.findRenderObject() as RenderBox;
                     points.add(DrawingPoint(
-                      offset: renderBox.globalToLocal(details.globalPosition),
+                      offset: renderBox.globalToLocal(event.position),
                       paint: Paint()
                         ..color = isEraser ? Colors.white : selectedColor
                         ..strokeCap = StrokeCap.round
@@ -99,12 +110,24 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
                     ));
                   });
                 },
-                onPanEnd: (details) {
-                  setState(() {
-                    points.add(null);
-                  });
+                onPointerUp: (event) {
+                  if (event.pointer == activePointerId) {
+                    setState(() {
+                      activePointerId = null;
+                      points.add(null);
+                    });
+                  }
+                },
+                onPointerCancel: (event) {
+                  if (event.pointer == activePointerId) {
+                    setState(() {
+                      activePointerId = null;
+                      points.add(null);
+                    });
+                  }
                 },
                 child: CustomPaint(
+                  key: _canvasKey,
                   size: Size.infinite,
                   painter: DrawingPainter(pointsList: points),
                 ),

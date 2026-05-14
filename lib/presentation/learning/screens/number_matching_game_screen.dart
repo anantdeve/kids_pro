@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
+import '../widgets/success_overlay.dart';
 
 class NumberMatchingGameScreen extends StatefulWidget {
   const NumberMatchingGameScreen({super.key});
@@ -13,6 +14,7 @@ class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
   final Random random = Random();
   late int targetNumber;
   late List<int> options;
+  bool _isSuccess = false;
   final List<String> icons = ['❤️', '🚀', '⭐', '🍎', '🐱', '🦋'];
   final List<Color> iconColors = [
     const Color(0xFFFF7B9C), // Pink
@@ -151,6 +153,17 @@ class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
               ],
             ),
           ),
+
+          // Success Overlay
+          SuccessOverlay(
+            isVisible: _isSuccess,
+            onFinished: () {
+              setState(() {
+                _isSuccess = false;
+              });
+              _generateLevel();
+            },
+          ),
         ],
       ),
     );
@@ -196,7 +209,6 @@ class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
         }
       },
       builder: (context, candidateData, rejectedData) {
-        final isHighlighted = candidateData.isNotEmpty;
         return Container(
           width: 100,
           height: 140,
@@ -205,7 +217,7 @@ class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: isHighlighted ? const Color(0xFF5CD6A1) : Colors.white,
+              color: Colors.white,
               width: 3,
             ),
             boxShadow: [
@@ -254,17 +266,8 @@ class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
   }
 
   void _showSuccessEffect() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Correct! You did it! 🌟'),
-        duration: const Duration(milliseconds: 800),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: const Color(0xFF5CD6A1),
-      ),
-    );
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      if (mounted) _generateLevel();
+    setState(() {
+      _isSuccess = true;
     });
   }
 }
