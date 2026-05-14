@@ -34,7 +34,7 @@ class HomeScreen extends StatelessWidget {
           ),
           
           // Magical Background Elements - Using screen size for positioning
-          Positioned(top: screenHeight * 0.12, left: screenWidth * 0.08, child: const _FloatingIcon(icon: Icons.star_rounded, color: Color(0xFFFFD600), size: 30, duration: 3000)),
+          Positioned(top: screenHeight * 0.14, left: screenWidth * 0.08, child: const _FloatingIcon(icon: Icons.star_rounded, color: Color(0xFFFFD600), size: 30, duration: 3000)),
           Positioned(bottom: screenHeight * 0.25, right: screenWidth * 0.1, child: const _FloatingIcon(icon: Icons.auto_awesome_rounded, color: Color(0xFFB39DDB), size: 24, duration: 4000)),
           Positioned(top: screenHeight * 0.35, right: screenWidth * 0.15, child: const _FloatingIcon(icon: Icons.favorite_rounded, color: Color(0xFFF48FB1), size: 20, duration: 3500)),
           Positioned(bottom: screenHeight * 0.12, left: screenWidth * 0.2, child: const _FloatingIcon(icon: Icons.circle, color: Color(0xFF81D4FA), size: 15, duration: 5000)),
