@@ -1,4 +1,6 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 class ColorTheMagicScreen extends StatefulWidget {
@@ -12,8 +14,12 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
   List<DrawnLine> lines = [];
   DrawnLine? currentLine;
   Color selectedColor = const Color(0xFFFF4848); // Initial Red
-  double strokeWidth = 5.0;
-  String currentTool = 'pencil'; // 'pencil' or 'crayon'
+  double strokeWidth = 8.0;
+  String currentTool = 'pencil'; // 'pencil', 'crayon', or 'move'
+  final TransformationController _transformationController = TransformationController();
+  final GlobalKey _canvasKey = GlobalKey();
+  ui.Image? _maskImage;
+  bool _isLoadingMask = false;
 
   final List<ColoringObject> objects = [
     ColoringObject(name: 'BANANA', colorName: 'YELLOW', color: const Color(0xFFFFE000), imagePath: 'assets/images/banana_outline.png'),
@@ -38,6 +44,22 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
   void initState() {
     super.initState();
     currentObject = objects[0];
+    _loadMaskImage(currentObject.imagePath);
+  }
+
+  Future<void> _loadMaskImage(String assetPath) async {
+    setState(() => _isLoadingMask = true);
+    try {
+      final ByteData data = await rootBundle.load(assetPath);
+      final ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+      final ui.FrameInfo fi = await codec.getNextFrame();
+      setState(() {
+        _maskImage = fi.image;
+        _isLoadingMask = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingMask = false);
+    }
   }
 
   void _generateNewObject() {
@@ -49,24 +71,38 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
         nextIndex = (currentIndex + 1 + (DateTime.now().millisecond % (objects.length - 1))) % objects.length;
       } while (nextIndex == currentIndex);
       currentObject = objects[nextIndex];
+      _loadMaskImage(currentObject.imagePath);
     });
   }
 
   void _onPanStart(DragStartDetails details) {
+    if (currentTool == 'move' || _isLoadingMask) return;
+    
+    final RenderBox? renderBox = _canvasKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    
+    final Offset localPoint = renderBox.globalToLocal(details.globalPosition);
+    
     setState(() {
       currentLine = DrawnLine(
-        path: [details.localPosition],
+        path: [localPoint],
         color: selectedColor,
-        width: currentTool == 'pencil' ? 5.0 : 15.0,
+        width: strokeWidth,
         opacity: currentTool == 'pencil' ? 1.0 : 0.6,
       );
     });
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
-    if (currentLine == null) return;
+    if (currentLine == null || currentTool == 'move' || _isLoadingMask) return;
+    
+    final RenderBox? renderBox = _canvasKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    
+    final Offset localPoint = renderBox.globalToLocal(details.globalPosition);
+    
     setState(() {
-      currentLine!.path.add(details.localPosition);
+      currentLine!.path.add(localPoint);
     });
   }
 
@@ -142,12 +178,12 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
                                 ],
                               ).createShader(bounds),
                               child: const Text(
-                                'COLOR THE MAGIC',
+                                'OBJECT THE COLOR',
                                 style: TextStyle(
-                                  fontSize: 28,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,
-                                  letterSpacing: -0.5,
+                                  letterSpacing: -0.2,
                                 ),
                               ),
                             ),
@@ -172,62 +208,53 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
                   ),
                 ),
 
-                // Subtitle Tooltip
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: RichText(
-                    text: TextSpan(
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                      children: [
-                        const TextSpan(text: 'Color the ', style: TextStyle(color: Color(0xFFBBBBBB))),
-                        TextSpan(text: '${currentObject.name} ', style: TextStyle(color: currentObject.color)),
-                        const TextSpan(text: 'with ', style: TextStyle(color: Color(0xFFBBBBBB))),
-                        TextSpan(text: '${currentObject.colorName}!', style: TextStyle(color: currentObject.color)),
-                      ],
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 10),
 
-                // Canvas Area
+                // Canvas Area (Masked Drawing Engine)
                 Expanded(
-                  child: Stack(
-                    children: [
-                      // Outline
-                      Center(
-                        child: Opacity(
-                          opacity: 0.1,
-                          child: Image.asset(
-                            currentObject.imagePath,
-                            width: 300,
-                            fit: BoxFit.contain,
-                            key: ValueKey(currentObject.imagePath),
-                            errorBuilder: (c, e, s) => const Icon(Icons.bakery_dining_outlined, size: 200),
-                          ),
+                  child: InteractiveViewer(
+                    transformationController: _transformationController,
+                    maxScale: 4.0,
+                    minScale: 1.0,
+                    panEnabled: currentTool == 'move',
+                    scaleEnabled: currentTool == 'move',
+                    boundaryMargin: const EdgeInsets.all(200),
+                    child: IgnorePointer(
+                      ignoring: currentTool == 'move',
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onPanStart: _onPanStart,
+                        onPanUpdate: _onPanUpdate,
+                        onPanEnd: _onPanEnd,
+                        child: Stack(
+                          key: _canvasKey,
+                          alignment: Alignment.center,
+                          children: [
+                            // 1. Outline (Background)
+                            Opacity(
+                              opacity: 0.1,
+                              child: Image.asset(
+                                currentObject.imagePath,
+                                width: 300,
+                                fit: BoxFit.contain,
+                                key: ValueKey(currentObject.imagePath),
+                              ),
+                            ),
+                            
+                            // 2. Drawing Canvas (With Masking)
+                            Positioned.fill(
+                              child: CustomPaint(
+                                painter: DrawingPainter(
+                                  lines: lines, 
+                                  currentLine: currentLine,
+                                  maskImage: _maskImage,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      
-                      // Drawing Canvas
-                      Positioned.fill(
-                        child: GestureDetector(
-                          onPanStart: _onPanStart,
-                          onPanUpdate: _onPanUpdate,
-                          onPanEnd: _onPanEnd,
-                          child: CustomPaint(
-                            painter: DrawingPainter(lines: lines, currentLine: currentLine),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
 
@@ -251,8 +278,10 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
                       Row(
                         children: [
                           _buildToolButton('Pencil', Icons.edit_note, 'pencil'),
-                          const SizedBox(width: 20),
+                          const SizedBox(width: 12),
                           _buildToolButton('Crayon', Icons.brush, 'crayon'),
+                          const SizedBox(width: 12),
+                          _buildToolButton('Move', Icons.back_hand, 'move'),
                           const Spacer(),
                           TextButton.icon(
                             onPressed: _generateNewObject,
@@ -267,7 +296,33 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
+                      // Brush Size Slider
+                      Row(
+                        children: [
+                          Icon(Icons.circle, size: 8, color: Colors.grey[400]),
+                          Expanded(
+                            child: SliderTheme(
+                              data: SliderThemeData(
+                                trackHeight: 6,
+                                activeTrackColor: const Color(0xFFFF8B66),
+                                inactiveTrackColor: const Color(0xFFEEEEEE),
+                                thumbColor: Colors.white,
+                                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10, elevation: 3),
+                                overlayColor: const Color(0xFFFF8B66).withValues(alpha: 0.1),
+                              ),
+                              child: Slider(
+                                value: strokeWidth,
+                                min: 2.0,
+                                max: 30.0,
+                                onChanged: (value) => setState(() => strokeWidth = value),
+                              ),
+                            ),
+                          ),
+                          Icon(Icons.circle, size: 24, color: Colors.grey[400]),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
                       SizedBox(
                         height: 50,
                         child: ListView.separated(
@@ -376,17 +431,46 @@ class DrawnLine {
 class DrawingPainter extends CustomPainter {
   final List<DrawnLine> lines;
   final DrawnLine? currentLine;
+  final ui.Image? maskImage;
 
-  DrawingPainter({required this.lines, this.currentLine});
+  DrawingPainter({
+    required this.lines, 
+    this.currentLine,
+    this.maskImage,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (maskImage == null) return;
+
+    // Create a layer for masking
+    canvas.saveLayer(Rect.fromLTWH(0, 0, size.width, size.height), Paint());
+
+    // Draw all coloring lines
     for (var line in lines) {
       _drawLine(canvas, line);
     }
     if (currentLine != null) {
       _drawLine(canvas, currentLine!);
     }
+
+    // Apply the mask (Object boundary)
+    // This will keep only the parts of the lines that overlap the opaque object
+    final paint = Paint()..blendMode = ui.BlendMode.dstIn;
+    
+    // Calculate scaling to fit image in the 300x300 center area
+    const double targetDim = 300;
+    final double scale = targetDim / (maskImage!.width > maskImage!.height ? maskImage!.width : maskImage!.height);
+    final double dx = (size.width - maskImage!.width * scale) / 2;
+    final double dy = (size.height - maskImage!.height * scale) / 2;
+
+    canvas.save();
+    canvas.translate(dx, dy);
+    canvas.scale(scale);
+    canvas.drawImage(maskImage!, Offset.zero, paint);
+    canvas.restore();
+
+    canvas.restore();
   }
 
   void _drawLine(Canvas canvas, DrawnLine line) {

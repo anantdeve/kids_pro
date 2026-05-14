@@ -1,6 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
+import '../widgets/success_overlay.dart';
+
+class GameObject {
+  final int id;
+  final String icon;
+  final String category;
+  final Offset position;
+  final bool isTarget;
+  bool isTapped;
+
+  GameObject({
+    required this.id,
+    required this.icon,
+    required this.category,
+    required this.position,
+    required this.isTarget,
+    this.isTapped = false,
+  });
+}
 
 class CountAndTapGameScreen extends StatefulWidget {
   const CountAndTapGameScreen({super.key});
@@ -11,10 +30,25 @@ class CountAndTapGameScreen extends StatefulWidget {
 
 class _CountAndTapGameScreenState extends State<CountAndTapGameScreen> with TickerProviderStateMixin {
   final Random random = Random();
+  
+  // Game State
+  int level = 1;
   late int targetNumber;
   int currentCount = 0;
-  List<Offset> starPositions = [];
-  Set<int> tappedStarIndices = {};
+  List<GameObject> gameObjects = [];
+  bool _isSuccess = false;
+  
+  late String targetCategory;
+  late String targetIcon;
+
+  final Map<String, List<String>> _objectCategories = {
+    'STARS': ['⭐', '✨', '💫'],
+    'FRUITS': ['🍎', '🍌', '🍓', '🍊', '🍇', '🍐'],
+    'ANIMALS': ['🐶', '🐱', '🦁', '🐼', '🐰', '🐯'],
+    'BIRDS': ['🐥', '🐦', '🦉', '🦆', '🦢', '🦩'],
+    'OCEAN': ['🐙', '🐳', '🦀', '🐬', '🐢', '🐠'],
+    'VEHICLES': ['🚗', '🚀', '🚁', '🚂', '🚲', '🚜'],
+  };
 
   @override
   void initState() {
@@ -24,21 +58,34 @@ class _CountAndTapGameScreenState extends State<CountAndTapGameScreen> with Tick
 
   void _generateLevel() {
     setState(() {
-      targetNumber = random.nextInt(5) + 3; // 3 to 7 for better spacing
+      _isSuccess = false;
       currentCount = 0;
-      tappedStarIndices.clear();
       
+      // 1. Pick target category and icon
+      final categories = _objectCategories.keys.toList();
+      targetCategory = categories[random.nextInt(categories.length)];
+      final icons = _objectCategories[targetCategory]!;
+      targetIcon = icons[random.nextInt(icons.length)];
+
+      // 2. Set difficulty based on level
+      targetNumber = min(3 + (level ~/ 2), 10);
+      int distractorCount = min(2 + level, 12);
+      
+      // 3. Generate positions and objects
+      gameObjects = [];
       List<Offset> positions = [];
+      int totalObjects = targetNumber + distractorCount;
+      
       int attempts = 0;
-      while (positions.length < targetNumber + 2 && attempts < 100) {
+      while (positions.length < totalObjects && attempts < 200) {
         final newPos = Offset(
-          0.15 + random.nextDouble() * 0.7,
+          0.1 + random.nextDouble() * 0.8,
           0.1 + random.nextDouble() * 0.75,
         );
         
         bool tooClose = false;
         for (var p in positions) {
-          if ((p - newPos).distance < 0.2) {
+          if ((p - newPos).distance < 0.18) {
             tooClose = true;
             break;
           }
@@ -49,39 +96,61 @@ class _CountAndTapGameScreenState extends State<CountAndTapGameScreen> with Tick
         }
         attempts++;
       }
-      starPositions = positions;
+
+      // 4. Create target objects
+      for (int i = 0; i < targetNumber; i++) {
+        if (i < positions.length) {
+          gameObjects.add(GameObject(
+            id: i,
+            icon: targetIcon,
+            category: targetCategory,
+            position: positions[i],
+            isTarget: true,
+          ));
+        }
+      }
+
+      // 5. Create distractor objects
+      for (int i = targetNumber; i < positions.length; i++) {
+        String otherCat;
+        do {
+          otherCat = categories[random.nextInt(categories.length)];
+        } while (otherCat == targetCategory);
+        
+        final otherIcons = _objectCategories[otherCat]!;
+        gameObjects.add(GameObject(
+          id: i,
+          icon: otherIcons[random.nextInt(otherIcons.length)],
+          category: otherCat,
+          position: positions[i],
+          isTarget: false,
+        ));
+      }
+      
+      gameObjects.shuffle();
     });
   }
 
-  void _onStarTap(int index) {
-    if (tappedStarIndices.contains(index)) return;
-    if (currentCount >= targetNumber) return;
+  void _onObjectTap(GameObject obj) {
+    if (obj.isTapped || _isSuccess) return;
 
-    setState(() {
-      tappedStarIndices.add(index);
-      currentCount++;
-    });
+    if (obj.isTarget) {
+      setState(() {
+        obj.isTapped = true;
+        currentCount++;
+      });
 
-    if (currentCount == targetNumber) {
-      _showSuccessEffect();
+      if (currentCount == targetNumber) {
+        _showSuccessEffect();
+      }
+    } else {
+      // Wrong tap handled by widget's shake
     }
   }
 
   void _showSuccessEffect() {
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Great counting! 🌟'),
-          duration: const Duration(milliseconds: 1000),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: const Color(0xFFFF7B9C),
-        ),
-      );
-      Future.delayed(const Duration(milliseconds: 1500), () {
-        if (mounted) _generateLevel();
-      });
+    setState(() {
+      _isSuccess = true;
     });
   }
 
@@ -106,125 +175,30 @@ class _CountAndTapGameScreenState extends State<CountAndTapGameScreen> with Tick
           SafeArea(
             child: Column(
               children: [
-                // Header
+                _buildHeader(),
+                
+                // Progress Bar
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: IconButton(
-                          onPressed: () => context.pop(),
-                          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Tap the stars to count!',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            ShaderMask(
-                              shaderCallback: (bounds) => const LinearGradient(
-                                colors: [
-                                  Color(0xFFFF7B9C),
-                                  Color(0xFFFFB6C1),
-                                ],
-                              ).createShader(bounds),
-                              child: const Text(
-                                'Count and Tap',
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                  child: _buildProgressBar(),
                 ),
 
-                const SizedBox(height: 20),
-
-                // Progress Tracker
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFFF7B9C).withValues(alpha: 0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        'TAP $targetNumber STARS',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.grey[400],
-                          letterSpacing: 1,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        '$currentCount / $targetNumber',
-                        style: const TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFFFF7B9C),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Star Field
+                // Game Field
                 Expanded(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       return Stack(
-                        children: starPositions.asMap().entries.map((entry) {
-                          int idx = entry.key;
-                          Offset pos = entry.value;
-                          bool isTapped = tappedStarIndices.contains(idx);
-
+                        children: gameObjects.map((obj) {
                           return Positioned(
-                            left: pos.dx * constraints.maxWidth - 40,
-                            top: pos.dy * constraints.maxHeight - 40,
-                            child: _FloatingStar(
-                              isTapped: isTapped,
-                              tappedIndex: isTapped 
-                                  ? List.from(tappedStarIndices).indexOf(idx) + 1 
+                            left: obj.position.dx * constraints.maxWidth - 45,
+                            top: obj.position.dy * constraints.maxHeight - 45,
+                            child: _GameObjectWidget(
+                              key: ValueKey('obj_${obj.id}_${level}'),
+                              object: obj,
+                              onTap: () => _onObjectTap(obj),
+                              tappedIndex: obj.isTarget && obj.isTapped 
+                                  ? gameObjects.where((o) => o.isTarget && o.isTapped).toList().indexOf(obj) + 1 
                                   : null,
-                              onTap: () => _onStarTap(idx),
-                              delay: idx * 200, // Staggered animation
                             ),
                           );
                         }).toList(),
@@ -235,139 +209,248 @@ class _CountAndTapGameScreenState extends State<CountAndTapGameScreen> with Tick
               ],
             ),
           ),
+
+          // Success Overlay
+          SuccessOverlay(
+            isVisible: _isSuccess,
+            onFinished: () {
+              setState(() {
+                level++;
+                _generateLevel();
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: IconButton(
+              onPressed: () => context.pop(),
+              icon: const Icon(Icons.arrow_back, color: Colors.black87),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Level $level',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[400],
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1,
+                  ),
+                ),
+                Text(
+                  'Tap $targetNumber $targetCategory!',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF2D3142),
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressBar() {
+    return Container(
+      height: 45,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Text(
+            '$targetIcon',
+            style: const TextStyle(fontSize: 24),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Stack(
+              children: [
+                Container(
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  width: (currentCount / targetNumber) * 200, // Roughly scaled
+                  height: 12,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF67E1F5), Color(0xFFB497FF)],
+                    ),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            '$currentCount / $targetNumber',
+            style: const TextStyle(
+              fontWeight: FontWeight.w900,
+              color: Color(0xFFB497FF),
+              fontSize: 18,
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _FloatingStar extends StatefulWidget {
-  final bool isTapped;
-  final int? tappedIndex;
+class _GameObjectWidget extends StatefulWidget {
+  final GameObject object;
   final VoidCallback onTap;
-  final int delay;
+  final int? tappedIndex;
 
-  const _FloatingStar({
-    required this.isTapped,
-    this.tappedIndex,
+  const _GameObjectWidget({
+    super.key,
+    required this.object,
     required this.onTap,
-    required this.delay,
+    this.tappedIndex,
   });
 
   @override
-  State<_FloatingStar> createState() => _FloatingStarState();
+  State<_GameObjectWidget> createState() => _GameObjectWidgetState();
 }
 
-class _FloatingStarState extends State<_FloatingStar> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _horizontalOffset;
-  late Animation<double> _verticalOffset;
-  late Animation<double> _rotation;
-  late Animation<double> _scale;
+class _GameObjectWidgetState extends State<_GameObjectWidget> with TickerProviderStateMixin {
+  late AnimationController _floatController;
+  late AnimationController _shakeController;
+  late Animation<double> _floatY;
+  late Animation<double> _shakeX;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    
+    // Floating Animation
+    _floatController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 3000 + Random().nextInt(2000)),
+      duration: Duration(milliseconds: 2000 + Random().nextInt(1000)),
+    )..repeat(reverse: true);
+    
+    _floatY = Tween<double>(begin: -10, end: 10).animate(
+      CurvedAnimation(parent: _floatController, curve: Curves.easeInOutSine),
     );
 
-    // Multi-directional orbital movement
-    _horizontalOffset = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: 0, end: 15).chain(CurveTween(curve: Curves.easeInOutSine)), weight: 50),
-      TweenSequenceItem(tween: Tween<double>(begin: 15, end: 0).chain(CurveTween(curve: Curves.easeInOutSine)), weight: 50),
-    ]).animate(_controller);
-
-    _verticalOffset = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: -10, end: 10).chain(CurveTween(curve: Curves.easeInOutSine)), weight: 50),
-      TweenSequenceItem(tween: Tween<double>(begin: 10, end: -10).chain(CurveTween(curve: Curves.easeInOutSine)), weight: 50),
-    ]).animate(_controller);
-
-    _rotation = Tween<double>(begin: -0.2, end: 0.2).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
+    // Shake Animation (for wrong taps)
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
     );
+    
+    _shakeX = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 10.0), weight: 25),
+      TweenSequenceItem(tween: Tween(begin: 10.0, end: -10.0), weight: 50),
+      TweenSequenceItem(tween: Tween(begin: -10.0, end: 0.0), weight: 25),
+    ]).animate(_shakeController);
+  }
 
-    _scale = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.1).chain(CurveTween(curve: Curves.easeInOutSine)), weight: 50),
-      TweenSequenceItem(tween: Tween<double>(begin: 1.1, end: 1.0).chain(CurveTween(curve: Curves.easeInOutSine)), weight: 50),
-    ]).animate(_controller);
-
-    Future.delayed(Duration(milliseconds: widget.delay), () {
-      if (mounted) _controller.repeat(reverse: true);
-    });
+  void _handleTap() {
+    if (widget.object.isTarget) {
+      widget.onTap();
+    } else {
+      _shakeController.forward(from: 0);
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _floatController.dispose();
+    _shakeController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _controller,
+      animation: Listenable.merge([_floatController, _shakeController]),
       builder: (context, child) {
         return Transform.translate(
-          offset: widget.isTapped 
-              ? Offset.zero 
-              : Offset(_horizontalOffset.value, _verticalOffset.value),
-          child: Transform.rotate(
-            angle: widget.isTapped ? 0 : _rotation.value,
-            child: Transform.scale(
-              scale: widget.isTapped ? 1.0 : _scale.value,
-              child: GestureDetector(
-                onTap: widget.onTap,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.bounceOut,
-                  width: widget.isTapped ? 100 : 80,
-                  height: widget.isTapped ? 100 : 80,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: widget.isTapped 
-                        ? const Color(0xFFFFD166) 
-                        : Colors.white.withValues(alpha: 0.8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: (widget.isTapped ? const Color(0xFFFFD166) : Colors.white)
-                            .withValues(alpha: 0.3),
-                        blurRadius: widget.isTapped ? 20 : 10,
-                        spreadRadius: widget.isTapped ? 5 : 0,
-                      ),
-                    ],
+          offset: Offset(_shakeX.value, _floatY.value),
+          child: GestureDetector(
+            onTap: _handleTap,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.elasticOut,
+              width: widget.object.isTapped ? 100 : 90,
+              height: widget.object.isTapped ? 100 : 90,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: widget.object.isTapped 
+                    ? const Color(0xFFFFD166) 
+                    : Colors.white.withValues(alpha: 0.7),
+                boxShadow: [
+                  BoxShadow(
+                    color: (widget.object.isTapped ? const Color(0xFFFFD166) : Colors.white)
+                        .withValues(alpha: 0.2),
+                    blurRadius: 15,
                   ),
-                  alignment: Alignment.center,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Text(
-                        '⭐',
-                        style: TextStyle(
-                          fontSize: widget.isTapped ? 50 : 40,
-                          color: widget.isTapped ? Colors.white : Colors.amber.shade200,
-                        ),
-                      ),
-                      if (widget.isTapped)
-                        Text(
-                          '${widget.tappedIndex}',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                blurRadius: 4,
-                                color: Colors.black26,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
+                ],
+              ),
+              alignment: Alignment.center,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Text(
+                    widget.object.icon,
+                    style: TextStyle(
+                      fontSize: widget.object.isTapped ? 55 : 45,
+                    ),
                   ),
-                ),
+                  if (widget.object.isTapped)
+                    Text(
+                      '${widget.tappedIndex}',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        shadows: [Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+                      ),
+                    ),
+                ],
               ),
             ),
           ),

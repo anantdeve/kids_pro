@@ -54,6 +54,7 @@ class HomeScreen extends StatelessWidget {
                   const FeaturedBanner(),
                   const SizedBox(height: 24),
                   _buildGrid(context, isTablet, screenWidth),
+                  const SizedBox(height: 100), // Padding for Curved Navigation Bar
                 ],
               ),
             ),
