@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/providers/user_provider.dart';
 
-class PianoScreen extends StatefulWidget {
+class PianoScreen extends ConsumerStatefulWidget {
   const PianoScreen({super.key});
 
   @override
-  State<PianoScreen> createState() => _PianoScreenState();
+  ConsumerState<PianoScreen> createState() => _PianoScreenState();
 }
 
-class _PianoScreenState extends State<PianoScreen> {
+class _PianoScreenState extends ConsumerState<PianoScreen> {
   final List<AudioPlayer> _players = List.generate(8, (_) => AudioPlayer());
   int _currentPlayerIndex = 0;
   
@@ -46,6 +48,9 @@ class _PianoScreenState extends State<PianoScreen> {
     
     await player.stop();
     await player.play(AssetSource('audio/piano/$note'));
+
+    // Award dynamic points for playing music
+    ref.read(userProvider.notifier).addPoints('Music', 1);
     
     Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted && _activeNote == note) {

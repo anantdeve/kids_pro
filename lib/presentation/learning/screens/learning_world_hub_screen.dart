@@ -148,7 +148,7 @@ class LearningWorldHubScreen extends StatelessWidget {
                         },
                         child: cards[index],
                       );
-                    },
+                    }, 
                   ),
                 ),
               ],

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math';
 import '../widgets/success_overlay.dart';
+import '../../../core/providers/user_provider.dart';
 
-class LookAndMatchGameScreen extends StatefulWidget {
+class LookAndMatchGameScreen extends ConsumerStatefulWidget {
   const LookAndMatchGameScreen({super.key});
 
   @override
-  State<LookAndMatchGameScreen> createState() => _LookAndMatchGameScreenState();
+  ConsumerState<LookAndMatchGameScreen> createState() => _LookAndMatchGameScreenState();
 }
 
-class _LookAndMatchGameScreenState extends State<LookAndMatchGameScreen> {
+class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen> {
   late List<MatchItem> leftItems;
   late List<MatchItem> rightItems;
 
@@ -146,6 +148,8 @@ class _LookAndMatchGameScreenState extends State<LookAndMatchGameScreen> {
     setState(() {
       _isSuccess = true;
     });
+    // Add points for Learning
+    ref.read(userProvider.notifier).addPoints('Learning', 50);
   }
 
   @override

@@ -5,6 +5,8 @@ class AppColors {
   static const Color orangePrimary = Color(0xFFFF7A59); // Used for "Hi, Nothing!" and card titles
   static const Color orangeLight = Color(0xFFFFE8E0);
   static const Color blueLight = Color(0xFFE0F4FF);
+  static const Color softSky = Color(0xFFF0F9FF);
+  static const Color pinkPrimary = Color(0xFFEF476F);
   
   // Gradients
   static const LinearGradient magicBookGradient = LinearGradient(

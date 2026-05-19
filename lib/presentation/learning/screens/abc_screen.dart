@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../domain/usecases/get_learning_items_usecase.dart';
 import '../viewmodels/learning_viewmodel.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/providers/user_provider.dart';
 
 class AbcScreen extends ConsumerWidget {
   const AbcScreen({super.key});
@@ -36,11 +37,15 @@ class AbcScreen extends ConsumerWidget {
               return GestureDetector(
                 onTap: () {
                   audioPlayer.playAudio(item.audioUrl);
+                  
+                  // Award dynamic points
+                  ref.read(userProvider.notifier).addPoints('Learning', 5);
+
                   // Show some animation feedback
                   ScaffoldMessenger.of(context).clearSnackBars();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('${item.title} for ${item.subtitle}!'),
+                      content: Text('${item.title} for ${item.subtitle}! (+5 Stars)'),
                       duration: const Duration(seconds: 1),
                       backgroundColor: AppColors.primaryGreen,
                     ),

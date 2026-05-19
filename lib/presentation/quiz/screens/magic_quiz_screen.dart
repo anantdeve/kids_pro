@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:async';
+import '../../../core/providers/user_provider.dart';
 
-class MagicQuizScreen extends StatefulWidget {
+class MagicQuizScreen extends ConsumerStatefulWidget {
   final int standard;
   const MagicQuizScreen({super.key, required this.standard});
 
   @override
-  State<MagicQuizScreen> createState() => _MagicQuizScreenState();
+  ConsumerState<MagicQuizScreen> createState() => _MagicQuizScreenState();
 }
 
-class _MagicQuizScreenState extends State<MagicQuizScreen> {
+class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
   late List<VisualQuestion> questions;
   int currentQuestionIndex = 0;
   int score = 0;
@@ -72,6 +74,7 @@ class _MagicQuizScreenState extends State<MagicQuizScreen> {
     });
 
     Future.delayed(const Duration(milliseconds: 1500), () {
+      if (!mounted) return;
       if (currentQuestionIndex < questions.length - 1) {
         setState(() {
           currentQuestionIndex++;
@@ -80,19 +83,26 @@ class _MagicQuizScreenState extends State<MagicQuizScreen> {
           hasAnswered = false;
         });
       } else {
-        _showResult();
+        _onQuizFinished();
       }
     });
   }
 
-  void _showResult() {
+  void _onQuizFinished() {
+    // Add points for Quiz
+    final earnedPoints = score * 20;
+    ref.read(userProvider.notifier).addPoints('Quiz', earnedPoints);
+    _showResult(earnedPoints);
+  }
+
+  void _showResult(int earnedPoints) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: AlertDialog(
-          backgroundColor: Colors.white.withValues(alpha: 0.9),
+          backgroundColor: Colors.white.withOpacity(0.9),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -101,9 +111,11 @@ class _MagicQuizScreenState extends State<MagicQuizScreen> {
               const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(color: const Color(0xFFE8F5E9), shape: BoxShape.circle),
-                child: Text('🌟', style: const TextStyle(fontSize: 50)),
+                decoration: const BoxDecoration(color: Color(0xFFE8F5E9), shape: BoxShape.circle),
+                child: const Text('🌟', style: TextStyle(fontSize: 50)),
               ),
+              const SizedBox(height: 10),
+              Text('+$earnedPoints Stars!', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.orange)),
               const SizedBox(height: 20),
               Text('Your Score', style: TextStyle(fontSize: 18, color: Colors.grey[600], fontWeight: FontWeight.w600)),
               Text('$score / ${questions.length}', style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: Color(0xFF4CAF50))),
@@ -138,8 +150,8 @@ class _MagicQuizScreenState extends State<MagicQuizScreen> {
           Positioned.fill(
             child: Container(color: const Color(0xFFFFF9F5)),
           ),
-          _buildBlurredBlob(300, const Color(0xFFFFD1E1).withValues(alpha: 0.4), top: 100, left: -50),
-          _buildBlurredBlob(350, const Color(0xFFE1F5FE).withValues(alpha: 0.5), top: -50, right: -50),
+          _buildBlurredBlob(300, const Color(0xFFFFD1E1).withOpacity(0.4), top: 100, left: -50),
+          _buildBlurredBlob(350, const Color(0xFFE1F5FE).withOpacity(0.5), top: -50, right: -50),
 
           SafeArea(
             child: Column(
@@ -164,7 +176,7 @@ class _MagicQuizScreenState extends State<MagicQuizScreen> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.6),
+                color: Colors.white.withOpacity(0.6),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.close, color: Color(0xFF2D3142), size: 24),
@@ -184,7 +196,7 @@ class _MagicQuizScreenState extends State<MagicQuizScreen> {
                   borderRadius: BorderRadius.circular(10),
                   child: LinearProgressIndicator(
                     value: (currentQuestionIndex + 1) / questions.length,
-                    backgroundColor: Colors.grey.withValues(alpha: 0.1),
+                    backgroundColor: Colors.grey.withOpacity(0.1),
                     valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4FC3F7)),
                     minHeight: 8,
                   ),
@@ -208,10 +220,10 @@ class _MagicQuizScreenState extends State<MagicQuizScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(30),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.8),
+              color: Colors.white.withOpacity(0.8),
               borderRadius: BorderRadius.circular(40),
               boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 10)),
+                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10)),
               ],
             ),
             child: Column(
@@ -260,7 +272,7 @@ class _MagicQuizScreenState extends State<MagicQuizScreen> {
                         width: 4,
                       ),
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 15, offset: const Offset(0, 8)),
+                        BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 15, offset: const Offset(0, 8)),
                       ],
                     ),
                     child: Center(

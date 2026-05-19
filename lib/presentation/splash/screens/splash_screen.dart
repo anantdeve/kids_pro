@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
     // 3. Gradient Shimmer Animation for Text
     _gradientController = AnimationController(
-      vsync: this,
+      vsync: this, 
       duration: const Duration(seconds: 3),
     )..repeat();
 
