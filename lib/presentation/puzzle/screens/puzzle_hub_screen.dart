@@ -3,6 +3,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../music/widgets/music_activity_card.dart';
 import 'shape_matcher_screen.dart';
 import 'animal_jigsaw_list_screen.dart';
+import 'blockbuster_puzzle_screen.dart';
+import 'arrow_escape_difficulty_screen.dart';
 
 class PuzzleHubScreen extends StatelessWidget {
   const PuzzleHubScreen({super.key});
@@ -42,11 +44,13 @@ class PuzzleHubScreen extends StatelessWidget {
                 // Puzzle Activity Cards
                 Expanded(
                   child: ListView.builder(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isTablet ? screenWidth * 0.08 : 20.0,
-                      vertical: 10.0,
+                    padding: EdgeInsets.only(
+                      left: isTablet ? screenWidth * 0.08 : 20.0,
+                      right: isTablet ? screenWidth * 0.08 : 20.0,
+                      top: 10.0,
+                      bottom: 150.0, // Extra padding to allow scrolling past the bottom bar
                     ),
-                    itemCount: 2,
+                    itemCount: 4,
                     itemBuilder: (context, index) {
                       final List<Widget> cards = [
                         MusicActivityCard(
@@ -73,6 +77,30 @@ class PuzzleHubScreen extends StatelessWidget {
                             );
                           },
                         ),
+                        MusicActivityCard(
+                          title: 'BlockBuster 🧱',
+                          subtitle: 'Place the blocks to clear rows!',
+                          imagePath: 'assets/images/number_puzzle.png',
+                          themeColor: Colors.blueAccent,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const BlockBusterPuzzleScreen()),
+                            );
+                          },
+                        ),
+                        MusicActivityCard(
+                          title: 'Arrow Escape 🚀',
+                          subtitle: 'Tap to free the blocks!',
+                          imagePath: 'assets/images/number_puzzle.png',
+                          themeColor: Colors.purpleAccent,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const ArrowEscapeDifficultyScreen()),
+                            );
+                          },
+                        ),
                       ];
 
                       return TweenAnimationBuilder<double>(
@@ -93,7 +121,6 @@ class PuzzleHubScreen extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(height: 100), // Bottom padding
               ],
             ),
           ),

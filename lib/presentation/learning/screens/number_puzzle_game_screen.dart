@@ -104,22 +104,22 @@ class _NumberPuzzleGameScreenState extends State<NumberPuzzleGameScreen> with Ti
           Positioned(
             top: 100,
             left: -50,
-            child: MagicalBlob(size: 300, color: const Color(0xFFFFD1E1).withOpacity(0.4)),
+            child: MagicalBlob(size: 300, color: const Color(0xFFFFD1E1).withValues(alpha: 0.4)),
           ),
           Positioned(
             top: -50,
             right: -50,
-            child: MagicalBlob(size: 350, color: const Color(0xFFE1F5FE).withOpacity(0.5)),
+            child: MagicalBlob(size: 350, color: const Color(0xFFE1F5FE).withValues(alpha: 0.5)),
           ),
           Positioned(
             bottom: 100,
             right: -80,
-            child: MagicalBlob(size: 400, color: const Color(0xFFF3E5F5).withOpacity(0.4)),
+            child: MagicalBlob(size: 400, color: const Color(0xFFF3E5F5).withValues(alpha: 0.4)),
           ),
           Positioned(
             bottom: -50,
             left: -20,
-            child: MagicalBlob(size: 300, color: const Color(0xFFFFF9C4).withOpacity(0.3)),
+            child: MagicalBlob(size: 300, color: const Color(0xFFFFF9C4).withValues(alpha: 0.3)),
           ),
 
           SafeArea(
@@ -334,18 +334,4 @@ class _NumberPuzzleGameScreenState extends State<NumberPuzzleGameScreen> with Ti
     );
   }
 
-  Widget _buildBlurredBlob(double size, Color color) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-        child: Container(color: Colors.transparent),
-      ),
-    );
-  }
 }
