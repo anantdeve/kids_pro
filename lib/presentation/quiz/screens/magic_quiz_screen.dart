@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:async';
 import '../../../core/providers/user_provider.dart';
+import '../../../core/widgets/magical_blob.dart';
 
 class MagicQuizScreen extends ConsumerStatefulWidget {
   final int standard;
@@ -150,8 +151,8 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
           Positioned.fill(
             child: Container(color: const Color(0xFFFFF9F5)),
           ),
-          _buildBlurredBlob(300, const Color(0xFFFFD1E1).withOpacity(0.4), top: 100, left: -50),
-          _buildBlurredBlob(350, const Color(0xFFE1F5FE).withOpacity(0.5), top: -50, right: -50),
+          MagicalBlob(size: 300, color: const Color(0xFFFFD1E1).withOpacity(0.4), top: 100, left: -50),
+          MagicalBlob(size: 350, color: const Color(0xFFE1F5FE).withOpacity(0.5), top: -50, right: -50),
 
           SafeArea(
             child: Column(
@@ -291,23 +292,6 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
     );
   }
 
-  Widget _buildBlurredBlob(double size, Color color, {double? top, double? left, double? right, double? bottom}) {
-    return Positioned(
-      top: top,
-      left: left,
-      right: right,
-      bottom: bottom,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-          child: Container(color: Colors.transparent),
-        ),
-      ),
-    );
-  }
 }
 
 class VisualQuestion {

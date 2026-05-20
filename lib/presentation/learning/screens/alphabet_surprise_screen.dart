@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math';
 import '../widgets/success_overlay.dart';
+import '../../../core/widgets/magical_blob.dart';
 
 class AlphabetSurpriseScreen extends StatefulWidget {
   const AlphabetSurpriseScreen({super.key});
@@ -138,10 +139,10 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
           Positioned.fill(
             child: Container(color: const Color(0xFFFFF9F5)),
           ),
-          _buildBlurredBlob(300, const Color(0xFFFFD1E1).withValues(alpha: 0.4), top: 100, left: -50),
-          _buildBlurredBlob(350, const Color(0xFFE1F5FE).withValues(alpha: 0.5), top: -50, right: -50),
-          _buildBlurredBlob(400, const Color(0xFFF3E5F5).withValues(alpha: 0.4), bottom: 100, right: -80),
-          _buildBlurredBlob(300, const Color(0xFFFFF9C4).withValues(alpha: 0.3), bottom: -50, left: -20),
+          MagicalBlob(size: 300, color: const Color(0xFFFFD1E1).withOpacity(0.4), top: 100, left: -50),
+          MagicalBlob(size: 350, color: const Color(0xFFE1F5FE).withOpacity(0.5), top: -50, right: -50),
+          MagicalBlob(size: 400, color: const Color(0xFFF3E5F5).withOpacity(0.4), bottom: 100, right: -80),
+          MagicalBlob(size: 300, color: const Color(0xFFFFF9C4).withOpacity(0.3), bottom: -50, left: -20),
 
           SafeArea(
             child: Column(
@@ -519,24 +520,4 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
     });
   }
 
-  Widget _buildBlurredBlob(double size, Color color, {double? top, double? left, double? right, double? bottom}) {
-    return Positioned(
-      top: top,
-      left: left,
-      right: right,
-      bottom: bottom,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-        ),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-          child: Container(color: Colors.transparent),
-        ),
-      ),
-    );
-  }
 }
