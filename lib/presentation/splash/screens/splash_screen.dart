@@ -93,9 +93,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFFE0F7FA), // Light Cyan
-                    Color(0xFFF3E5F5), // Light Purple
-                    Color(0xFFFFF9C4), // Light Yellow
+                    Colors.white,
+                    Color(0xFFFFD6E5), // Soft Pink
+                    Color(0xFFFFB3C6), // Noticeable Pink
                   ],
                 ),
               ),
@@ -122,9 +122,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
+                                  color: Colors.white.withValues(alpha: 0.8),
                                   blurRadius: 30,
-                                  offset: const Offset(0, 20),
+                                  offset: const Offset(0, 15),
                                 ),
                               ],
                             ),
