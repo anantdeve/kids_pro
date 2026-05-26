@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -55,9 +56,18 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     _mainController.forward();
 
     // Navigate to home after animation sequence
-    Future.delayed(const Duration(milliseconds: 4500), () {
+    Future.delayed(const Duration(milliseconds: 4500), () async {
+      if (!mounted) return;
+      
+      final prefs = await SharedPreferences.getInstance();
+      final hasStandard = prefs.containsKey('child_standard_selection');
+      
       if (mounted) {
-        context.go('/home');
+        if (hasStandard) {
+          context.go('/home');
+        } else {
+          context.go('/standard-selection');
+        }
       }
     });
   }

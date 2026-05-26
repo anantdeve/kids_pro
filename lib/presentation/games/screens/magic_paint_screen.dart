@@ -1,19 +1,23 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/providers/child_standard_provider.dart';
+import '../../../../domain/entities/child_standard.dart';
 
-class MagicPaintScreen extends StatefulWidget {
+class MagicPaintScreen extends ConsumerStatefulWidget {
   const MagicPaintScreen({super.key});
 
   @override
-  State<MagicPaintScreen> createState() => _MagicPaintScreenState();
+  ConsumerState<MagicPaintScreen> createState() => _MagicPaintScreenState();
 }
 
-class _MagicPaintScreenState extends State<MagicPaintScreen> {
+class _MagicPaintScreenState extends ConsumerState<MagicPaintScreen> {
   List<DrawingPoint?> points = [];
   Color selectedColor = Colors.red;
   double strokeWidth = 5.0;
+  double opacity = 1.0;
   bool isEraser = false;
   final GlobalKey _canvasKey = GlobalKey();
   int? activePointerId;
@@ -86,7 +90,7 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
                     points.add(DrawingPoint(
                       offset: renderBox.globalToLocal(event.position),
                       paint: Paint()
-                        ..color = isEraser ? Colors.white : selectedColor
+                        ..color = (isEraser ? Colors.white : selectedColor).withValues(alpha: opacity)
                         ..strokeCap = StrokeCap.round
                         ..strokeWidth = strokeWidth
                         ..isAntiAlias = true,
@@ -103,7 +107,7 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
                     points.add(DrawingPoint(
                       offset: renderBox.globalToLocal(event.position),
                       paint: Paint()
-                        ..color = isEraser ? Colors.white : selectedColor
+                        ..color = (isEraser ? Colors.white : selectedColor).withValues(alpha: opacity)
                         ..strokeCap = StrokeCap.round
                         ..strokeWidth = strokeWidth
                         ..isAntiAlias = true,
@@ -133,7 +137,7 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
                 ),
               ),
             ),
-            _buildBottomControls(),
+            _buildBottomControls(ref.watch(childStandardProvider).value ?? ChildStandard.standard1),
           ],
         ),
       ),
@@ -186,7 +190,13 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
     );
   }
 
-  Widget _buildBottomControls() {
+  Widget _buildBottomControls(ChildStandard standard) {
+    bool isStandard1 = standard == ChildStandard.standard1;
+    bool isStandard3 = standard == ChildStandard.standard3;
+    
+    // Standard 1: Basic colors only
+    List<Color> availableColors = isStandard1 ? colors.take(4).toList() : colors;
+
     return Container(
       margin: const EdgeInsets.all(16.0),
       padding: const EdgeInsets.all(20.0),
@@ -207,40 +217,44 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
           // Tools and Sizes
           Row(
             children: [
-              // Pencil/Wand Toggle
-              Flexible(
-                flex: 3,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF1EB),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        _buildToolButton(Icons.edit_rounded, !isEraser, () {
-                          setState(() => isEraser = false);
-                        }),
-                        _buildToolButton(Icons.auto_fix_high_rounded, isEraser, () {
-                          setState(() => isEraser = true);
-                        }),
-                      ],
+              // Pencil/Wand Toggle (Hide wand for standard 1)
+              if (!isStandard1)
+                Flexible(
+                  flex: 3,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF1EB),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          _buildToolButton(Icons.edit_rounded, !isEraser, () {
+                            setState(() => isEraser = false);
+                          }),
+                          _buildToolButton(Icons.auto_fix_high_rounded, isEraser, () {
+                            setState(() => isEraser = true);
+                          }),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const Spacer(),
-              // Size Selection
+              if (!isStandard1) const Spacer(),
+              // Size Selection (Standard 1 only has thick sizes)
               Flexible(
-                flex: 4,
+                flex: isStandard1 ? 7 : 4,
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerRight,
+                  alignment: isStandard1 ? Alignment.center : Alignment.centerRight,
                   child: Row(
-                    children: sizes.keys.map((s) => _buildSizeButton(s)).toList(),
+                    children: sizes.keys
+                        .where((s) => !isStandard1 || (s == 'L' || s == 'XL'))
+                        .map((s) => _buildSizeButton(s, standard))
+                        .toList(),
                   ),
                 ),
               ),
@@ -251,9 +265,31 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: colors.map((c) => _buildColorButton(c)).toList(),
+              children: availableColors.map((c) => _buildColorButton(c, standard)).toList(),
             ),
           ),
+          // Standard 3: Advanced Tools (Opacity)
+          if (isStandard3) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Icon(Icons.opacity_rounded, color: Colors.grey, size: 20),
+                Expanded(
+                  child: Slider(
+                    value: opacity,
+                    min: 0.1,
+                    max: 1.0,
+                    activeColor: selectedColor,
+                    onChanged: (val) {
+                      setState(() {
+                        opacity = val;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -285,8 +321,11 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
     );
   }
 
-  Widget _buildSizeButton(String label) {
+  Widget _buildSizeButton(String label, ChildStandard standard) {
     bool isSelected = selectedSize == label;
+    bool isStandard1 = standard == ChildStandard.standard1;
+    double size = isStandard1 ? 50.0 : 40.0; // Larger for standard 1
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -297,8 +336,8 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Container(
-          width: 40,
-          height: 40,
+          width: size,
+          height: size,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
@@ -312,7 +351,7 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
             style: TextStyle(
               color: isSelected ? const Color(0xFFFF7A59) : Colors.grey,
               fontWeight: FontWeight.bold,
-              fontSize: 14,
+              fontSize: isStandard1 ? 18 : 14,
             ),
           ),
         ),
@@ -320,8 +359,13 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
     );
   }
 
-  Widget _buildColorButton(Color color) {
+  Widget _buildColorButton(Color color, ChildStandard standard) {
     bool isSelected = selectedColor == color && !isEraser;
+    bool isStandard1 = standard == ChildStandard.standard1;
+    bool isStandard3 = standard == ChildStandard.standard3;
+    
+    double size = isStandard1 ? 48.0 : (isStandard3 ? 32.0 : 38.0); // Adjust sizes
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -332,10 +376,10 @@ class _MagicPaintScreenState extends State<MagicPaintScreen> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6.0),
         child: Container(
-          width: 38,
-          height: 38,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
-            color: color,
+            color: color.withValues(alpha: opacity),
             shape: BoxShape.circle,
             border: Border.all(
               color: isSelected ? Colors.black.withValues(alpha: 0.2) : Colors.transparent,
