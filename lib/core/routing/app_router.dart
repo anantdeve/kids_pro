@@ -98,8 +98,9 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/magic-quiz',
       builder: (context, state) {
-        final standard = int.parse(state.uri.queryParameters['standard'] ?? '1');
-        return MagicQuizScreen(standard: standard);
+        final categoryId = int.parse(state.uri.queryParameters['categoryId'] ?? '27');
+        final difficulty = state.uri.queryParameters['difficulty'] ?? 'easy';
+        return MagicQuizScreen(categoryId: categoryId, difficulty: difficulty);
       },
     ),
     GoRoute(

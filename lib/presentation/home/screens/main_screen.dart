@@ -81,13 +81,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       case 0:
         return Colors.pink.shade300;
       case 1:
-        return AppColors.primaryYellow;
+        return Colors.pink.shade300;
       case 2:
-        return Colors.red;
+        return Colors.pink.shade300;
       case 3:
-        return Colors.orange;
+        return Colors.pink.shade300;
       default:
-        return Colors.lightBlue;
+        return Colors.pink.shade300;
     }
   }
 }

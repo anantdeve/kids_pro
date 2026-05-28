@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/home_header.dart';
 import '../widgets/featured_banner.dart';
 import '../widgets/home_card.dart';
+import '../../../core/providers/child_standard_provider.dart';
+import '../../../domain/entities/child_standard.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final isTablet = screenWidth > 600;
@@ -53,7 +56,7 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   const FeaturedBanner(),
                   const SizedBox(height: 24),
-                  _buildGrid(context, isTablet, screenWidth),
+                  _buildGrid(context, ref, isTablet, screenWidth),
                   const SizedBox(height: 100), // Padding for Curved Navigation Bar
                 ],
               ),
@@ -64,7 +67,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildGrid(BuildContext context, bool isTablet, double screenWidth) {
+  Widget _buildGrid(BuildContext context, WidgetRef ref, bool isTablet, double screenWidth) {
     final List<Widget> cards = [
       HomeCard(
         title: 'Learning World',
@@ -78,7 +81,9 @@ class HomeScreen extends StatelessWidget {
         subtitle: 'Show your skills!',
         imagePath: 'assets/images/magic_quiz.png',
         shadowColor: const Color(0x264CAF50),
-        onTap: () => context.push('/quiz-selection'),
+        onTap: () {
+          context.push('/quiz-selection');
+        },
       ),
       HomeCard(
         title: 'Fun Games',

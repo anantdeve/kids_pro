@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/providers/child_standard_provider.dart';
+import '../../../core/providers/navigation_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../domain/entities/child_standard.dart';
 
@@ -245,6 +246,7 @@ class _StandardSelectionScreenState extends ConsumerState<StandardSelectionScree
         onTap: () async {
           await ref.read(childStandardProvider.notifier).updateStandard(standard);
           if (mounted) {
+            ref.read(navigationIndexProvider.notifier).setIndex(0);
             context.go('/home');
           }
         },

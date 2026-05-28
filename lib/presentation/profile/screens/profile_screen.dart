@@ -5,7 +5,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/providers/user_provider.dart';
+import '../../../core/providers/child_standard_provider.dart';
 import '../../../data/models/user_model.dart';
+import '../../../domain/entities/child_standard.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -36,13 +38,31 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final userState = ref.watch(userProvider);
+    final standardAsync = ref.watch(childStandardProvider);
+    final standard = standardAsync.value ?? ChildStandard.standard1;
+    
+    String standardName = 'Standard 1';
+    if (standard == ChildStandard.standard2) standardName = 'Standard 2';
+    if (standard == ChildStandard.standard3) standardName = 'Standard 3';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFCF9F2), // Warm cream background
-      body: userState.when(
-        data: (user) => SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Colors.white,
+              Color(0xFFFFD6E5), // Soft Pink
+              Color(0xFFFFB3C6), // Noticeable Pink
+            ],
+            stops: [0.0, 0.5, 1.0],
+          ),
+        ),
+        child: userState.when(
+          data: (user) => SafeArea(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,7 +74,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 _buildStreakBadge(),
                 const SizedBox(height: 32),
                 _buildStatsRow(user),
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: () => context.push('/standard-selection'),
+                    icon: const Icon(Icons.school_rounded, color: Colors.white),
+                    label: Text(
+                      'Change Learning Level ($standardName)',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4CAF50),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
                 const Text(
                   'Achievements',
                   style: TextStyle(
@@ -72,6 +109,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.orangePrimary)),
         error: (err, stack) => Center(child: Text('Error: $err')),
+      ),
       ),
     );
   }

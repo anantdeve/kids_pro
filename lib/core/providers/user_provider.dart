@@ -22,11 +22,11 @@ class UserNotifier extends AsyncNotifier<UserModel> {
     return UserModel(
       name: 'Nothing',
       featurePoints: {
-        'Learning': 250,
-        'Music': 150,
-        'Puzzle': 200,
-        'Quiz': 100,
-        'Games': 100,
+        'Learning': 0,
+        'Music': 0,
+        'Puzzle': 0,
+        'Quiz': 0,
+        'Games': 0,
       },
     );
   }

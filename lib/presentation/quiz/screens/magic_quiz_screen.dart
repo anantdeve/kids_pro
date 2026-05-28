@@ -2,20 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
-import 'dart:async';
 import '../../../core/providers/user_provider.dart';
 import '../../../core/widgets/magical_blob.dart';
+import '../../../data/repositories/local_quiz_repository.dart';
+import '../../../domain/entities/visual_question.dart';
 
 class MagicQuizScreen extends ConsumerStatefulWidget {
-  final int standard;
-  const MagicQuizScreen({super.key, required this.standard});
+  final int categoryId;
+  final String difficulty;
+  
+  const MagicQuizScreen({super.key, required this.categoryId, required this.difficulty});
 
   @override
   ConsumerState<MagicQuizScreen> createState() => _MagicQuizScreenState();
 }
 
 class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
+  final LocalQuizRepository _repository = LocalQuizRepository();
   late List<VisualQuestion> questions;
+  
   int currentQuestionIndex = 0;
   int score = 0;
   bool? isCorrect;
@@ -29,34 +34,8 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
   }
 
   void _loadQuestions() {
-    // Local data for Object-Based Visual Quiz
-    final allQuestions = {
-      1: [
-        VisualQuestion(text: 'Tap on the Red Apple', emoji: '🍎', options: ['🍎', '🍌', '🍇', '🍐'], correctEmoji: '🍎'),
-        VisualQuestion(text: 'Find the cute Dog', emoji: '🐶', options: ['🐱', '🐶', '🐭', '🐹'], correctEmoji: '🐶'),
-        VisualQuestion(text: 'Which one is a Circle?', emoji: '🔴', options: ['🔴', '🟦', '🔺', '⭐'], correctEmoji: '🔴'),
-        VisualQuestion(text: 'Find the Sun', emoji: '☀️', options: ['☁️', '🌙', '☀️', '🌈'], correctEmoji: '☀️'),
-        VisualQuestion(text: 'Tap on the Blue Bird', emoji: '🐦', options: ['🐦', '🦖', '🦋', '🐝'], correctEmoji: '🐦'),
-      ],
-      2: [
-        VisualQuestion(text: 'Which one is a Fruit?', emoji: '🍓', options: ['🍓', '🥕', '🥦', '🌽'], correctEmoji: '🍓'),
-        VisualQuestion(text: 'Find the Vehicle', emoji: '🚗', options: ['🏠', '🌳', '🚗', '🏔️'], correctEmoji: '🚗'),
-        VisualQuestion(text: 'Which one lives in Water?', emoji: '🐟', options: ['🦁', '🦅', '🐟', '🐘'], correctEmoji: '🐟'),
-        VisualQuestion(text: 'Find the Musical Instrument', emoji: '🎸', options: ['🔨', '🎸', '🪚', '🪓'], correctEmoji: '🎸'),
-        VisualQuestion(text: 'Which one do we use to see time?', emoji: '⏰', options: ['⏰', '📺', '📻', '🕯️'], correctEmoji: '⏰'),
-      ],
-      3: [
-        VisualQuestion(text: 'Which one is a Planet?', emoji: '🪐', options: ['🪐', '☁️', '🌳', '🏔️'], correctEmoji: '🪐'),
-        VisualQuestion(text: 'Find the Professional: Doctor', emoji: '👨‍⚕️', options: ['👨‍🍳', '👨‍🚒', '👨‍⚕️', '👨‍🎨'], correctEmoji: '👨‍⚕️'),
-        VisualQuestion(text: 'Which one is used for Writing?', emoji: '✏️', options: ['🥄', '🧤', '✏️', '🔑'], correctEmoji: '✏️'),
-        VisualQuestion(text: 'Find the Winter Clothing', emoji: '🧤', options: ['👕', '🩳', '🧤', '👓'], correctEmoji: '🧤'),
-        VisualQuestion(text: 'Which one is a source of Milk?', emoji: '🐄', options: ['🐎', '🐄', '🐖', '🐑'], correctEmoji: '🐄'),
-      ],
-    };
-
     setState(() {
-      questions = allQuestions[widget.standard] ?? allQuestions[1]!;
-      questions.shuffle();
+      questions = _repository.getQuestionsForCategory(widget.categoryId);
     });
   }
 
@@ -90,7 +69,6 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
   }
 
   void _onQuizFinished() {
-    // Add points for Quiz
     final earnedPoints = score * 20;
     ref.read(userProvider.notifier).addPoints('Quiz', earnedPoints);
     _showResult(earnedPoints);
@@ -103,7 +81,7 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
       builder: (context) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: AlertDialog(
-          backgroundColor: Colors.white.withOpacity(0.9),
+          backgroundColor: Colors.white.withOpacity(0.95),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -147,7 +125,6 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background
           Positioned.fill(
             child: Container(color: const Color(0xFFFFF9F5)),
           ),
@@ -235,7 +212,6 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF2D3142)),
                 ),
                 const SizedBox(height: 20),
-                // Helper Icon or Image could go here
                 const Icon(Icons.volume_up_rounded, color: Color(0xFFFF8A65), size: 40),
               ],
             ),
@@ -257,6 +233,7 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
                 final option = question.options[index];
                 bool isSelected = selectedAnswerIndex == index;
                 Color cardColor = Colors.white;
+                
                 if (isSelected) {
                   cardColor = isCorrect! ? const Color(0xFFC8E6C9) : const Color(0xFFFFCDD2);
                 }
@@ -291,14 +268,4 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
       ),
     );
   }
-
-}
-
-class VisualQuestion {
-  final String text;
-  final String emoji;
-  final List<String> options;
-  final String correctEmoji;
-
-  VisualQuestion({required this.text, required this.emoji, required this.options, required this.correctEmoji});
 }

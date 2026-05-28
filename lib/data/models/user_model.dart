@@ -38,11 +38,11 @@ class UserModel {
       name: map['name'] ?? 'Little Explorer',
       avatarPath: map['avatarPath'],
       featurePoints: Map<String, int>.from(map['featurePoints'] ?? {
-        'Learning': 150,
-        'Music': 120,
-        'Puzzle': 200,
-        'Quiz': 180,
-        'Games': 150,
+        'Learning': 0,
+        'Music': 0,
+        'Puzzle': 0,
+        'Quiz': 0,
+        'Games': 0,
       }),
     );
   }
