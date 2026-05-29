@@ -54,7 +54,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           _buildNavItem(Icons.extension_rounded, 2, currentIndex),
           _buildNavItem(Icons.face_rounded, 3, currentIndex),
         ],
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         buttonBackgroundColor: _getButtonColor(currentIndex),
         backgroundColor: Colors.transparent,
         animationCurve: Curves.easeInOut,
@@ -72,7 +72,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     return Icon(
       icon,
       size: 26,
-      color: isSelected ? Colors.white : Colors.redAccent.shade100,
+      color: isSelected ? Colors.white : Colors.pink.shade300,
     );
   }
 

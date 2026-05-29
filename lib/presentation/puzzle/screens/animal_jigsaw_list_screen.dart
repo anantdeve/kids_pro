@@ -44,11 +44,12 @@ class _AnimalJigsawListScreenState extends State<AnimalJigsawListScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background
-          Positioned.fill(
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -119,17 +120,17 @@ class _AnimalJigsawListScreenState extends State<AnimalJigsawListScreen> {
             onTap: () => Navigator.pop(context),
             child: Container(
               padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-              child: const Icon(Icons.arrow_back, color: Color(0xFF334E68), size: 24),
+              decoration: BoxDecoration(color: Theme.of(context).cardTheme.color ?? Colors.white, shape: BoxShape.circle),
+              child: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68), size: 24),
             ),
           ),
           const SizedBox(width: 12),
-          const Text(
+          Text(
             'Choose an Animal 🦁',
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF334E68),
+              color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68),
             ),
           ),
         ],

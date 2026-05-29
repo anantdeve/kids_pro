@@ -66,17 +66,18 @@ class _XylophoneScreenState extends State<XylophoneScreen> {
       body: Stack(
         children: [
           // Magical Background
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFF5FDFF), Color(0xFFFFF5FB)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFF5FDFF), Color(0xFFFFF5FB)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                 ),
               ),
             ),
-          ),
           
           // Floating clouds/decorations
           Positioned(top: 100, left: -20, child: _DecorativeCloud(size: 150, opacity: 0.4)),
@@ -135,13 +136,13 @@ class _XylophoneScreenState extends State<XylophoneScreen> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardTheme.color ?? Colors.white,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
                 ],
               ),
-              child: const Icon(Icons.arrow_back, color: Color(0xFF334E68), size: 24),
+              child: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68), size: 24),
             ),
           ),
           const SizedBox(width: 12),
@@ -149,16 +150,16 @@ class _XylophoneScreenState extends State<XylophoneScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Rainbow melodies!',
-                  style: TextStyle(fontSize: 13, color: AppColors.textGray, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 13, color: Theme.of(context).textTheme.bodyMedium?.color ?? AppColors.textGray, fontWeight: FontWeight.w600),
                 ),
-                const Text(
+                Text(
                   'Happy Xylophone 🌈',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF334E68),
+                    color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68),
                     height: 1.1,
                   ),
                 ),

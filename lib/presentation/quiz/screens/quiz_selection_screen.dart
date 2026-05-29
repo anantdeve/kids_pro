@@ -46,24 +46,26 @@ class QuizSelectionScreen extends ConsumerWidget {
     }
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background Gradient Mesh Effect
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFE8F6FA),
-                    Color(0xFFFEF2F4),
-                    Color(0xFFFAFAFA),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFE8F6FA),
+                      Color(0xFFFEF2F4),
+                      Color(0xFFFAFAFA),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
               ),
             ),
-          ),
           
           SafeArea(
             child: Column(
@@ -123,10 +125,10 @@ class QuizSelectionScreen extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.6),
+                color: Theme.of(context).cardTheme.color ?? Colors.white.withValues(alpha: 0.6),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.arrow_back, color: Color(0xFF2D3142), size: 24),
+              child: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142), size: 24),
             ),
           ),
           const SizedBox(width: 16),
@@ -134,11 +136,11 @@ class QuizSelectionScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Choose your adventure!',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF8D99AE),
+                    color: Theme.of(context).textTheme.bodyMedium?.color ?? const Color(0xFF8D99AE),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -265,7 +267,7 @@ class _PortalCardState extends State<_PortalCard> with SingleTickerProviderState
       child: Container(
         height: 105,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardTheme.color ?? Colors.white,
           borderRadius: BorderRadius.circular(37.5),
         ),
         child: Padding(
@@ -326,7 +328,7 @@ class _PortalCardState extends State<_PortalCard> with SingleTickerProviderState
                       widget.isLocked ? 'Needs ${widget.requiredPoints} Stars' : 'LEVEL ${widget.level}',
                       style: TextStyle(
                         fontSize: 13,
-                        color: widget.isLocked ? Colors.grey[500] : const Color(0xFF8D99AE),
+                        color: widget.isLocked ? Colors.grey[500] : (Theme.of(context).textTheme.bodyMedium?.color ?? const Color(0xFF8D99AE)),
                         fontWeight: FontWeight.w700,
                       ),
                     ),

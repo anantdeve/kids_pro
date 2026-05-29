@@ -64,7 +64,7 @@ class _ShadowMatcherScreenState extends State<ShadowMatcherScreen> {
       builder: (context) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).cardTheme.color ?? Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -111,7 +111,7 @@ class _ShadowMatcherScreenState extends State<ShadowMatcherScreen> {
     final stickerSize = (screenWidth * 0.18).clamp(60.0, 85.0);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF9F5),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).scaffoldBackgroundColor : const Color(0xFFFFF9F5),
       body: SafeArea(
         child: Column(
           children: [
@@ -147,7 +147,7 @@ class _ShadowMatcherScreenState extends State<ShadowMatcherScreen> {
                 style: TextStyle(
                   fontSize: (screenWidth * 0.075).clamp(22.0, 30.0),
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF2D3142),
+                  color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142),
                 ),
               ),
             ),
@@ -161,7 +161,7 @@ class _ShadowMatcherScreenState extends State<ShadowMatcherScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color ?? Colors.white,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
@@ -284,7 +284,7 @@ class _ShadowMatcherScreenState extends State<ShadowMatcherScreen> {
       width: stickerSize,
       height: stickerSize,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color ?? Colors.white,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(

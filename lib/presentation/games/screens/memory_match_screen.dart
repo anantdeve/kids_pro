@@ -98,7 +98,7 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
       builder: (context) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).cardTheme.color ?? Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -143,7 +143,7 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
     final isTablet = screenWidth > 600;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF9F5),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).scaffoldBackgroundColor : const Color(0xFFFFF9F5),
       body: SafeArea(
         child: Column(
           children: [
@@ -194,7 +194,7 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
                 style: TextStyle(
                   fontSize: (screenWidth * 0.07).clamp(22.0, 30.0),
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF2D3142),
+                  color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142),
                 ),
               ),
             ),
@@ -296,7 +296,7 @@ class MemoryCardWidget extends StatelessWidget {
       alignment: Alignment.center,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardTheme.color ?? Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(

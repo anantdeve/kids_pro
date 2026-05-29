@@ -79,7 +79,7 @@ class _MusicActivityCardState extends State<MusicActivityCard> with SingleTicker
         padding: const EdgeInsets.all(3.0), // The border thickness
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardTheme.color ?? Colors.white,
             borderRadius: BorderRadius.circular(37),
           ),
           child: Material(
@@ -97,7 +97,7 @@ class _MusicActivityCardState extends State<MusicActivityCard> with SingleTicker
                       height: iconSize,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white,
+                        color: Theme.of(context).cardTheme.color ?? Colors.white,
                         boxShadow: [
                           BoxShadow(
                             color: widget.themeColor.withOpacity(0.15),
@@ -143,7 +143,7 @@ class _MusicActivityCardState extends State<MusicActivityCard> with SingleTicker
                             widget.subtitle,
                             style: TextStyle(
                               fontSize: (screenWidth * 0.038).clamp(13.0, 15.0),
-                              color: AppColors.textGray,
+                              color: Theme.of(context).textTheme.bodyMedium?.color ?? AppColors.textGray,
                               fontWeight: FontWeight.w500,
                               height: 1.2,
                             ),

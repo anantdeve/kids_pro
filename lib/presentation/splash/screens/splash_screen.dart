@@ -83,24 +83,26 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background Gradient
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white,
-                    Color(0xFFFFD6E5), // Soft Pink
-                    Color(0xFFFFB3C6), // Noticeable Pink
-                  ],
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white,
+                      Color(0xFFFFD6E5), // Soft Pink
+                      Color(0xFFFFB3C6), // Noticeable Pink
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
 
           // Animated Content
           Center(
@@ -174,7 +176,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                           'Learning Made Fun!',
                           style: TextStyle(
                             fontSize: 18,
-                            color: Colors.grey[700],
+                            color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[700],
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1.5,
                           ),

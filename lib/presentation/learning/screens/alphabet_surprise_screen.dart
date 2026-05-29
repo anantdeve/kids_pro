@@ -133,16 +133,19 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).scaffoldBackgroundColor : const Color(0xFFFFF9F5),
       body: Stack(
         children: [
           // Background
-          Positioned.fill(
-            child: Container(color: const Color(0xFFFFF9F5)),
-          ),
-          MagicalBlob(size: 300, color: const Color(0xFFFFD1E1).withOpacity(0.4), top: 100, left: -50),
-          MagicalBlob(size: 350, color: const Color(0xFFE1F5FE).withOpacity(0.5), top: -50, right: -50),
-          MagicalBlob(size: 400, color: const Color(0xFFF3E5F5).withOpacity(0.4), bottom: 100, right: -80),
-          MagicalBlob(size: 300, color: const Color(0xFFFFF9C4).withOpacity(0.3), bottom: -50, left: -20),
+          if (Theme.of(context).brightness == Brightness.light) ...[
+            Positioned.fill(
+              child: Container(color: const Color(0xFFFFF9F5)),
+            ),
+            MagicalBlob(size: 300, color: const Color(0xFFFFD1E1).withOpacity(0.4), top: 100, left: -50),
+            MagicalBlob(size: 350, color: const Color(0xFFE1F5FE).withOpacity(0.5), top: -50, right: -50),
+            MagicalBlob(size: 400, color: const Color(0xFFF3E5F5).withOpacity(0.4), bottom: 100, right: -80),
+            MagicalBlob(size: 300, color: const Color(0xFFFFF9C4).withOpacity(0.3), bottom: -50, left: -20),
+          ],
 
           SafeArea(
             child: Column(
@@ -175,15 +178,15 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFE0D0).withValues(alpha: 0.5),
+                    color: Theme.of(context).cardTheme.color ?? const Color(0xFFFFE0D0).withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Drag Me! ✨',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFFFF7043),
+                      color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFFF8B66) : const Color(0xFFFF7043),
                     ),
                   ),
                 ),
@@ -225,11 +228,11 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
                     width: 220,
                     height: 220,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardTheme.color ?? Colors.white,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 8),
+                      border: Border.all(color: Theme.of(context).cardTheme.color ?? Colors.white, width: 8),
                       boxShadow: [
-                        BoxShadow(color: Colors.white.withValues(alpha: 0.5), blurRadius: 30, spreadRadius: 10),
+                        BoxShadow(color: (Theme.of(context).cardTheme.color ?? Colors.white).withValues(alpha: 0.5), blurRadius: 30, spreadRadius: 10),
                       ],
                     ),
                     child: Stack(
@@ -267,7 +270,7 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardTheme.color ?? Colors.white,
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 20),
@@ -277,18 +280,18 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
                       children: [
                         Text(
                           '${currentLetter} is for',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF757575),
+                            color: Theme.of(context).textTheme.bodyMedium?.color ?? const Color(0xFF757575),
                           ),
                         ),
                         Text(
                           item['name']!.toUpperCase(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 48,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF2D3142),
+                            color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142),
                             letterSpacing: 2,
                           ),
                         ),
@@ -314,10 +317,10 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF5F0).withValues(alpha: 0.5),
+                color: Theme.of(context).cardTheme.color ?? const Color(0xFFFFF5F0).withValues(alpha: 0.5),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.arrow_back, color: Color(0xFF2D3142), size: 24),
+              child: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142), size: 24),
             ),
           ),
           const SizedBox(width: 16),
@@ -325,12 +328,12 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
             child: FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
-              child: const Text(
+              child: Text(
                 'Alphabet Surprise 📦✨',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF2D3142),
+                  color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142),
                 ),
               ),
             ),

@@ -10,38 +10,42 @@ class ColorsAdventureScreen extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background Gradient & Blobs
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFFFDFDFD),
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFDFDFD),
+                ),
               ),
             ),
-          ),
           
           // Colorful Soft Blobs (matching design)
-          Positioned(
-            top: -50,
-            right: -50,
-            child: _Blob(color: const Color(0xFFFFE5E5), size: 300), // Pinkish top right
-          ),
-          Positioned(
-            top: 200,
-            left: -100,
-            child: _Blob(color: const Color(0xFFE5F9FF), size: 400), // Blueish mid left
-          ),
-          Positioned(
-            bottom: 100,
-            right: -80,
-            child: _Blob(color: const Color(0xFFF0FFE5), size: 350), // Greenish bottom right
-          ),
-          Positioned(
-            bottom: -50,
-            left: -30,
-            child: _Blob(color: const Color(0xFFFFF7E5), size: 250), // Yellowish bottom left
-          ),
+          if (Theme.of(context).brightness == Brightness.light) ...[
+            Positioned(
+              top: -50,
+              right: -50,
+              child: _Blob(color: const Color(0xFFFFE5E5), size: 300), // Pinkish top right
+            ),
+            Positioned(
+              top: 200,
+              left: -100,
+              child: _Blob(color: const Color(0xFFE5F9FF), size: 400), // Blueish mid left
+            ),
+            Positioned(
+              bottom: 100,
+              right: -80,
+              child: _Blob(color: const Color(0xFFF0FFE5), size: 350), // Greenish bottom right
+            ),
+            Positioned(
+              bottom: -50,
+              left: -30,
+              child: _Blob(color: const Color(0xFFFFF7E5), size: 250), // Yellowish bottom left
+            ),
+          ],
 
           SafeArea(
             child: Column(
@@ -53,7 +57,7 @@ class ColorsAdventureScreen extends StatelessWidget {
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardTheme.color ?? Colors.white,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -65,7 +69,7 @@ class ColorsAdventureScreen extends StatelessWidget {
                         ),
                         child: IconButton(
                           onPressed: () => context.pop(),
-                          icon: const Icon(Icons.arrow_back, color: Colors.black87, size: 24),
+                          icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87, size: 24),
                           constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                         ),
                       ),
@@ -78,7 +82,7 @@ class ColorsAdventureScreen extends StatelessWidget {
                               'Discover the magic of colors!',
                               style: TextStyle(
                                 fontSize: (screenWidth * 0.035).clamp(11.0, 13.0),
-                                color: Colors.grey[600],
+                                color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

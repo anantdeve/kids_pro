@@ -15,11 +15,12 @@ class MusicScreen extends StatelessWidget {
     final isTablet = screenWidth > 600;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Multi-color Pastel Background
-          Positioned.fill(
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -79,7 +80,7 @@ class MusicScreen extends StatelessWidget {
                               'Choose an instrument to play!',
                               style: TextStyle(
                                 fontSize: (screenWidth * 0.032).clamp(11.0, 13.0),
-                                color: AppColors.textGray,
+                                color: Theme.of(context).textTheme.bodyMedium?.color ?? AppColors.textGray,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -88,7 +89,7 @@ class MusicScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: (screenWidth * 0.055).clamp(20.0, 26.0),
                                 fontWeight: FontWeight.w900,
-                                color: const Color(0xFF334E68),
+                                color: Theme.of(context).textTheme.displayMedium?.color ?? const Color(0xFF334E68),
                                 height: 1.1,
                               ),
                             ),

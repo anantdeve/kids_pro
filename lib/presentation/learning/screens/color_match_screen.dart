@@ -163,7 +163,7 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
         return ScaleTransition(
           scale: CurvedAnimation(parent: anim1, curve: Curves.elasticOut),
           child: AlertDialog(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).cardTheme.color ?? Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -233,20 +233,22 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFFF9F0), Color(0xFFF0F9FF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFFFF9F0), Color(0xFFF0F9FF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
               ),
             ),
-          ),
           
           SafeArea(
             child: Column(
@@ -258,7 +260,7 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardTheme.color ?? Colors.white,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -270,7 +272,7 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
                         ),
                         child: IconButton(
                           onPressed: () => context.pop(),
-                          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                          icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -282,7 +284,7 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
                               'Connect colors to objects!',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: Colors.grey[600],
+                                color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -350,7 +352,7 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
                                     width: 120,
                                     height: 50,
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: Theme.of(context).cardTheme.color ?? Colors.white,
                                       borderRadius: BorderRadius.circular(25),
                                       border: Border.all(
                                         color: isMatched || activeLabelId == item.id 
@@ -372,7 +374,7 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
                                       style: TextStyle(
                                         color: isMatched || activeLabelId == item.id 
                                             ? item.color 
-                                            : Colors.grey[700],
+                                            : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[700]),
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                       ),

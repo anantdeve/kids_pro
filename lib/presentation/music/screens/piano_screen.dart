@@ -116,21 +116,22 @@ class _PianoScreenState extends ConsumerState<PianoScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFFFFAF0),
-                    Color(0xFFFFE4E1),
-                    Color(0xFFFFF5EE),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFFFFAF0),
+                      Color(0xFFFFE4E1),
+                      Color(0xFFFFF5EE),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                 ),
               ),
             ),
-          ),
           
           SafeArea(
             child: Column(
@@ -145,10 +146,10 @@ class _PianoScreenState extends ConsumerState<PianoScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.5),
+                            color: Theme.of(context).cardTheme.color?.withOpacity(0.5) ?? Colors.white.withOpacity(0.5),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.arrow_back, color: Color(0xFF334E68), size: 22),
+                          child: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68), size: 22),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -156,16 +157,16 @@ class _PianoScreenState extends ConsumerState<PianoScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Play beautiful music!',
-                              style: TextStyle(fontSize: 12, color: AppColors.textGray, fontWeight: FontWeight.w600),
+                              style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color ?? AppColors.textGray, fontWeight: FontWeight.w600),
                             ),
                             Text(
                               'Magic Piano 🎹',
                               style: TextStyle(
                                 fontSize: (screenWidth * 0.05).clamp(20.0, 24.0),
                                 fontWeight: FontWeight.w900,
-                                color: const Color(0xFF334E68),
+                                color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68),
                                 height: 1.1,
                               ),
                             ),

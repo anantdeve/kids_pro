@@ -81,7 +81,7 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
       builder: (context) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: AlertDialog(
-          backgroundColor: Colors.white.withOpacity(0.95),
+          backgroundColor: Theme.of(context).cardTheme.color ?? Colors.white.withOpacity(0.95),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -123,11 +123,13 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Container(color: const Color(0xFFFFF9F5)),
-          ),
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(color: const Color(0xFFFFF9F5)),
+            ),
           MagicalBlob(size: 300, color: const Color(0xFFFFD1E1).withOpacity(0.4), top: 100, left: -50),
           MagicalBlob(size: 350, color: const Color(0xFFE1F5FE).withOpacity(0.5), top: -50, right: -50),
 
@@ -154,10 +156,10 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.6),
+                color: Theme.of(context).cardTheme.color?.withOpacity(0.6) ?? Colors.white.withOpacity(0.6),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.close, color: Color(0xFF2D3142), size: 24),
+              child: Icon(Icons.close, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142), size: 24),
             ),
           ),
           const SizedBox(width: 16),
@@ -198,7 +200,7 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(30),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8),
+              color: Theme.of(context).cardTheme.color?.withOpacity(0.8) ?? Colors.white.withOpacity(0.8),
               borderRadius: BorderRadius.circular(40),
               boxShadow: [
                 BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10)),
@@ -232,7 +234,7 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
               itemBuilder: (context, index) {
                 final option = question.options[index];
                 bool isSelected = selectedAnswerIndex == index;
-                Color cardColor = Colors.white;
+                Color cardColor = Theme.of(context).cardTheme.color ?? Colors.white;
                 
                 if (isSelected) {
                   cardColor = isCorrect! ? const Color(0xFFC8E6C9) : const Color(0xFFFFCDD2);
@@ -246,7 +248,7 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
                       color: cardColor,
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
-                        color: isSelected ? (isCorrect! ? Colors.green : Colors.red) : Colors.white,
+                        color: isSelected ? (isCorrect! ? Colors.green : Colors.red) : (Theme.of(context).cardTheme.color ?? Colors.white),
                         width: 4,
                       ),
                       boxShadow: [

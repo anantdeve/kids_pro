@@ -17,24 +17,25 @@ class HomeScreen extends ConsumerWidget {
     final isTablet = screenWidth > 600;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFE8F6FA),
-                    Color(0xFFFEF2F4),
-                    Color(0xFFFAFAFA),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFE8F6FA),
+                      Color(0xFFFEF2F4),
+                      Color(0xFFFAFAFA),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
               ),
             ),
-          ),
           
           // Magical Background Elements - Using screen size for positioning
           Positioned(top: screenHeight * 0.14, left: screenWidth * 0.08, child: const _FloatingIcon(icon: Icons.star_rounded, color: Color(0xFFFFD600), size: 30, duration: 3000)),

@@ -70,29 +70,30 @@ class _ShapeMatcherScreenState extends State<ShapeMatcherScreen> with TickerProv
       body: Stack(
         children: [
           // Background
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFDFCFB), Color(0xFFE2D1C3)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFFDFCFB), Color(0xFFE2D1C3)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                 ),
               ),
             ),
-          ),
 
           SafeArea(
             child: Column(
               children: [
                 _buildHeader(context),
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   'Match the magic shapes!',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF334E68),
+                    color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68),
                   ),
                 ),
                 const Spacer(),
@@ -229,15 +230,15 @@ class _ShapeMatcherScreenState extends State<ShapeMatcherScreen> with TickerProv
             onTap: () => Navigator.pop(context),
             child: Container(
               padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-              child: const Icon(Icons.arrow_back, color: Color(0xFF334E68), size: 24),
+              decoration: BoxDecoration(color: Theme.of(context).cardTheme.color ?? Colors.white, shape: BoxShape.circle),
+              child: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68), size: 24),
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
               'Shape Matcher 🌟',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF334E68)),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68)),
             ),
           ),
         ],

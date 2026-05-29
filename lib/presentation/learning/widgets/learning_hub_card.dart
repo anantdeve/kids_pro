@@ -84,7 +84,7 @@ class _LearningHubCardState extends State<LearningHubCard> with SingleTickerProv
         padding: const EdgeInsets.all(2.5),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardTheme.color ?? Colors.white,
             borderRadius: BorderRadius.circular(27.5),
           ),
           child: Material(
@@ -101,7 +101,7 @@ class _LearningHubCardState extends State<LearningHubCard> with SingleTickerProv
                       width: iconSize,
                       height: iconSize,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).cardTheme.color ?? Colors.white,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
@@ -176,7 +176,7 @@ class _LearningHubCardState extends State<LearningHubCard> with SingleTickerProv
                             widget.subtitle,
                             style: TextStyle(
                               fontSize: 13,
-                              color: Colors.grey[600],
+                              color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
                               fontWeight: FontWeight.w600,
                               height: 1.2,
                             ),

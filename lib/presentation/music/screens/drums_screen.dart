@@ -84,17 +84,18 @@ class _DrumsScreenState extends State<DrumsScreen> {
       body: Stack(
         children: [
           // Blurry Cloudy Background
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFFF9F5), Color(0xFFFDF2FF)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFFFF9F5), Color(0xFFFDF2FF)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                 ),
               ),
             ),
-          ),
           // Soft Blurs
           Positioned(top: -50, left: -50, child: _BlurCircle(color: Color(0x33FFD180), size: 300)),
           Positioned(bottom: 100, right: -50, child: _BlurCircle(color: Color(0x2280D8FF), size: 400)),
@@ -171,8 +172,8 @@ class _DrumsScreenState extends State<DrumsScreen> {
             onTap: () => Navigator.pop(context),
             child: Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))]),
-              child: const Icon(Icons.arrow_back, color: Color(0xFF334E68), size: 24),
+              decoration: BoxDecoration(color: Theme.of(context).cardTheme.color ?? Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))]),
+              child: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68), size: 24),
             ),
           ),
           const SizedBox(width: 12),
@@ -180,8 +181,8 @@ class _DrumsScreenState extends State<DrumsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Beat the rhythm!', style: TextStyle(fontSize: 13, color: AppColors.textGray, fontWeight: FontWeight.w600)),
-                const Text('Fun Drums 🥁', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF334E68), height: 1.1)),
+                Text('Beat the rhythm!', style: TextStyle(fontSize: 13, color: Theme.of(context).textTheme.bodyMedium?.color ?? AppColors.textGray, fontWeight: FontWeight.w600)),
+                Text('Fun Drums 🥁', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68), height: 1.1)),
               ],
             ),
           ),

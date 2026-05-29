@@ -59,8 +59,9 @@ class _StandardSelectionScreenState extends ConsumerState<StandardSelectionScree
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: Theme.of(context).brightness == Brightness.light ? const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
@@ -71,7 +72,7 @@ class _StandardSelectionScreenState extends ConsumerState<StandardSelectionScree
             ],
             stops: [0.0, 0.5, 1.0],
           ),
-        ),
+        ) : null,
         child: SafeArea(
           child: AnimatedBuilder(
             animation: _mainController,
@@ -114,12 +115,12 @@ class _StandardSelectionScreenState extends ConsumerState<StandardSelectionScree
                             ),
                             const SizedBox(height: 20),
                             // Welcome Text
-                            const Text(
+                            Text(
                               'Choose Your Level!',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
-                                color: AppColors.textPrimary,
+                                color: Theme.of(context).textTheme.displayLarge?.color ?? AppColors.textPrimary,
                                 letterSpacing: 1.2,
                               ),
                               textAlign: TextAlign.center,
@@ -147,14 +148,15 @@ class _StandardSelectionScreenState extends ConsumerState<StandardSelectionScree
                         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                         padding: const EdgeInsets.all(16.0),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
+                          gradient: Theme.of(context).brightness == Brightness.light ? const LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.white,
                               Color(0xFFFFD6E5), // Soft pink
                             ],
-                          ),
+                          ) : null,
+                          color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).cardTheme.color : null,
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
@@ -323,7 +325,7 @@ class _StandardCardState extends State<_StandardCard> with SingleTickerProviderS
         scale: _scaleController,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardTheme.color ?? Colors.white,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(

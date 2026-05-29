@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/providers/user_provider.dart';
 import '../../../core/providers/child_standard_provider.dart';
+import '../../../core/providers/theme_provider.dart';
 import '../../../data/models/user_model.dart';
 import '../../../domain/entities/child_standard.dart';
 
@@ -46,8 +47,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (standard == ChildStandard.standard3) standardName = 'Standard 3';
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: Theme.of(context).brightness == Brightness.light ? const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
@@ -58,7 +60,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ],
             stops: [0.0, 0.5, 1.0],
           ),
-        ),
+        ) : null,
         child: userState.when(
           data: (user) => SafeArea(
             child: SingleChildScrollView(
@@ -70,8 +72,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 _buildHeader(user),
                 const SizedBox(height: 32),
                 _buildAvatarSection(user),
-                const SizedBox(height: 24),
-                _buildStreakBadge(),
                 const SizedBox(height: 32),
                 _buildStatsRow(user),
                 const SizedBox(height: 24),
@@ -140,6 +140,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
         ),
         const Spacer(),
+        IconButton(
+          icon: Icon(
+            ref.watch(themeProvider) == ThemeMode.dark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+            color: const Color(0xFFF79F6F),
+          ),
+          onPressed: () {
+            ref.read(themeProvider.notifier).toggleTheme();
+          },
+        ),
+        const SizedBox(width: 8),
         GestureDetector(
           onTap: () => _showSettingsBottomSheet(user),
           child: const Text(
@@ -222,33 +232,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildStreakBadge() {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFF7E6), // Very light yellow/orange
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: const Color(0xFFFFE0B2), width: 1.5),
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.bolt_rounded, color: Color(0xFFFFB74D), size: 20),
-            SizedBox(width: 8),
-            Text(
-              '1 Day Streak!',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFFFFB74D),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   Widget _buildStatsRow(UserModel user) {
     int quizzes = (user.featurePoints['Quiz'] ?? 0) ~/ 20; 
@@ -355,7 +339,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
@@ -382,7 +366,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: isLocked ? const Color(0xFFB0BEC5) : const Color(0xFF2D3142),
+                    color: isLocked ? const Color(0xFFB0BEC5) : Theme.of(context).textTheme.bodyLarge?.color ?? const Color(0xFF2D3142),
                   ),
                 ),
               ),
@@ -399,9 +383,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         ),
         child: SafeArea(
           child: Padding(
@@ -411,7 +395,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               children: [
                 Container(width: 40, height: 5, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10))),
                 const SizedBox(height: 24),
-                const Text('MAGIC SETTINGS', style: TextStyle(color: Color(0xFF2D3142), fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 1)),
+                Text('MAGIC SETTINGS', style: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color, fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 1)),
                 const SizedBox(height: 24),
                 _buildSettingsTile('Change Explorer Name', Icons.edit_rounded, AppColors.orangePrimary, onTap: () {
                   Navigator.pop(context);
@@ -449,7 +433,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ),
       title: Text(
         title,
-        style: const TextStyle(color: Color(0xFF2D3142), fontWeight: FontWeight.w800, fontSize: 16),
+        style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.w800, fontSize: 16),
       ),
       trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF7F8B9C)),
     );
@@ -460,9 +444,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
         ),
         child: SafeArea(
           child: Padding(
@@ -473,7 +457,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 const SizedBox(height: 10),
                 Container(width: 40, height: 5, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10))),
                 const SizedBox(height: 20),
-                const Text('UPDATE AVATAR', style: TextStyle(color: Color(0xFF2D3142), fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: 1)),
+                Text('UPDATE AVATAR', style: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color, fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: 1)),
                 const SizedBox(height: 20),
                 ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 30),
@@ -482,7 +466,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     decoration: BoxDecoration(color: AppColors.primaryBlue.withOpacity(0.1), borderRadius: BorderRadius.circular(14)),
                     child: const Icon(Icons.photo_library_rounded, color: AppColors.primaryBlue),
                   ),
-                  title: const Text('From Gallery', style: TextStyle(color: Color(0xFF2D3142), fontWeight: FontWeight.w800, fontSize: 16)),
+                  title: Text('From Gallery', style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.w800, fontSize: 16)),
                   onTap: () { Navigator.pop(context); _pickImage(ImageSource.gallery); },
                 ),
                 const SizedBox(height: 10),
@@ -493,7 +477,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     decoration: BoxDecoration(color: AppColors.primaryGreen.withOpacity(0.1), borderRadius: BorderRadius.circular(14)),
                     child: const Icon(Icons.camera_alt_rounded, color: AppColors.primaryGreen),
                   ),
-                  title: const Text('From Camera', style: TextStyle(color: Color(0xFF2D3142), fontWeight: FontWeight.w800, fontSize: 16)),
+                  title: Text('From Camera', style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.w800, fontSize: 16)),
                   onTap: () { Navigator.pop(context); _pickImage(ImageSource.camera); },
                 ),
                 const SizedBox(height: 30),

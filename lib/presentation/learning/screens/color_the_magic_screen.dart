@@ -117,20 +117,22 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFFF9F0), Color(0xFFF0F9FF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFFFF9F0), Color(0xFFF0F9FF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
               ),
             ),
-          ),
 
           SafeArea(
             child: Column(
@@ -142,7 +144,7 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardTheme.color ?? Colors.white,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -154,7 +156,7 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
                         ),
                         child: IconButton(
                           onPressed: () => context.pop(),
-                          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                          icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -162,11 +164,11 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Draw and Color!',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: Color(0xFF666666),
+                                color: Theme.of(context).textTheme.bodyMedium?.color ?? const Color(0xFF666666),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -261,10 +263,10 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
                 // Bottom Panel
                 Container(
                   padding: const EdgeInsets.all(24),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
-                    boxShadow: [
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardTheme.color ?? Colors.white,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+                    boxShadow: const [
                       BoxShadow(
                         color: Colors.black12,
                         blurRadius: 20,
@@ -380,10 +382,10 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFFFF8B66) : const Color(0xFFF5F5F5),
+              color: isSelected ? const Color(0xFFFF8B66) : (Theme.of(context).scaffoldBackgroundColor),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Icon(icon, color: isSelected ? Colors.white : Colors.black54),
+            child: Icon(icon, color: isSelected ? Colors.white : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black54)),
           ),
           const SizedBox(height: 4),
           Text(
@@ -391,7 +393,7 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: isSelected ? const Color(0xFFFF8B66) : Colors.black54,
+              color: isSelected ? const Color(0xFFFF8B66) : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black54),
             ),
           ),
         ],

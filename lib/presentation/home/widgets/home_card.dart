@@ -92,7 +92,7 @@ class _HomeCardState extends State<HomeCard> with TickerProviderStateMixin {
                   padding: const EdgeInsets.all(2.5), // The border thickness
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(25.5),
                     ),
                     padding: const EdgeInsets.all(12.0),
@@ -128,7 +128,7 @@ class _HomeCardState extends State<HomeCard> with TickerProviderStateMixin {
                             widget.subtitle,
                             style: TextStyle(
                               fontSize: (cardHeight * 0.06).clamp(10.0, 14.0),
-                              color: AppColors.textGray,
+                              color: Theme.of(context).textTheme.bodyMedium?.color ?? AppColors.textGray,
                               fontWeight: FontWeight.w600,
                             ),
                             textAlign: TextAlign.center,

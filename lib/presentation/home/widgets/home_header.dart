@@ -56,7 +56,7 @@ class HomeHeader extends ConsumerWidget {
                         'Ready for an adventure?',
                         style: TextStyle(
                           fontSize: isSmallScreen ? 10 : 12, 
-                          color: AppColors.textGray, 
+                          color: Theme.of(context).textTheme.bodyMedium?.color ?? AppColors.textGray, 
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.5,
                         ),
@@ -70,7 +70,7 @@ class HomeHeader extends ConsumerWidget {
                               'Hi, ${user.name}!',
                               style: TextStyle(
                                 fontSize: isSmallScreen ? 18 : 22, 
-                                color: AppColors.textDark, 
+                                color: Theme.of(context).textTheme.displayMedium?.color ?? AppColors.textDark, 
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: -0.5,
                               ),

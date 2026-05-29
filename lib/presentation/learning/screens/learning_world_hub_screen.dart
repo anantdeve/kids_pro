@@ -11,24 +11,26 @@ class LearningWorldHubScreen extends StatelessWidget {
     final isTablet = screenWidth > 600;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background Gradient
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFE8F6FA), // Light blue top left
-                    Color(0xFFFEF2F4), // Light pink top right
-                    Color(0xFFFAFAFA), // Whiteish bottom
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFE8F6FA), // Light blue top left
+                      Color(0xFFFEF2F4), // Light pink top right
+                      Color(0xFFFAFAFA), // Whiteish bottom
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
               ),
             ),
-          ),
           
           SafeArea(
             child: Column(
@@ -43,7 +45,7 @@ class LearningWorldHubScreen extends StatelessWidget {
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardTheme.color ?? Colors.white,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -55,7 +57,7 @@ class LearningWorldHubScreen extends StatelessWidget {
                         ),
                         child: IconButton(
                           onPressed: () => context.pop(),
-                          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                          icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87),
                           iconSize: isTablet ? 28 : 24,
                         ),
                       ),
@@ -68,7 +70,7 @@ class LearningWorldHubScreen extends StatelessWidget {
                               'Choose your learning adventure! 🚀',
                               style: TextStyle(
                                 fontSize: (screenWidth * 0.035).clamp(11.0, 14.0),
-                                color: Colors.grey[600],
+                                color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

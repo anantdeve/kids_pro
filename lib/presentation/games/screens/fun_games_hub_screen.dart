@@ -8,24 +8,26 @@ class FunGamesHubScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background Gradient Mesh Effect
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFE8F6FA),
-                    Color(0xFFFEF2F4),
-                    Color(0xFFFAFAFA),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFE8F6FA),
+                      Color(0xFFFEF2F4),
+                      Color(0xFFFAFAFA),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
               ),
             ),
-          ),
           
           SafeArea(
             child: Column(
@@ -102,10 +104,10 @@ class FunGamesHubScreen extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.6),
+                color: Theme.of(context).cardTheme.color ?? Colors.white.withValues(alpha: 0.6),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.arrow_back, color: Color(0xFF2D3142), size: 24),
+              child: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142), size: 24),
             ),
           ),
           const SizedBox(width: 16),
@@ -113,11 +115,11 @@ class FunGamesHubScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Choose a game to play! 🎡',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF8D99AE),
+                    color: Theme.of(context).textTheme.bodyMedium?.color ?? const Color(0xFF8D99AE),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -228,7 +230,7 @@ class _GameCardState extends State<_GameCard> with SingleTickerProviderStateMixi
           child: Container(
             constraints: const BoxConstraints(minHeight: 105),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardTheme.color ?? Colors.white,
               borderRadius: BorderRadius.circular(37.5),
             ),
             child: Padding(
@@ -297,9 +299,9 @@ class _GameCardState extends State<_GameCard> with SingleTickerProviderStateMixi
                             Expanded(
                               child: Text(
                                 widget.subtitle,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 13,
-                                  color: Color(0xFF8D99AE),
+                                  color: Theme.of(context).textTheme.bodyMedium?.color ?? const Color(0xFF8D99AE),
                                   fontWeight: FontWeight.w600,
                                 ),
                                 maxLines: 2,

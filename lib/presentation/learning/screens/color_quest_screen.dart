@@ -94,7 +94,7 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
         return ScaleTransition(
           scale: CurvedAnimation(parent: anim1, curve: Curves.elasticOut),
           child: AlertDialog(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).cardTheme.color ?? Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -134,20 +134,22 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFFF9F0), Color(0xFFF0F9FF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFFFF9F0), Color(0xFFF0F9FF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
               ),
             ),
-          ),
 
           // Animated Bubbles
           ...List.generate(5, (index) {
@@ -189,7 +191,7 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardTheme.color ?? Colors.white,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -201,7 +203,7 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
                         ),
                         child: IconButton(
                           onPressed: () => context.pop(),
-                          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                          icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -213,16 +215,16 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
                               'Level up your streak!',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: Colors.grey[600],
+                                color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const Text(
+                            Text(
                               'COLOR QUEST',
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w900,
-                                color: Color(0xFF4A4A4A),
+                                color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF4A4A4A),
                                 letterSpacing: -0.5,
                               ),
                             ),
@@ -248,7 +250,7 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
                     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
                     margin: const EdgeInsets.symmetric(horizontal: 40),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardTheme.color ?? Colors.white,
                       borderRadius: BorderRadius.circular(40),
                       boxShadow: [
                         BoxShadow(
@@ -264,7 +266,7 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
                           'Tap the',
                           style: TextStyle(
                             fontSize: 20,
-                            color: Colors.grey[600],
+                            color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -317,7 +319,7 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
                             decoration: BoxDecoration(
                               color: item.color,
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 8),
+                              border: Border.all(color: Theme.of(context).cardTheme.color ?? Colors.white, width: 8),
                               boxShadow: [
                                 BoxShadow(
                                   color: item.color.withValues(alpha: 0.3),

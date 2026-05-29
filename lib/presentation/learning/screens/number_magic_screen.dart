@@ -10,37 +10,40 @@ class NumberMagicScreen extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Dynamic Background with soft blobs
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFFF9F0), Color(0xFFF0F9FF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          if (Theme.of(context).brightness == Brightness.light) ...[
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFFFF9F0), Color(0xFFF0F9FF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
               ),
             ),
-          ),
-          
-          // Soft decorative blobs
-          Positioned(
-            top: -100,
-            right: -50,
-            child: _buildBlob(300, const Color(0xFFFFD166).withValues(alpha: 0.2)),
-          ),
-          Positioned(
-            bottom: 100,
-            left: -80,
-            child: _buildBlob(250, const Color(0xFF67E1F5).withValues(alpha: 0.15)),
-          ),
-          Positioned(
-            top: 300,
-            right: -20,
-            child: _buildBlob(200, const Color(0xFFFF7B9C).withValues(alpha: 0.1)),
-          ),
+            
+            // Soft decorative blobs
+            Positioned(
+              top: -100,
+              right: -50,
+              child: _buildBlob(300, const Color(0xFFFFD166).withValues(alpha: 0.2)),
+            ),
+            Positioned(
+              bottom: 100,
+              left: -80,
+              child: _buildBlob(250, const Color(0xFF67E1F5).withValues(alpha: 0.15)),
+            ),
+            Positioned(
+              top: 300,
+              right: -20,
+              child: _buildBlob(200, const Color(0xFFFF7B9C).withValues(alpha: 0.1)),
+            ),
+          ],
 
           SafeArea(
             child: Column(
@@ -52,7 +55,7 @@ class NumberMagicScreen extends StatelessWidget {
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardTheme.color ?? Colors.white,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -64,7 +67,7 @@ class NumberMagicScreen extends StatelessWidget {
                         ),
                         child: IconButton(
                           onPressed: () => context.pop(),
-                          icon: const Icon(Icons.arrow_back, color: Colors.black87, size: 24),
+                          icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87, size: 24),
                           constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                         ),
                       ),
@@ -77,7 +80,7 @@ class NumberMagicScreen extends StatelessWidget {
                               "Let's learn numbers with fun!",
                               style: TextStyle(
                                 fontSize: (screenWidth * 0.035).clamp(11.0, 13.0),
-                                color: const Color(0xFF666666),
+                                color: Theme.of(context).textTheme.bodyMedium?.color ?? const Color(0xFF666666),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
