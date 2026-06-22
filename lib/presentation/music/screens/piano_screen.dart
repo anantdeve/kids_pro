@@ -3,6 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/providers/user_provider.dart';
+import '../../../core/widgets/custom_banner_ad.dart';
 
 class PianoScreen extends ConsumerStatefulWidget {
   const PianoScreen({super.key});
@@ -247,6 +248,12 @@ class _PianoScreenState extends ConsumerState<PianoScreen> {
                 const Spacer(flex: 2),
               ],
             ),
+          ),
+          
+          // Banner Ad at the bottom
+          const Align(
+            alignment: Alignment.bottomCenter,
+            child: CustomBannerAd(),
           ),
         ],
       ),

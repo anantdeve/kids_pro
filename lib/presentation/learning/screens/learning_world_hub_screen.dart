@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/learning_hub_card.dart';
+import '../../../core/widgets/custom_banner_ad.dart';
 
 class LearningWorldHubScreen extends StatelessWidget {
   const LearningWorldHubScreen({super.key});
@@ -155,6 +156,12 @@ class LearningWorldHubScreen extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          
+          // Banner Ad at the bottom
+          const Align(
+            alignment: Alignment.bottomCenter,
+            child: CustomBannerAd(),
           ),
         ],
       ),

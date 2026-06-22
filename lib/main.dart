@@ -7,10 +7,15 @@ import 'core/providers/theme_provider.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
 late SharedPreferences sharedPrefs;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Google Mobile Ads
+  await MobileAds.instance.initialize();
   
   // Lock orientation to portrait
   await SystemChrome.setPreferredOrientations([
