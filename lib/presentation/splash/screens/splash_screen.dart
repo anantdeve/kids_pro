@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -55,15 +56,18 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
     _mainController.forward();
 
-    // Navigate to home after animation sequence
+    // Navigate to home/auth after animation sequence
     Future.delayed(const Duration(milliseconds: 4500), () async {
       if (!mounted) return;
       
       final prefs = await SharedPreferences.getInstance();
       final hasStandard = prefs.containsKey('child_standard_selection');
+      final currentUser = FirebaseAuth.instance.currentUser;
       
       if (mounted) {
-        if (hasStandard) {
+        if (currentUser == null) {
+          context.go('/auth');
+        } else if (hasStandard) {
           context.go('/home');
         } else {
           context.go('/standard-selection');

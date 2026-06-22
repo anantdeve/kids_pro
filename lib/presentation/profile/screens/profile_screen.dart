@@ -7,6 +7,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/providers/user_provider.dart';
 import '../../../core/providers/child_standard_provider.dart';
 import '../../../core/providers/theme_provider.dart';
+import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/navigation_provider.dart';
 import '../../../data/models/user_model.dart';
 import '../../../domain/entities/child_standard.dart';
 
@@ -85,6 +87,30 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4CAF50),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      final router = GoRouter.of(context);
+                      // Navigate immediately for a smooth transition
+                      router.go('/auth');
+                      // Reset index and sign out in the background
+                      ref.read(navigationIndexProvider.notifier).setIndex(0);
+                      ref.read(authControllerProvider.notifier).signOut();
+                    },
+                    icon: const Icon(Icons.logout_rounded, color: Colors.white),
+                    label: const Text(
+                      'Logout',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       elevation: 0,

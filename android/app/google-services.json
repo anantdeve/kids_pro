@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1052955291246",
+    "project_id": "kidspro-f2e8c",
+    "storage_bucket": "kidspro-f2e8c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1052955291246:android:e9c24a99986144aba9807f",
+        "android_client_info": {
+          "package_name": "com.example.kids_pro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAn5btaYqVmTyGK5cHxHY67GY9pJdmsyCQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import '../../presentation/splash/screens/splash_screen.dart';
 import '../../presentation/splash/screens/standard_selection_screen.dart';
+import '../../presentation/auth/screens/auth_screen.dart';
 import '../../presentation/home/screens/main_screen.dart';
 import '../../presentation/learning/screens/abc_screen.dart';
 import '../../presentation/learning/screens/learning_world_hub_screen.dart';
@@ -30,6 +31,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/',
       builder: (context, state) => const SplashScreen(),
+    ),
+    GoRoute(
+      path: '/auth',
+      builder: (context, state) => const AuthScreen(),
     ),
     GoRoute(
       path: '/standard-selection',
