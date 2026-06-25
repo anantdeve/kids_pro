@@ -105,6 +105,50 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
     }
   }
 
+  void _signInWithGoogle() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final success = await ref.read(authControllerProvider.notifier).signInWithGoogle();
+      
+      final authError = ref.read(authControllerProvider).error;
+      if (authError != null) {
+        throw authError;
+      }
+      
+      if (success && mounted) {
+        final prefs = await SharedPreferences.getInstance();
+        final hasStandard = prefs.containsKey('child_standard_selection');
+        if (mounted) {
+          if (hasStandard) {
+            context.go('/home');
+          } else {
+            context.go('/standard-selection');
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Oops! ${e.toString().split(']').last}'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -138,29 +182,31 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                     // Floating Image
                     AnimatedBuilder(
                       animation: _floatAnimation,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              blurRadius: 20, // Reduced from 30 for better performance
+                              offset: const Offset(0, 15),
+                            ),
+                          ],
+                        ),
+                        child: Image.asset(
+                          'assets/images/splash_child.png',
+                          width: 150,
+                          height: 150,
+                          fit: BoxFit.contain,
+                          cacheWidth: 300, // Decode image at smaller resolution
+                          errorBuilder: (context, error, stackTrace) => 
+                              const Icon(Icons.sentiment_satisfied_alt, size: 100, color: Colors.white),
+                        ),
+                      ),
                       builder: (context, child) {
                         return Transform.translate(
                           offset: Offset(0, _floatAnimation.value),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.white.withValues(alpha: 0.8),
-                                  blurRadius: 30,
-                                  offset: const Offset(0, 15),
-                                ),
-                              ],
-                            ),
-                            child: Image.asset(
-                              'assets/images/splash_child.png',
-                              width: 150,
-                              height: 150,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) => 
-                                  const Icon(Icons.sentiment_satisfied_alt, size: 100, color: Colors.white),
-                            ),
-                          ),
+                          child: child,
                         );
                       },
                     ),
@@ -253,6 +299,39 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                                       ),
                                 
                                 const SizedBox(height: 16),
+                                const Row(
+                                  children: [
+                                    Expanded(child: Divider()),
+                                    Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("OR", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey))),
+                                    Expanded(child: Divider()),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                OutlinedButton.icon(
+                                  onPressed: _isLoading ? null : _signInWithGoogle,
+                                  icon: Image.network(
+                                    'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/120px-Google_%22G%22_logo.svg.png',
+                                    height: 24,
+                                    width: 24,
+                                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata_rounded, size: 36, color: Colors.redAccent),
+                                  ),
+                                  label: const Text(
+                                    'Continue with Google',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    minimumSize: const Size(double.infinity, 56),
+                                    side: BorderSide(color: Colors.grey.shade300, width: 2),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
                                 TextButton(
                                   onPressed: () {
                                     setState(() {
@@ -264,10 +343,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                                   ),
                                   child: Text(
                                     _isLogin
-                                        ? 'Need an account? Sign Up!'
-                                        : 'Already have an account? Login!',
+                                        ? 'Need an account? Sign Up'
+                                        : 'Already have an account? Login',
                                     style: const TextStyle(
                                       fontSize: 16,
+                                      color: Colors.pink,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),

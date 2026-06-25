@@ -110,42 +110,49 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
           // Animated Content
           Center(
-            child: AnimatedBuilder(
-              animation: Listenable.merge([_mainController, _floatController, _gradientController]),
-              builder: (context, child) {
-                return FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Animated Child Image
-                        Transform.translate(
-                          offset: Offset(0, _floatAnimation.value),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.white.withValues(alpha: 0.8),
-                                  blurRadius: 30,
-                                  offset: const Offset(0, 15),
-                                ),
-                              ],
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: ScaleTransition(
+                scale: _scaleAnimation,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Animated Child Image
+                    AnimatedBuilder(
+                      animation: _floatAnimation,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              blurRadius: 20, // Reduced from 30 for better performance
+                              offset: const Offset(0, 15),
                             ),
-                            child: Image.asset(
-                              'assets/images/splash_child.png',
-                              width: 250,
-                              height: 250,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
+                          ],
                         ),
-                        const SizedBox(height: 40),
+                        child: Image.asset(
+                          'assets/images/splash_child.png',
+                          width: 250,
+                          height: 250,
+                          fit: BoxFit.contain,
+                          cacheWidth: 500, // Decode image at smaller resolution
+                        ),
+                      ),
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(0, _floatAnimation.value),
+                          child: child,
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 40),
 
-                        // KidsPro Gradient Animated Text
-                        ShaderMask(
+                    // KidsPro Gradient Animated Text
+                    AnimatedBuilder(
+                      animation: _gradientController,
+                      builder: (context, child) {
+                        return ShaderMask(
                           shaderCallback: (bounds) {
                             return LinearGradient(
                               colors: const [
@@ -174,22 +181,22 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                               letterSpacing: 3,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Learning Made Fun!',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[700],
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  ),
-                );
-              },
+                    const SizedBox(height: 12),
+                    Text(
+                      'Learning Made Fun!',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[700],
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],

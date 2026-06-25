@@ -40,6 +40,24 @@ class AuthController extends AsyncNotifier<void> {
     }
   }
 
+  Future<bool> signInWithGoogle() async {
+    state = const AsyncLoading();
+    try {
+      final userCredential = await _authRepository.signInWithGoogle();
+      if (userCredential != null) {
+        state = const AsyncData(null);
+        return true;
+      } else {
+        // User cancelled login
+        state = const AsyncData(null);
+        return false;
+      }
+    } catch (e, stackTrace) {
+      state = AsyncError(e, stackTrace);
+      return false;
+    }
+  }
+
   Future<void> signOut() async {
     state = const AsyncLoading();
     try {

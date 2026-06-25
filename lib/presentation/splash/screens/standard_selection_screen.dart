@@ -90,26 +90,28 @@ class _StandardSelectionScreenState extends ConsumerState<StandardSelectionScree
                             // Floating Image Header
                             AnimatedBuilder(
                               animation: _floatAnimation,
+                              child: Container(
+                                height: screenHeight * 0.22,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.white.withValues(alpha: 0.8),
+                                      blurRadius: 20, // Reduced from 30 for better performance
+                                      offset: const Offset(0, 15),
+                                    ),
+                                  ],
+                                ),
+                                child: Image.asset(
+                                  'assets/images/splash_child.png',
+                                  fit: BoxFit.contain,
+                                  cacheWidth: 400, // Decode image at smaller resolution
+                                ),
+                              ),
                               builder: (context, child) {
                                 return Transform.translate(
                                   offset: Offset(0, _floatAnimation.value),
-                                  child: Container(
-                                    height: screenHeight * 0.22,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.white.withValues(alpha: 0.8),
-                                          blurRadius: 30,
-                                          offset: const Offset(0, 15),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Image.asset(
-                                      'assets/images/splash_child.png',
-                                      fit: BoxFit.contain,
-                                    ),
-                                  ),
+                                  child: child,
                                 );
                               },
                             ),

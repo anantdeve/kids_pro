@@ -11,6 +11,8 @@ import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/navigation_provider.dart';
 import '../../../data/models/user_model.dart';
 import '../../../domain/entities/child_standard.dart';
+import '../../../core/providers/settings_provider.dart';
+import 'dart:math';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -408,44 +410,65 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(width: 40, height: 5, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10))),
-                const SizedBox(height: 24),
-                Text('MAGIC SETTINGS', style: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color, fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 1)),
-                const SizedBox(height: 24),
-                _buildSettingsTile('Change Explorer Name', Icons.edit_rounded, AppColors.orangePrimary, onTap: () {
-                  Navigator.pop(context);
-                  _showEditNameDialog(user.name);
-                }),
-                const Divider(height: 1, indent: 24, endIndent: 24, color: Color(0xFFF3F4F6)),
-                _buildSettingsTile('Magical Sounds', Icons.volume_up_rounded, AppColors.primaryPink),
-                const Divider(height: 1, indent: 24, endIndent: 24, color: Color(0xFFF3F4F6)),
-                _buildSettingsTile('Parental Control', Icons.lock_rounded, AppColors.primaryBlue),
-                const Divider(height: 1, indent: 24, endIndent: 24, color: Color(0xFFF3F4F6)),
-                _buildSettingsTile('Delete Profile', Icons.delete_forever_rounded, Colors.red, onTap: () {
-                  Navigator.pop(context);
-                  _showDeleteProfileDialog();
-                }),
-                const SizedBox(height: 20),
-              ],
+      builder: (context) => Consumer(
+        builder: (context, ref, child) {
+          final settingsState = ref.watch(settingsProvider);
+          final isSoundsEnabled = settingsState.value?.magicalSoundsEnabled ?? true;
+
+          return Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
             ),
-          ),
-        ),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(width: 40, height: 5, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10))),
+                    const SizedBox(height: 24),
+                    Text('MAGIC SETTINGS', style: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color, fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 1)),
+                    const SizedBox(height: 24),
+                    _buildSettingsTile('Change Explorer Name', Icons.edit_rounded, AppColors.orangePrimary, onTap: () {
+                      Navigator.pop(context);
+                      _showEditNameDialog(user.name);
+                    }),
+                    const Divider(height: 1, indent: 24, endIndent: 24, color: Color(0xFFF3F4F6)),
+                    _buildSettingsTile(
+                      'Magical Sounds', 
+                      Icons.volume_up_rounded, 
+                      AppColors.primaryPink,
+                      trailing: Switch(
+                        value: isSoundsEnabled,
+                        onChanged: (val) {
+                          ref.read(settingsProvider.notifier).toggleMagicalSounds();
+                        },
+                        activeColor: AppColors.primaryPink,
+                      ),
+                    ),
+                    const Divider(height: 1, indent: 24, endIndent: 24, color: Color(0xFFF3F4F6)),
+                    _buildSettingsTile('Parental Control', Icons.lock_rounded, AppColors.primaryBlue, onTap: () {
+                      Navigator.pop(context);
+                      _showMathGate();
+                    }),
+                    const Divider(height: 1, indent: 24, endIndent: 24, color: Color(0xFFF3F4F6)),
+                    _buildSettingsTile('Delete Profile', Icons.delete_forever_rounded, Colors.red, onTap: () {
+                      Navigator.pop(context);
+                      _showDeleteProfileDialog();
+                    }),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
       ),
     );
   }
 
-  Widget _buildSettingsTile(String title, IconData icon, Color color, {VoidCallback? onTap}) {
+  Widget _buildSettingsTile(String title, IconData icon, Color color, {VoidCallback? onTap, Widget? trailing}) {
     return ListTile(
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
@@ -461,7 +484,111 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         title,
         style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.w800, fontSize: 16),
       ),
-      trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF7F8B9C)),
+      trailing: trailing ?? const Icon(Icons.chevron_right_rounded, color: Color(0xFF7F8B9C)),
+    );
+  }
+
+  void _showMathGate() {
+    final random = Random();
+    final num1 = random.nextInt(10) + 5; // 5 to 14
+    final num2 = random.nextInt(10) + 5; // 5 to 14
+    final correctAnswer = num1 * num2;
+    final controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text('FOR PARENTS ONLY', style: TextStyle(color: Color(0xFF2D3142), fontWeight: FontWeight.w900, fontSize: 18)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('To access Parental Controls, please solve this:', style: const TextStyle(color: Color(0xFF7F8B9C), fontWeight: FontWeight.w600)),
+            const SizedBox(height: 16),
+            Text('$num1 x $num2 = ?', style: const TextStyle(color: Color(0xFF2D3142), fontWeight: FontWeight.w900, fontSize: 24)),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Color(0xFF2D3142), fontWeight: FontWeight.w900, fontSize: 20),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: const Color(0xFFF3F4F6),
+                hintText: 'Answer',
+                hintStyle: const TextStyle(color: Color(0xFF7F8B9C)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+              ),
+            ),
+          ],
+        ),
+        actionsPadding: const EdgeInsets.only(right: 20, bottom: 20),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Color(0xFF7F8B9C), fontWeight: FontWeight.w800))),
+          ElevatedButton(
+            onPressed: () {
+              if (controller.text == correctAnswer.toString()) {
+                Navigator.pop(context);
+                _showParentalControls();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Incorrect answer. Please try again.', style: TextStyle(fontWeight: FontWeight.bold)), backgroundColor: Colors.red),
+                );
+                Navigator.pop(context);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryBlue,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+            child: const Text('VERIFY', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showParentalControls() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(width: 40, height: 5, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10))),
+                const SizedBox(height: 24),
+                Text('PARENTAL CONTROLS', style: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color, fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 1)),
+                const SizedBox(height: 24),
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                  leading: const Icon(Icons.timer_rounded, color: AppColors.primaryBlue),
+                  title: Text('Daily Time Limit (Coming Soon)', style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.w700)),
+                  trailing: Switch(value: false, onChanged: (v) {}),
+                ),
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                  leading: const Icon(Icons.block_rounded, color: Colors.red),
+                  title: Text('Manage Access (Coming Soon)', style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.w700)),
+                  trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF7F8B9C)),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
