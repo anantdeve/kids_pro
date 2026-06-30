@@ -159,14 +159,7 @@ class PuzzleHubScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Solve and learn!',
-                  style: TextStyle(
-                    fontSize: (screenWidth * 0.032).clamp(11.0, 13.0),
-                    color: Theme.of(context).textTheme.bodyMedium?.color ?? AppColors.textGray,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+
                 Text(
                   'Magical Puzzle Hub 🧩',
                   style: TextStyle(

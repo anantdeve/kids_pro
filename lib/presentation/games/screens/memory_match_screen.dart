@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'dart:math';
+import '../../learning/widgets/success_overlay.dart';
+import '../../../core/providers/user_provider.dart';
 
-class MemoryMatchScreen extends StatefulWidget {
+class MemoryMatchScreen extends ConsumerStatefulWidget {
   const MemoryMatchScreen({super.key});
 
   @override
-  State<MemoryMatchScreen> createState() => _MemoryMatchScreenState();
+  ConsumerState<MemoryMatchScreen> createState() => _MemoryMatchScreenState();
 }
 
-class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
+class _MemoryMatchScreenState extends ConsumerState<MemoryMatchScreen> {
   late List<MemoryCard> cards;
   int? firstSelectedIndex;
   int? secondSelectedIndex;
@@ -19,6 +22,7 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
   int matchesFound = 0;
   int totalPairs = 8;
   int moves = 0;
+  bool _isSuccess = false;
 
   final List<String> gameIcons = [
     '🍎', '🍌', '🍇', '🍓', '🍒', '🍍', '🥝', '🍉',
@@ -73,6 +77,9 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
         isChecking = false;
       });
 
+      // Award points per perfect match immediately
+      ref.read(userProvider.notifier).addPoints('Memory Match', 10);
+
       if (matchesFound == totalPairs) {
         _showVictoryDialog();
       }
@@ -92,49 +99,9 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
   }
 
   void _showVictoryDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-        child: AlertDialog(
-          backgroundColor: Theme.of(context).cardTheme.color ?? Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Great Job! 🎊', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF2D3142))),
-              const SizedBox(height: 20),
-              Text('You found all matches in $moves moves!', textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, color: Color(0xFF5C677D))),
-              const SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _startNewGame();
-                    },
-                    child: const Text('Try Again', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFFF8A65))),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      context.pop();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF8A65),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    ),
-                    child: const Text('Home', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    setState(() {
+      _isSuccess = true;
+    });
   }
 
   @override
@@ -173,6 +140,16 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
           ],
         ),
       ),
+      floatingActionButton: SuccessOverlay(
+        isVisible: _isSuccess,
+        onFinished: () {
+          setState(() {
+            _isSuccess = false;
+            _startNewGame();
+          });
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
@@ -210,7 +187,7 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildStatItem('Score', matchesFound.toString(), screenWidth),
+          _buildStatItem('Points', (matchesFound * 10).toString(), screenWidth),
           _buildStatItem('Moves', moves.toString(), screenWidth),
           IconButton(
             onPressed: _startNewGame,

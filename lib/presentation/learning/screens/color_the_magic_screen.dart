@@ -164,14 +164,7 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Draw and Color!',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Theme.of(context).textTheme.bodyMedium?.color ?? const Color(0xFF666666),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+
                             ShaderMask(
                               shaderCallback: (bounds) => const LinearGradient(
                                 colors: [

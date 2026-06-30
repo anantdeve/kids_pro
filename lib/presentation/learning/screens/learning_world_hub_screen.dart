@@ -67,14 +67,7 @@ class LearningWorldHubScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Choose your learning adventure! 🚀',
-                              style: TextStyle(
-                                fontSize: (screenWidth * 0.035).clamp(11.0, 14.0),
-                                color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+
                             ShaderMask(
                               shaderCallback: (bounds) => const LinearGradient(
                                 colors: [

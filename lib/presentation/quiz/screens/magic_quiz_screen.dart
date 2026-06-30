@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
+import 'package:flutter_tts/flutter_tts.dart';
 import '../../../core/providers/user_provider.dart';
 import '../../../core/widgets/magical_blob.dart';
 import '../../../data/repositories/local_quiz_repository.dart';
 import '../../../domain/entities/visual_question.dart';
+import '../../learning/widgets/success_overlay.dart';
 
 class MagicQuizScreen extends ConsumerStatefulWidget {
   final int categoryId;
@@ -18,6 +20,8 @@ class MagicQuizScreen extends ConsumerStatefulWidget {
 }
 
 class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
+  final FlutterTts flutterTts = FlutterTts();
+  bool _isMuted = false;
   final LocalQuizRepository _repository = LocalQuizRepository();
   late List<VisualQuestion> questions;
   
@@ -26,6 +30,7 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
   bool? isCorrect;
   int? selectedAnswerIndex;
   bool hasAnswered = false;
+  bool _isSuccess = false;
 
   @override
   void initState() {
@@ -37,6 +42,13 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
     setState(() {
       questions = _repository.getQuestionsForCategory(widget.categoryId);
     });
+    _speakQuestion();
+  }
+
+  void _speakQuestion() {
+    if (!_isMuted && questions.isNotEmpty) {
+      flutterTts.speak(questions[currentQuestionIndex].text);
+    }
   }
 
   void _checkAnswer(int index) {
@@ -62,6 +74,7 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
           isCorrect = null;
           hasAnswered = false;
         });
+        _speakQuestion();
       } else {
         _onQuizFinished();
       }
@@ -75,49 +88,9 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
   }
 
   void _showResult(int earnedPoints) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-        child: AlertDialog(
-          backgroundColor: Theme.of(context).cardTheme.color ?? Colors.white.withOpacity(0.95),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Quiz Finished! 🎉', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF2D3142))),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(color: Color(0xFFE8F5E9), shape: BoxShape.circle),
-                child: const Text('🌟', style: TextStyle(fontSize: 50)),
-              ),
-              const SizedBox(height: 10),
-              Text('+$earnedPoints Stars!', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.orange)),
-              const SizedBox(height: 20),
-              Text('Your Score', style: TextStyle(fontSize: 18, color: Colors.grey[600], fontWeight: FontWeight.w600)),
-              Text('$score / ${questions.length}', style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: Color(0xFF4CAF50))),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  context.pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF8A65),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  elevation: 5,
-                ),
-                child: const Text('Back Home', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    setState(() {
+      _isSuccess = true;
+    });
   }
 
   @override
@@ -141,6 +114,17 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
               ],
             ),
           ),
+          SuccessOverlay(
+            isVisible: _isSuccess,
+            onFinished: () {
+              if (mounted) {
+                setState(() {
+                  _isSuccess = false;
+                });
+                context.pop();
+              }
+            },
+          ),
         ],
       ),
     );
@@ -160,6 +144,31 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.close, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142), size: 24),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _isMuted = !_isMuted;
+                if (_isMuted) {
+                  flutterTts.stop();
+                } else {
+                  _speakQuestion();
+                }
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardTheme.color?.withOpacity(0.6) ?? Colors.white.withOpacity(0.6),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+                color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142),
+                size: 24,
+              ),
             ),
           ),
           const SizedBox(width: 16),
@@ -213,8 +222,6 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF2D3142)),
                 ),
-                const SizedBox(height: 20),
-                const Icon(Icons.volume_up_rounded, color: Color(0xFFFF8A65), size: 40),
               ],
             ),
           ),

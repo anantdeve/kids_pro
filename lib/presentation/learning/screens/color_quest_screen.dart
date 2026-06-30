@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
+import 'package:flutter_tts/flutter_tts.dart';
+import '../widgets/success_overlay.dart';
 
 class ColorQuestScreen extends StatefulWidget {
   const ColorQuestScreen({super.key});
@@ -10,6 +12,8 @@ class ColorQuestScreen extends StatefulWidget {
 }
 
 class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProviderStateMixin {
+  final FlutterTts flutterTts = FlutterTts();
+  bool _isMuted = false;
   final List<GameColor> allColors = [
     GameColor(name: 'YELLOW', color: const Color(0xFFFFD166)),
     GameColor(name: 'PINK', color: const Color(0xFFFF7B9C)),
@@ -19,16 +23,18 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
     GameColor(name: 'PURPLE', color: const Color(0xFFB497FF)),
   ];
 
+  final Random random = Random();
+  int level = 1;
   late GameColor targetColor;
   late List<GameColor> options;
-  final Random random = Random();
-  
   late AnimationController _shakeController;
+  late Animation<double> _shakeAnimation;
+  String? _lastTappedName;
+  bool _isSuccess = false;
+  GameColor? _lastTargetColor;
+
   late AnimationController _floatController;
   late Animation<double> _floatAnimation;
-  
-  String? _lastTappedName;
-  GameColor? _lastTargetColor;
 
   @override
   void initState() {
@@ -71,12 +77,20 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
       options = [targetColor, ...otherColors.take(3)];
       options.shuffle();
     });
+    
+    // Automatically speak the target color when a new level is generated
+    if (!_isMuted) {
+      flutterTts.speak('Tap the ${targetColor.name.toLowerCase()}');
+    }
   }
 
   void _onColorTap(GameColor tappedColor) {
     setState(() => _lastTappedName = tappedColor.name);
     
     if (tappedColor.name == targetColor.name) {
+      if (!_isMuted) {
+        flutterTts.speak(tappedColor.name.toLowerCase());
+      }
       _showSuccessEffect();
     } else {
       _shakeController.forward(from: 0);
@@ -84,51 +98,9 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
   }
 
   void _showSuccessEffect() {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierLabel: '',
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, anim1, anim2) => const SizedBox.shrink(),
-      transitionBuilder: (context, anim1, anim2, child) {
-        return ScaleTransition(
-          scale: CurvedAnimation(parent: anim1, curve: Curves.elasticOut),
-          child: AlertDialog(
-            backgroundColor: Theme.of(context).cardTheme.color ?? Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('🌟', style: TextStyle(fontSize: 60)),
-                const SizedBox(height: 16),
-                const Text(
-                  'BRILLIANT!',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFFFFB6C1),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _generateNewLevel();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF67E1F5),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  ),
-                  child: const Text('NEXT LEVEL', style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    setState(() {
+      _isSuccess = true;
+    });
   }
 
   @override
@@ -211,14 +183,7 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Level up your streak!',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+
                             Text(
                               'COLOR QUEST',
                               style: TextStyle(
@@ -229,6 +194,33 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardTheme.color ?? Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _isMuted = !_isMuted;
+                              if (_isMuted) {
+                                flutterTts.stop();
+                              }
+                            });
+                          },
+                          icon: Icon(
+                            _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+                            color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87,
+                          ),
                         ),
                       ),
                     ],
@@ -246,41 +238,48 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
                       child: child,
                     );
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
-                    margin: const EdgeInsets.symmetric(horizontal: 40),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardTheme.color ?? Colors.white,
-                      borderRadius: BorderRadius.circular(40),
-                      boxShadow: [
-                        BoxShadow(
-                          color: targetColor.color.withValues(alpha: 0.2),
-                          blurRadius: 30,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          'Tap the',
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
-                            fontWeight: FontWeight.w700,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (!_isMuted) {
+                        flutterTts.speak('Tap the ${targetColor.name.toLowerCase()}');
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+                      margin: const EdgeInsets.symmetric(horizontal: 40),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardTheme.color ?? Colors.white,
+                        borderRadius: BorderRadius.circular(40),
+                        boxShadow: [
+                          BoxShadow(
+                            color: targetColor.color.withValues(alpha: 0.2),
+                            blurRadius: 30,
+                            offset: const Offset(0, 10),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          targetColor.name,
-                          style: TextStyle(
-                            fontSize: 48, // Reduced from 60
-                            fontWeight: FontWeight.w900,
-                            color: targetColor.color,
-                            letterSpacing: -0.5,
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Tap the',
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 10),
+                          Text(
+                            targetColor.name,
+                            style: TextStyle(
+                              fontSize: 48, // Reduced from 60
+                              fontWeight: FontWeight.w900,
+                              color: targetColor.color,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -339,6 +338,15 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
                 const Spacer(flex: 2),
               ],
             ),
+          ),
+          SuccessOverlay(
+            isVisible: _isSuccess,
+            onFinished: () {
+              setState(() {
+                _isSuccess = false;
+                _generateNewLevel();
+              });
+            },
           ),
         ],
       ),

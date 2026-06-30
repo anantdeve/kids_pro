@@ -127,12 +127,13 @@ class _MagicStorySelectionScreenState extends State<MagicStorySelectionScreen> {
                 ),
               ],
             ),
-            Positioned(
-              bottom: screenHeight * 0.04,
-              left: screenWidth * 0.1,
-              right: screenWidth * 0.1,
-              child: _buildActionBtn(screenWidth),
-            ),
+            if (selectedHero != null && selectedPlace != null)
+              Positioned(
+                bottom: screenHeight * 0.04,
+                left: screenWidth * 0.1,
+                right: screenWidth * 0.1,
+                child: _buildActionBtn(screenWidth),
+              ),
             if (isLoading)
               Container(
                 color: Colors.black45,

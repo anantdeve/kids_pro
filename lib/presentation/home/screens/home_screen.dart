@@ -17,32 +17,10 @@ class HomeScreen extends ConsumerWidget {
     final isTablet = screenWidth > 600;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
-          if (Theme.of(context).brightness == Brightness.light)
-            Positioned.fill(
-              child: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFFE8F6FA),
-                      Color(0xFFFEF2F4),
-                      Color(0xFFFAFAFA),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-              ),
-            ),
           
-          // Magical Background Elements - Using screen size for positioning
-          Positioned(top: screenHeight * 0.14, left: screenWidth * 0.08, child: const _FloatingIcon(icon: Icons.star_rounded, color: Color(0xFFFFD600), size: 30, duration: 3000)),
-          Positioned(bottom: screenHeight * 0.25, right: screenWidth * 0.1, child: const _FloatingIcon(icon: Icons.auto_awesome_rounded, color: Color(0xFFB39DDB), size: 24, duration: 4000)),
-          Positioned(top: screenHeight * 0.35, right: screenWidth * 0.15, child: const _FloatingIcon(icon: Icons.favorite_rounded, color: Color(0xFFF48FB1), size: 20, duration: 3500)),
-          Positioned(bottom: screenHeight * 0.12, left: screenWidth * 0.2, child: const _FloatingIcon(icon: Icons.circle, color: Color(0xFF81D4FA), size: 15, duration: 5000)),
-
           // Content
           SafeArea(
             child: SingleChildScrollView(
@@ -116,21 +94,7 @@ class HomeScreen extends ConsumerWidget {
         childAspectRatio: aspectRatio,
       ),
       itemBuilder: (context, index) {
-        return TweenAnimationBuilder<double>(
-          duration: Duration(milliseconds: 600 + (index * 200)),
-          curve: Curves.easeOutBack,
-          tween: Tween<double>(begin: 0, end: 1),
-          builder: (context, value, child) {
-            return Transform.translate(
-              offset: Offset(0, 50 * (1 - value)),
-              child: Opacity(
-                opacity: value.clamp(0.0, 1.0),
-                child: child,
-              ),
-            );
-          },
-          child: cards[index],
-        );
+        return cards[index];
       },
     );
   }
@@ -142,59 +106,6 @@ class HomeScreen extends ConsumerWidget {
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-    );
-  }
-}
-
-class _FloatingIcon extends StatefulWidget {
-  final IconData icon;
-  final Color color;
-  final double size;
-  final int duration;
-
-  const _FloatingIcon({
-    required this.icon,
-    required this.color,
-    required this.size,
-    required this.duration,
-  });
-
-  @override
-  State<_FloatingIcon> createState() => _FloatingIconState();
-}
-
-class _FloatingIconState extends State<_FloatingIcon> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this, duration: Duration(milliseconds: widget.duration))..repeat(reverse: true);
-    _animation = Tween<double>(begin: 0, end: 15).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(0, _animation.value),
-          child: Opacity(
-            opacity: 0.3,
-            child: Icon(widget.icon, color: widget.color, size: widget.size),
-          ),
-        );
-      },
     );
   }
 }

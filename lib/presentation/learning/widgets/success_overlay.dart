@@ -11,7 +11,7 @@ class SuccessOverlay extends StatefulWidget {
     super.key,
     required this.isVisible,
     required this.onFinished,
-    this.showBadge = true,
+    this.showBadge = false,
   });
 
   @override

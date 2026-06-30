@@ -67,21 +67,13 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
 
   void _startNewGame() {
     int totalPieces = _gridSize * _gridSize;
-    // Use the specific animal tag chosen by the user
-    _currentImageUrl = 'https://loremflickr.com/800/800/${widget.initialAnimalTag},cartoon,illustration?random=${math.Random().nextInt(1000)}';
+    _currentImageUrl = 'assets/images/jigsaw_${widget.initialAnimalTag}.png';
     
     setState(() {
-      _isLoadingImage = true;
+      _isLoadingImage = false;
       _placedPieces = List.filled(totalPieces, null);
       _availablePieces = List.generate(totalPieces, (index) => index)..shuffle();
       _isCompleted = false;
-    });
-    
-    // Prefetch image to ensure all pieces use the SAME redirected URL
-    precacheImage(NetworkImage(_currentImageUrl), context).then((_) {
-      if (mounted) setState(() => _isLoadingImage = false);
-    }).catchError((_) {
-      if (mounted) setState(() => _isLoadingImage = false);
     });
   }
 
@@ -168,15 +160,20 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: Colors.white, width: 4),
                       ),
-                      child: GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: _gridSize,
-                        ),
-                        itemCount: _gridSize * _gridSize,
-                        itemBuilder: (context, index) {
-                          return _buildTargetSlot(index, puzzleSize / _gridSize);
-                        },
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: List.generate(_gridSize * _gridSize, (index) {
+                          int row = index ~/ _gridSize;
+                          int col = index % _gridSize;
+                          double pSize = puzzleSize / _gridSize;
+                          return Positioned(
+                            left: col * pSize,
+                            top: row * pSize,
+                            width: pSize,
+                            height: pSize,
+                            child: _buildTargetSlot(index, pSize),
+                          );
+                        }),
                       ),
                     ),
                     if (_isLoadingImage)
@@ -198,7 +195,7 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
                       itemBuilder: (context, index) {
                         int pieceIndex = _availablePieces[index];
                         return Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(24.0),
                           child: Draggable<int>(
                             data: pieceIndex,
                             feedback: _buildPuzzlePiece(pieceIndex, puzzleSize / _gridSize, true),
@@ -279,15 +276,11 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
               -1.0 + (col * 2 / (_gridSize - 1)), 
               -1.0 + (row * 2 / (_gridSize - 1))
             ),
-            child: Image.network(
+            child: Image.asset(
               _currentImageUrl,
               width: size * _gridSize,
               height: size * _gridSize,
               fit: BoxFit.fill,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Center(child: CircularProgressIndicator(value: loadingProgress.expectedTotalBytes != null ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes! : null));
-              },
               errorBuilder: (context, error, stackTrace) => Image.asset(
                 'assets/images/learning_world.png',
                 width: size * _gridSize,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import '../../../core/widgets/magical_blob.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../learning/widgets/success_overlay.dart';
 
 enum ArrowDirection { up, down, left, right }
 enum ArrowDifficulty { easy, medium, hard }
@@ -44,6 +45,7 @@ class _ArrowEscapeScreenState extends State<ArrowEscapeScreen> {
   int _score = 0;
   late int _level;
   bool _isGenerating = false;
+  bool _isLevelComplete = false;
 
   final List<Color> _blockColors = [
     const Color(0xFFFF7B9C),
@@ -203,41 +205,9 @@ class _ArrowEscapeScreenState extends State<ArrowEscapeScreen> {
   }
 
   void _showLevelComplete() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Level Cleared! 🌟', style: TextStyle(color: AppColors.primaryPink, fontWeight: FontWeight.w900, fontSize: 28), textAlign: TextAlign.center),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.celebration_rounded, color: Colors.amber, size: 64),
-            const SizedBox(height: 16),
-            Text('Score: $_score', style: const TextStyle(fontSize: 20, color: AppColors.textPrimary, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-          ],
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryGreen,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              elevation: 5,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() {
-                _level++;
-                _generateLevel();
-              });
-            },
-            child: const Text('Next Level', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w900)),
-          )
-        ],
-      )
-    );
+    setState(() {
+      _isLevelComplete = true;
+    });
   }
 
 
@@ -280,7 +250,17 @@ class _ArrowEscapeScreenState extends State<ArrowEscapeScreen> {
                 const Spacer(flex: 2),
               ],
             ),
-          )
+          ),
+          SuccessOverlay(
+            isVisible: _isLevelComplete,
+            onFinished: () {
+              setState(() {
+                _isLevelComplete = false;
+                _level++;
+                _generateLevel();
+              });
+            },
+          ),
         ],
       ),
     );

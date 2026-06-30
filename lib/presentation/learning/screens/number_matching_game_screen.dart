@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
+import 'package:flutter_tts/flutter_tts.dart';
 import '../widgets/success_overlay.dart';
 
 class NumberMatchingGameScreen extends StatefulWidget {
@@ -11,6 +12,8 @@ class NumberMatchingGameScreen extends StatefulWidget {
 }
 
 class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
+  final FlutterTts flutterTts = FlutterTts();
+  bool _isMuted = false;
   final Random random = Random();
   late int targetNumber;
   late List<int> options;
@@ -88,19 +91,40 @@ class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
                           icon: const Icon(Icons.arrow_back, color: Colors.black87),
                         ),
                       ),
+                      const SizedBox(width: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _isMuted = !_isMuted;
+                              if (_isMuted) {
+                                flutterTts.stop();
+                              }
+                            });
+                          },
+                          icon: Icon(
+                            _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Drag the number to the set!',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+
                             ShaderMask(
                               shaderCallback: (bounds) => const LinearGradient(
                                 colors: [
@@ -266,6 +290,9 @@ class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
   }
 
   void _showSuccessEffect() {
+    if (!_isMuted) {
+      flutterTts.speak(targetNumber.toString());
+    }
     setState(() {
       _isSuccess = true;
     });

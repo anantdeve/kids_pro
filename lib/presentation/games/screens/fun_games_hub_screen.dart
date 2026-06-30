@@ -122,14 +122,7 @@ class FunGamesHubScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Choose a game to play! 🎡',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).textTheme.bodyMedium?.color ?? const Color(0xFF8D99AE),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,

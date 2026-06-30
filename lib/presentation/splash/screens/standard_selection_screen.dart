@@ -127,17 +127,7 @@ class _StandardSelectionScreenState extends ConsumerState<StandardSelectionScree
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'Pick the perfect learning journey for your child.',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: AppColors.primaryPink.withValues(alpha: 0.5),
-                                fontWeight: FontWeight.w500,
-                                height: 1.4,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
+
                             const SizedBox(height: 12),
                           ],
                         ),

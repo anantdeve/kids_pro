@@ -78,14 +78,7 @@ class ColorsAdventureScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Discover the magic of colors!',
-                              style: TextStyle(
-                                fontSize: (screenWidth * 0.035).clamp(11.0, 13.0),
-                                color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+
                             ShaderMask(
                               shaderCallback: (bounds) => const LinearGradient(
                                 colors: [

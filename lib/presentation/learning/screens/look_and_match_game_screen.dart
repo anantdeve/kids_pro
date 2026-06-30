@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math';
+import 'package:flutter_tts/flutter_tts.dart';
 import '../widgets/success_overlay.dart';
 import '../../../core/providers/user_provider.dart';
 
@@ -15,6 +16,8 @@ class LookAndMatchGameScreen extends ConsumerStatefulWidget {
 }
 
 class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen> {
+  final FlutterTts flutterTts = FlutterTts();
+  bool _isMuted = false;
   late List<MatchItem> leftItems;
   late List<MatchItem> rightItems;
 
@@ -120,6 +123,11 @@ class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen>
       if (foundRightId != null && foundRightId == activeLeftId) {
         // Haptic feedback for a successful match
         HapticFeedback.mediumImpact();
+        
+        if (!_isMuted) {
+          final matchedItem = rightItems.firstWhere((it) => it.id == foundRightId);
+          flutterTts.speak(matchedItem.text.toLowerCase());
+        }
 
         setState(() {
           matchedPairs.add(MatchedPair(
@@ -267,19 +275,34 @@ class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen>
               child: const Icon(Icons.arrow_back, color: Color(0xFF2D3142), size: 24),
             ),
           ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _isMuted = !_isMuted;
+                if (_isMuted) {
+                  flutterTts.stop();
+                }
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF5F0).withValues(alpha: 0.5),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+                color: const Color(0xFF2D3142),
+                size: 24,
+              ),
+            ),
+          ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Draw lines to connect!',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF8D99AE),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/widgets/magical_blob.dart';
 import '../../../core/constants/app_colors.dart';
 import 'dart:math';
+import '../../learning/widgets/success_overlay.dart';
 
 class BlockShape {
   final List<List<bool>> shape;
@@ -46,6 +47,7 @@ class _BlockBusterPuzzleScreenState extends State<BlockBusterPuzzleScreen> with 
   final GlobalKey _boardKey = GlobalKey();
   final Random _random = Random();
   int _generationId = 0; // used for keys to trigger animations
+  bool _isGameOverState = false;
   
   @override
   void initState() {
@@ -149,49 +151,8 @@ class _BlockBusterPuzzleScreenState extends State<BlockBusterPuzzleScreen> with 
   }
 
   void _showGameOverDialog() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          title: const Text(
-            'Game Over! 🌟', 
-            style: TextStyle(color: AppColors.primaryPink, fontWeight: FontWeight.w900, fontSize: 28),
-            textAlign: TextAlign.center,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.stars_rounded, color: Colors.amber, size: 64),
-              const SizedBox(height: 16),
-              Text(
-                'Amazing job!\nYour score is $_score', 
-                style: const TextStyle(fontSize: 20, color: AppColors.textPrimary, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryPink,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                elevation: 5,
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-                setState(() {
-                  _resetGame();
-                });
-              },
-              child: const Text('Play Again', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w900)),
-            )
-          ],
-        )
-      );
+    setState(() {
+      _isGameOverState = true;
     });
   }
 
@@ -238,7 +199,16 @@ class _BlockBusterPuzzleScreenState extends State<BlockBusterPuzzleScreen> with 
                 const SizedBox(height: 20),
               ],
             ),
-          )
+          ),
+          SuccessOverlay(
+            isVisible: _isGameOverState,
+            onFinished: () {
+              setState(() {
+                _isGameOverState = false;
+                _resetGame();
+              });
+            },
+          ),
         ],
       ),
     );

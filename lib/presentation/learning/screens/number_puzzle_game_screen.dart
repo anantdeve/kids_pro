@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kids_pro/core/widgets/magical_blob.dart';
 import 'dart:math';
 import 'dart:ui';
+import 'package:flutter_tts/flutter_tts.dart';
 
 enum PuzzlePart { top, bottom }
 
@@ -20,6 +21,8 @@ class NumberPuzzleGameScreen extends StatefulWidget {
 }
 
 class _NumberPuzzleGameScreenState extends State<NumberPuzzleGameScreen> with TickerProviderStateMixin {
+  final FlutterTts flutterTts = FlutterTts();
+  bool _isMuted = false;
   final Random random = Random();
   late int targetNumber;
   List<PuzzlePart> placedParts = [];
@@ -78,6 +81,9 @@ class _NumberPuzzleGameScreenState extends State<NumberPuzzleGameScreen> with Ti
       placedParts.add(part);
       if (placedParts.length == 2) {
         isCompleted = true;
+        if (!_isMuted) {
+          flutterTts.speak(targetNumber.toString());
+        }
         _successController.forward();
         _showSuccessEffect();
       }
@@ -166,6 +172,29 @@ class _NumberPuzzleGameScreenState extends State<NumberPuzzleGameScreen> with Ti
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.arrow_back, color: Color(0xFF2D3142), size: 28),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _isMuted = !_isMuted;
+                if (_isMuted) {
+                  flutterTts.stop();
+                }
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF5F0).withValues(alpha: 0.5),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+                color: const Color(0xFF2D3142),
+                size: 28,
+              ),
             ),
           ),
           const SizedBox(width: 16),

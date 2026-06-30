@@ -24,30 +24,17 @@ class HomeCard extends StatefulWidget {
 class _HomeCardState extends State<HomeCard> with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
-  late AnimationController _floatController;
-  late Animation<double> _floatAnimation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(_controller);
-
-    // Floating animation
-    _floatController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1500 + (widget.title.length * 100)), // Variation in speed
-    )..repeat(reverse: true);
-    
-    _floatAnimation = Tween<double>(begin: 0, end: -8.0).animate(
-      CurvedAnimation(parent: _floatController, curve: Curves.easeInOutSine),
-    );
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    _floatController.dispose();
     super.dispose();
   }
 
@@ -65,13 +52,11 @@ class _HomeCardState extends State<HomeCard> with TickerProviderStateMixin {
           },
           onTapCancel: () => _controller.reverse(),
           child: AnimatedBuilder(
-            animation: Listenable.merge([_scaleAnimation, _floatAnimation]),
-            builder: (context, child) => Transform.translate(
-              offset: Offset(0, _floatAnimation.value),
-              child: Transform.scale(
-                scale: _scaleAnimation.value,
-                child: Container(
-                  decoration: BoxDecoration(
+            animation: _scaleAnimation,
+            builder: (context, child) => Transform.scale(
+              scale: _scaleAnimation.value,
+              child: Container(
+                decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
                         widget.shadowColor.withValues(alpha: 0.5),
@@ -92,7 +77,7 @@ class _HomeCardState extends State<HomeCard> with TickerProviderStateMixin {
                   padding: const EdgeInsets.all(2.5), // The border thickness
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(25.5),
                     ),
                     padding: const EdgeInsets.all(12.0),
@@ -142,7 +127,6 @@ class _HomeCardState extends State<HomeCard> with TickerProviderStateMixin {
                 ),
               ),
             ),
-          ),
         );
       },
     );

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'dart:math';
+import '../../learning/widgets/success_overlay.dart';
 
 class BubblePopScreen extends StatefulWidget {
   const BubblePopScreen({super.key});
@@ -17,6 +18,7 @@ class _BubblePopScreenState extends State<BubblePopScreen> with TickerProviderSt
   late Timer spawnTimer;
   late Timer updateTimer;
   final Random random = Random();
+  double _elapsedTime = 0.0;
 
   @override
   void initState() {
@@ -36,11 +38,19 @@ class _BubblePopScreenState extends State<BubblePopScreen> with TickerProviderSt
   void _startUpdating() {
     updateTimer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
       if (!mounted || isGameOver) return;
+      
+      _elapsedTime += 0.016; // Increment elapsed time by 16ms
+      
+      // Starts slow (cos(0)=1 -> 1.25 - 0.75 = 0.5)
+      // Gradually speeds up to fast (cos(pi)=-1 -> 1.25 + 0.75 = 2.0)
+      // Then slows down again in a smooth wave.
+      final double speedMultiplier = 1.25 - 0.75 * cos(_elapsedTime);
+
       setState(() {
         for (var i = bubbles.length - 1; i >= 0; i--) {
           bubbles[i].position = Offset(
-            bubbles[i].position.dx + bubbles[i].velocity.dx,
-            bubbles[i].position.dy + bubbles[i].velocity.dy,
+            bubbles[i].position.dx + (bubbles[i].velocity.dx * speedMultiplier),
+            bubbles[i].position.dy + (bubbles[i].velocity.dy * speedMultiplier),
           );
 
           // Check if bubble is missed (floats off screen)
@@ -54,57 +64,13 @@ class _BubblePopScreenState extends State<BubblePopScreen> with TickerProviderSt
   }
 
   bool isGameOver = false;
+  bool _isGameOverState = false;
 
   void _handleGameOver() {
     setState(() {
       isGameOver = true;
+      _isGameOverState = true;
     });
-    
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-        child: AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Oops! 🫧', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF2D3142))),
-              const SizedBox(height: 20),
-              const Icon(Icons.sentiment_dissatisfied_rounded, color: Color(0xFFFF8A65), size: 60),
-              const SizedBox(height: 20),
-              Text('A bubble escaped!\nYour Score: $score', textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, color: Color(0xFF5C677D))),
-              const SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _restartGame();
-                    },
-                    child: const Text('Try Again', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFFF8A65))),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      context.pop();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF8A65),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    ),
-                    child: const Text('Home', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   void _restartGame() {
@@ -112,6 +78,7 @@ class _BubblePopScreenState extends State<BubblePopScreen> with TickerProviderSt
       score = 0;
       bubbles.clear();
       isGameOver = false;
+      _elapsedTime = 0.0;
     });
   }
 
@@ -128,7 +95,7 @@ class _BubblePopScreenState extends State<BubblePopScreen> with TickerProviderSt
     bubbles.add(Bubble(
       id: DateTime.now().millisecondsSinceEpoch,
       position: Offset(random.nextDouble() * (screenWidth - 80), screenHeight + 50),
-      velocity: Offset(random.nextDouble() * 2 - 1, -(random.nextDouble() * 2 + 1.5)),
+      velocity: Offset(0, -(random.nextDouble() * 2 + 1.5)),
       color: color,
       size: 60 + random.nextDouble() * 30,
     ));
@@ -186,7 +153,17 @@ class _BubblePopScreenState extends State<BubblePopScreen> with TickerProviderSt
                 child: BubbleWidget(bubble: bubble),
               ),
             );
-          }),
+          }).toList(),
+          SuccessOverlay(
+            isVisible: _isGameOverState,
+            showBadge: false,
+            onFinished: () {
+              setState(() {
+                _isGameOverState = false;
+                _restartGame();
+              });
+            },
+          ),
         ],
       ),
     );

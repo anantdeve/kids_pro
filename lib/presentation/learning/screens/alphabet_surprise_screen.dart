@@ -47,6 +47,7 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
   };
 
   int? revealedBoxIndex;
+  int winningBoxIndex = 0;
   bool isDragging = false;
   bool _isBigReveal = false;
 
@@ -127,6 +128,7 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
       currentLetter = alphabets[random.nextInt(alphabets.length)];
       revealedBoxIndex = null;
       _isBigReveal = false;
+      winningBoxIndex = random.nextInt(3);
     });
   }
 
@@ -350,13 +352,15 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
       child: DragTarget<String>(
         onWillAcceptWithDetails: (details) => revealedBoxIndex == null,
         onAcceptWithDetails: (details) {
-          setState(() {
-            revealedBoxIndex = index;
-            _isBigReveal = true;
-          });
-          _openingController.forward(from: 0);
-          _bigRevealController.forward(from: 0);
-          _showSurprise();
+          if (index == winningBoxIndex) {
+            setState(() {
+              revealedBoxIndex = index;
+              _isBigReveal = true;
+            });
+            _openingController.forward(from: 0);
+            _bigRevealController.forward(from: 0);
+            _showSurprise();
+          }
         },
         builder: (context, candidateData, rejectedData) {
           return Transform.translate(

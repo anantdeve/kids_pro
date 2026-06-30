@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math';
+import '../../learning/widgets/success_overlay.dart';
 
 class ShadowMatcherScreen extends StatefulWidget {
   const ShadowMatcherScreen({super.key});
@@ -16,6 +17,7 @@ class _ShadowMatcherScreenState extends State<ShadowMatcherScreen> {
   Map<int, bool> matches = {};
   int round = 1;
   final Random random = Random();
+  bool _isSuccess = false;
 
   final Map<String, List<String>> gameData = {
     'Animals': ['🦊', '🐢', '🐘', '🐨', '🦁', '🦒', '🦓', '🐸', '🐼', '🐯', '🐧', '🦉'],
@@ -49,60 +51,10 @@ class _ShadowMatcherScreenState extends State<ShadowMatcherScreen> {
 
   void _checkVictory() {
     if (matches.length == 4) {
-      Future.delayed(const Duration(milliseconds: 1000), () {
-        if (mounted) {
-          _startNewGame(incrementRound: true);
-        }
+      setState(() {
+        _isSuccess = true;
       });
     }
-  }
-
-  void _showVictoryDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-        child: AlertDialog(
-          backgroundColor: Theme.of(context).cardTheme.color ?? Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Brilliant! 🕵️✨', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF2D3142))),
-              const SizedBox(height: 20),
-              const Text('🌟 🌟 🌟', style: TextStyle(fontSize: 40)),
-              const SizedBox(height: 20),
-              const Text('You matched all the animals!', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, color: Color(0xFF5C677D))),
-              const SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _startNewGame();
-                    },
-                    child: const Text('Play Again', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFFF8A65))),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      context.pop();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF8A65),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    ),
-                    child: const Text('Home', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -126,6 +78,16 @@ class _ShadowMatcherScreenState extends State<ShadowMatcherScreen> {
           ],
         ),
       ),
+      floatingActionButton: SuccessOverlay(
+        isVisible: _isSuccess,
+        onFinished: () {
+          setState(() {
+            _isSuccess = false;
+            _startNewGame(incrementRound: true);
+          });
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 

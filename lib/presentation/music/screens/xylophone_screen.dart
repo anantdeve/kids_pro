@@ -225,18 +225,6 @@ class _XylophoneBar extends StatelessWidget {
               // Screws/Circles on sides
               Positioned(left: 20, top: 0, bottom: 0, child: _BarScrew()),
               Positioned(right: 20, top: 0, bottom: 0, child: _BarScrew()),
-              
-              Center(
-                child: Text(
-                  data['label'],
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    shadows: [Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
-                  ),
-                ),
-              ),
             ],
           ),
         ),

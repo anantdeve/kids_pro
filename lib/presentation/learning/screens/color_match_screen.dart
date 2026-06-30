@@ -1,6 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import '../widgets/success_overlay.dart';
+
 
 class ColorMatchScreen extends StatefulWidget {
   const ColorMatchScreen({super.key});
@@ -10,6 +13,11 @@ class ColorMatchScreen extends StatefulWidget {
 }
 
 class _ColorMatchScreenState extends State<ColorMatchScreen> {
+  final FlutterTts flutterTts = FlutterTts();
+  bool _isSuccess = false;
+  bool _isMuted = false;
+
+  
   final Map<String, List<String>> emojiPool = {
     'yellow': ['🍌', '🍋', '🐥', '🧀', '🌻', '🟡', '🌽'],
     'pink': ['🌸', '🐷', '🎀', '🍭', '💗', '🍬', '🦩'],
@@ -131,14 +139,19 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
     }
 
     if (targetObjectId != null && targetObjectId == activeLabelId) {
+      final matchedLabel = labels.firstWhere((l) => l.id == activeLabelId).label;
+      if (!_isMuted) {
+        flutterTts.speak(matchedLabel.toLowerCase());
+      }
+
       setState(() {
         matches[activeLabelId!] = targetObjectId!;
       });
 
       // Check for completion
       if (matches.length == labels.length) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          _showSuccessDialog();
+        setState(() {
+          _isSuccess = true;
         });
       }
     }
@@ -150,85 +163,6 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
     });
   }
 
-  void _showSuccessDialog() {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierLabel: '',
-      transitionDuration: const Duration(milliseconds: 400),
-      pageBuilder: (context, anim1, anim2) {
-        return const SizedBox.shrink();
-      },
-      transitionBuilder: (context, anim1, anim2, child) {
-        return ScaleTransition(
-          scale: CurvedAnimation(parent: anim1, curve: Curves.elasticOut),
-          child: AlertDialog(
-            backgroundColor: Theme.of(context).cardTheme.color ?? Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  '🎉',
-                  style: TextStyle(fontSize: 60),
-                ),
-                const SizedBox(height: 16),
-                ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    colors: [Color(0xFFFF7B9C), Color(0xFFB497FF)],
-                  ).createShader(bounds),
-                  child: const Text(
-                    'AMAZING!',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'You matched all the colors!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    setState(() {
-                      _setupGame();
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF67E1F5),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    elevation: 5,
-                  ),
-                  child: const Text(
-                    'PLAY AGAIN',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -280,14 +214,7 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Connect colors to objects!',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+
                             ShaderMask(
                               shaderCallback: (bounds) => const LinearGradient(
                                 colors: [
@@ -306,6 +233,33 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardTheme.color ?? Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _isMuted = !_isMuted;
+                              if (_isMuted) {
+                                flutterTts.stop();
+                              }
+                            });
+                          },
+                          icon: Icon(
+                            _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+                            color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87,
+                          ),
                         ),
                       ),
                     ],
@@ -352,17 +306,17 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
                                     width: 120,
                                     height: 50,
                                     decoration: BoxDecoration(
-                                      color: Theme.of(context).cardTheme.color ?? Colors.white,
+                                      color: item.color,
                                       borderRadius: BorderRadius.circular(25),
                                       border: Border.all(
                                         color: isMatched || activeLabelId == item.id 
-                                            ? item.color 
+                                            ? Colors.white 
                                             : Colors.transparent,
                                         width: 3,
                                       ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.05),
+                                          color: item.color.withValues(alpha: 0.4),
                                           blurRadius: 10,
                                           offset: const Offset(0, 4),
                                         ),
@@ -371,12 +325,17 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
                                     alignment: Alignment.center,
                                     child: Text(
                                       item.label,
-                                      style: TextStyle(
-                                        color: isMatched || activeLabelId == item.id 
-                                            ? item.color 
-                                            : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[700]),
+                                      style: const TextStyle(
+                                        color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
+                                        shadows: [
+                                          Shadow(
+                                            color: Colors.black26,
+                                            blurRadius: 2,
+                                            offset: Offset(0, 1),
+                                          )
+                                        ],
                                       ),
                                     ),
                                   ),
@@ -428,6 +387,16 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
                 ),
               ],
             ),
+          ),
+          SuccessOverlay(
+            isVisible: _isSuccess,
+            showBadge: true,
+            onFinished: () {
+              setState(() {
+                _isSuccess = false;
+                _setupGame();
+              });
+            },
           ),
         ],
       ),

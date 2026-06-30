@@ -76,14 +76,7 @@ class NumberMagicScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              "Let's learn numbers with fun!",
-                              style: TextStyle(
-                                fontSize: (screenWidth * 0.035).clamp(11.0, 13.0),
-                                color: Theme.of(context).textTheme.bodyMedium?.color ?? const Color(0xFF666666),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+
                             ShaderMask(
                               shaderCallback: (bounds) => const LinearGradient(
                                 colors: [

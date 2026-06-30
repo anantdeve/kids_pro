@@ -15,29 +15,9 @@ class MusicScreen extends StatelessWidget {
     final isTablet = screenWidth > 600;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Multi-color Pastel Background
-          if (Theme.of(context).brightness == Brightness.light)
-            Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFE8F6FA), // Light Blue
-                    Color(0xFFFEF2F4), // Light Pink
-                    Color(0xFFFFF9E1), // Light Yellow
-                    Color(0xFFE9F9EF), // Light Green
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  stops: [0.0, 0.3, 0.6, 1.0],
-                ),
-              ),
-            ),
-          ),
-
           // Content
           SafeArea(
             child: Column(
@@ -76,14 +56,7 @@ class MusicScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              'Choose an instrument to play!',
-                              style: TextStyle(
-                                fontSize: (screenWidth * 0.032).clamp(11.0, 13.0),
-                                color: Theme.of(context).textTheme.bodyMedium?.color ?? AppColors.textGray,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+
                             Text(
                               'Music Magic Hub 🎶🎶',
                               style: TextStyle(
