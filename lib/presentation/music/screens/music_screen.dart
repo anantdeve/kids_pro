@@ -85,7 +85,6 @@ class MusicScreen extends StatelessWidget {
                       final List<Widget> cards = [
                         MusicActivityCard(
                           title: 'Magic Piano 🎹',
-                          subtitle: 'Play beautiful notes and see magical stars!',
                           imagePath: 'assets/images/piano.png',
                           themeColor: Colors.lightBlue,
                           onTap: () {
@@ -97,7 +96,6 @@ class MusicScreen extends StatelessWidget {
                         ),
                         MusicActivityCard(
                           title: 'Fun Drums 🥁',
-                          subtitle: 'Beat the rhythm and make some noise!',
                           imagePath: 'assets/images/drums.png',
                           themeColor: Colors.lightGreen,
                           onTap: () {
@@ -109,7 +107,6 @@ class MusicScreen extends StatelessWidget {
                         ),
                         MusicActivityCard(
                           title: 'Happy Xylophone 🌈',
-                          subtitle: 'Rainbow colors and sweet melodies!',
                           imagePath: 'assets/images/xylophone.png',
                           themeColor: Colors.pinkAccent,
                           onTap: () {

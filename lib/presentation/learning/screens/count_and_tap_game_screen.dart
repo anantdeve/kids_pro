@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
-import 'package:flutter_tts/flutter_tts.dart';
 import '../widgets/success_overlay.dart';
+import '../services/learning_tts_service.dart';
+import '../widgets/tts_animated_speaker.dart';
 
 class GameObject {
   final int id;
@@ -22,15 +24,15 @@ class GameObject {
   });
 }
 
-class CountAndTapGameScreen extends StatefulWidget {
+class CountAndTapGameScreen extends ConsumerStatefulWidget {
   const CountAndTapGameScreen({super.key});
 
   @override
-  State<CountAndTapGameScreen> createState() => _CountAndTapGameScreenState();
+  ConsumerState<CountAndTapGameScreen> createState() => _CountAndTapGameScreenState();
 }
 
-class _CountAndTapGameScreenState extends State<CountAndTapGameScreen> with TickerProviderStateMixin {
-  final FlutterTts flutterTts = FlutterTts();
+class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> with TickerProviderStateMixin {
+  late final LearningTtsNotifier _ttsNotifier;
   bool _isMuted = false;
   final Random random = Random();
   
@@ -56,7 +58,14 @@ class _CountAndTapGameScreenState extends State<CountAndTapGameScreen> with Tick
   @override
   void initState() {
     super.initState();
+    _ttsNotifier = ref.read(learningTtsServiceProvider.notifier);
     _generateLevel();
+  }
+
+  @override
+  void dispose() {
+    _ttsNotifier.stop();
+    super.dispose();
   }
 
   void _generateLevel() {
@@ -132,6 +141,10 @@ class _CountAndTapGameScreenState extends State<CountAndTapGameScreen> with Tick
       
       gameObjects.shuffle();
     });
+
+    if (!_isMuted) {
+      ref.read(learningTtsServiceProvider.notifier).playInstruction('Tap $targetNumber $targetCategory');
+    }
   }
 
   void _onObjectTap(GameObject obj) {
@@ -144,7 +157,7 @@ class _CountAndTapGameScreenState extends State<CountAndTapGameScreen> with Tick
       });
       
       if (!_isMuted) {
-        flutterTts.speak(currentCount.toString());
+        ref.read(learningTtsServiceProvider.notifier).playFeedback(currentCount.toString());
       }
 
       if (currentCount == targetNumber) {
@@ -255,47 +268,22 @@ class _CountAndTapGameScreenState extends State<CountAndTapGameScreen> with Tick
             ),
           ),
           const SizedBox(width: 8),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: IconButton(
-              onPressed: () {
-                setState(() {
-                  _isMuted = !_isMuted;
-                  if (_isMuted) {
-                    flutterTts.stop();
-                  }
-                });
-              },
-              icon: Icon(
-                _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-                color: Colors.black87,
-              ),
-            ),
+          TtsAnimatedSpeaker(
+            isMuted: _isMuted,
+            onTap: () {
+              setState(() {
+                _isMuted = !_isMuted;
+                if (_isMuted) {
+                  _ttsNotifier.stop();
+                }
+              });
+            },
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Level $level',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[400],
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1,
-                  ),
-                ),
                 Text(
                   'Tap $targetNumber $targetCategory!',
                   style: const TextStyle(

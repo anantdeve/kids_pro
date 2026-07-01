@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
-import 'package:flutter_tts/flutter_tts.dart';
 import '../../../core/providers/user_provider.dart';
 import '../../../core/widgets/magical_blob.dart';
 import '../../../data/repositories/local_quiz_repository.dart';
 import '../../../domain/entities/visual_question.dart';
 import '../../learning/widgets/success_overlay.dart';
+import '../../learning/services/learning_tts_service.dart';
+import '../../learning/widgets/tts_animated_speaker.dart';
 
 class MagicQuizScreen extends ConsumerStatefulWidget {
   final int categoryId;
@@ -20,7 +21,6 @@ class MagicQuizScreen extends ConsumerStatefulWidget {
 }
 
 class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
-  final FlutterTts flutterTts = FlutterTts();
   bool _isMuted = false;
   final LocalQuizRepository _repository = LocalQuizRepository();
   late List<VisualQuestion> questions;
@@ -38,6 +38,12 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
     _loadQuestions();
   }
 
+  @override
+  void dispose() {
+    ref.read(learningTtsServiceProvider.notifier).stop();
+    super.dispose();
+  }
+
   void _loadQuestions() {
     setState(() {
       questions = _repository.getQuestionsForCategory(widget.categoryId);
@@ -47,7 +53,7 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
 
   void _speakQuestion() {
     if (!_isMuted && questions.isNotEmpty) {
-      flutterTts.speak(questions[currentQuestionIndex].text);
+      ref.read(learningTtsServiceProvider.notifier).playInstruction(questions[currentQuestionIndex].text);
     }
   }
 
@@ -147,29 +153,19 @@ class _MagicQuizScreenState extends ConsumerState<MagicQuizScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          GestureDetector(
+          TtsAnimatedSpeaker(
+            isMuted: _isMuted,
+            color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142),
             onTap: () {
               setState(() {
                 _isMuted = !_isMuted;
                 if (_isMuted) {
-                  flutterTts.stop();
+                  ref.read(learningTtsServiceProvider.notifier).stop();
                 } else {
                   _speakQuestion();
                 }
               });
             },
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardTheme.color?.withOpacity(0.6) ?? Colors.white.withOpacity(0.6),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-                color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142),
-                size: 24,
-              ),
-            ),
           ),
           const SizedBox(width: 16),
           Expanded(

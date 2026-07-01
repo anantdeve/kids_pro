@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class MusicActivityCard extends StatefulWidget {
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final String imagePath;
   final Color themeColor;
   final VoidCallback onTap;
@@ -12,7 +12,7 @@ class MusicActivityCard extends StatefulWidget {
   const MusicActivityCard({
     super.key,
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     required this.imagePath,
     required this.themeColor,
     required this.onTap,
@@ -138,16 +138,18 @@ class _MusicActivityCardState extends State<MusicActivityCard> with SingleTicker
                               letterSpacing: -0.5,
                             ),
                           ),
-                          const SizedBox(height: 6),
-                          Text(
-                            widget.subtitle,
-                            style: TextStyle(
-                              fontSize: (screenWidth * 0.038).clamp(13.0, 15.0),
-                              color: Theme.of(context).textTheme.bodyMedium?.color ?? AppColors.textGray,
-                              fontWeight: FontWeight.w500,
-                              height: 1.2,
+                          if (widget.subtitle != null && widget.subtitle!.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              widget.subtitle!,
+                              style: TextStyle(
+                                fontSize: (screenWidth * 0.038).clamp(13.0, 15.0),
+                                color: Theme.of(context).textTheme.bodyMedium?.color ?? AppColors.textGray,
+                                fontWeight: FontWeight.w500,
+                                height: 1.2,
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),

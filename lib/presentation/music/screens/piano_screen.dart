@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/providers/user_provider.dart';
-import '../../../core/widgets/custom_banner_ad.dart';
 
 class PianoScreen extends ConsumerStatefulWidget {
   const PianoScreen({super.key});
@@ -13,83 +13,134 @@ class PianoScreen extends ConsumerStatefulWidget {
 }
 
 class _PianoScreenState extends ConsumerState<PianoScreen> {
-  final List<AudioPlayer> _players = List.generate(8, (_) => AudioPlayer());
-  int _currentPlayerIndex = 0;
+  final Map<String, AudioPlayer> _players = {};
+
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    
+    void initPlayer(Map<String, dynamic> note) {
+      final player = AudioPlayer();
+      player.setPlayerMode(PlayerMode.lowLatency);
+      player.setReleaseMode(ReleaseMode.stop);
+      player.setSource(AssetSource('piano/${note['file']}'));
+      _players[note['id']] = player;
+    }
+
+    for (var note in _whiteNotes) {
+      initPlayer(note);
+    }
+    for (var note in _blackNotes) {
+      initPlayer(note);
+    }
+  }
   
-  // White keys data
+  // White keys data (2 Octaves for wider keys)
   final List<Map<String, dynamic>> _whiteNotes = [
-    {'note': 'c.mp3', 'label': 'C', 'color': Color(0xFFFFE1F5)}, // Light Pink
-    {'note': 'd.mp3', 'label': 'D', 'color': Color(0xFFE1F9FF)}, // Light Blue
-    {'note': 'e.mp3', 'label': 'E', 'color': Color(0xFFE1FFF2)}, // Light Green
-    {'note': 'f.mp3', 'label': 'F', 'color': Color(0xFFF1E1FF)}, // Light Purple
-    {'note': 'g.mp3', 'label': 'G', 'color': Color(0xFFFFF1E1)}, // Light Orange
-    {'note': 'a.mp3', 'label': 'A', 'color': Color(0xFFFFFDE1)}, // Light Yellow
-    {'note': 'b.mp3', 'label': 'B', 'color': Color(0xFFFFE1E1)}, // Light Red
+    // Octave 4
+    {'id': 'w1', 'file': 'C4.mp3', 'color': Color(0xFFFFD1E5)},
+    {'id': 'w2', 'file': 'D4.mp3', 'color': Color(0xFFD1E9FF)},
+    {'id': 'w3', 'file': 'E4.mp3', 'color': Color(0xFFD1EFE2)},
+    {'id': 'w4', 'file': 'F4.mp3', 'color': Color(0xFFE1D1FF)},
+    {'id': 'w5', 'file': 'G4.mp3', 'color': Color(0xFFFFE1D1)},
+    {'id': 'w6', 'file': 'A4.mp3', 'color': Color(0xFFFFEDD1)},
+    {'id': 'w7', 'file': 'B4.mp3', 'color': Color(0xFFFFD1D1)},
+    // Octave 5
+    {'id': 'w8', 'file': 'C5.mp3', 'color': Color(0xFFFFC1D5)},
+    {'id': 'w9', 'file': 'D5.mp3', 'color': Color(0xFFC1D9FF)},
+    {'id': 'w10', 'file': 'E5.mp3', 'color': Color(0xFFC1DFD2)},
+    {'id': 'w11', 'file': 'F5.mp3', 'color': Color(0xFFD1C1FF)},
+    {'id': 'w12', 'file': 'G5.mp3', 'color': Color(0xFFFFD1C1)},
+    {'id': 'w13', 'file': 'A5.mp3', 'color': Color(0xFFFFDDC1)},
+    {'id': 'w14', 'file': 'B5.mp3', 'color': Color(0xFFFFC1C1)},
   ];
 
   // Black keys data
   final List<Map<String, dynamic>> _blackNotes = [
-    {'note': 'cs4.mp3', 'label': 'C', 'color': Color(0xFFFF59D6), 'position': 1},
-    {'note': 'ds4.mp3', 'label': 'D', 'color': Color(0xFF26C6DA), 'position': 2},
-    {'note': 'fs4.mp3', 'label': 'F', 'color': Color(0xFF7E57C2), 'position': 4},
-    {'note': 'gs4.mp3', 'label': 'G', 'color': Color(0xFFFF8A65), 'position': 5},
-    {'note': 'as4.mp3', 'label': 'A', 'color': Color(0xFFFDD835), 'position': 6},
+    // Octave 4
+    {'id': 'b1', 'file': 'Db4.mp3', 'color': Color(0xFFFF49C6), 'position': 1},
+    {'id': 'b2', 'file': 'Eb4.mp3', 'color': Color(0xFF16B6CA), 'position': 2},
+    {'id': 'b3', 'file': 'Gb4.mp3', 'color': Color(0xFF6E47B2), 'position': 4},
+    {'id': 'b4', 'file': 'Ab4.mp3', 'color': Color(0xFFEF7A55), 'position': 5},
+    {'id': 'b5', 'file': 'Bb4.mp3', 'color': Color(0xFFEDC825), 'position': 6},
+    // Octave 5
+    {'id': 'b6', 'file': 'Db5.mp3', 'color': Color(0xFFFF39B6), 'position': 8},
+    {'id': 'b7', 'file': 'Eb5.mp3', 'color': Color(0xFF06A6BA), 'position': 9},
+    {'id': 'b8', 'file': 'Gb5.mp3', 'color': Color(0xFF5E37A2), 'position': 11},
+    {'id': 'b9', 'file': 'Ab5.mp3', 'color': Color(0xFFDF6A45), 'position': 12},
+    {'id': 'b10', 'file': 'Bb5.mp3', 'color': Color(0xFFDDB815), 'position': 13},
   ];
 
   final Map<int, String> _pointerLastNote = {};
-  String? _activeNote;
+  final ValueNotifier<Set<String>> _activeNotesNotifier = ValueNotifier({});
+  DateTime? _lastPointsAwarded;
 
-  void _playNote(String note) async {
-    setState(() {
-      _activeNote = note;
-    });
+  void _playNote(Map<String, dynamic> noteData) {
+    final String id = noteData['id'];
 
-    final player = _players[_currentPlayerIndex];
-    _currentPlayerIndex = (_currentPlayerIndex + 1) % _players.length;
-    
-    await player.stop();
-    await player.play(AssetSource('audio/piano/$note'));
+    final newNotes = Set<String>.from(_activeNotesNotifier.value);
+    newNotes.add(id);
+    _activeNotesNotifier.value = newNotes;
 
-    // Award dynamic points for playing music
-    ref.read(userProvider.notifier).addPoints('Music', 1);
+    final player = _players[id];
+    if (player != null) {
+      // stop() resets position to 0 without causing SoundPool seek exceptions
+      player.stop().then((_) {
+        player.resume();
+      });
+    }
+
+    // Award points at most once every 2 seconds to prevent lag
+    final now = DateTime.now();
+    if (_lastPointsAwarded == null || now.difference(_lastPointsAwarded!).inSeconds >= 2) {
+      if (mounted) {
+        ref.read(userProvider.notifier).addPoints('Music', 1);
+      }
+      _lastPointsAwarded = now;
+    }
     
     Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted && _activeNote == note) {
-        setState(() {
-          _activeNote = null;
-        });
+      if (mounted && _activeNotesNotifier.value.contains(id)) {
+        final currentNotes = Set<String>.from(_activeNotesNotifier.value);
+        currentNotes.remove(id);
+        _activeNotesNotifier.value = currentNotes;
       }
     });
   }
 
-  void _handlePointerEvent(PointerEvent event, double pianoWidth, double padding) {
+  void _handlePointerEvent(PointerEvent event, double pianoWidth, double padding, double pianoHeight) {
     final double localX = event.localPosition.dx - padding;
-    final double whiteKeyWidth = pianoWidth / 7;
+    final double whiteKeyWidth = pianoWidth / _whiteNotes.length;
     
-    String? touchedNote;
+    Map<String, dynamic>? touchedNoteData;
 
     // Check black keys first (top layer)
     for (var black in _blackNotes) {
       double blackKeyWidth = whiteKeyWidth * 0.65;
       double leftPos = (black['position'] * whiteKeyWidth) - (blackKeyWidth / 2);
-      if (localX >= leftPos && localX <= leftPos + blackKeyWidth && event.localPosition.dy < 250) {
-        touchedNote = black['note'];
+      if (localX >= leftPos && localX <= leftPos + blackKeyWidth && event.localPosition.dy < (pianoHeight * 0.6)) {
+        touchedNoteData = black;
         break;
       }
     }
 
     // If no black key touched, check white keys
-    if (touchedNote == null) {
+    if (touchedNoteData == null) {
       int index = (localX / whiteKeyWidth).floor();
       if (index >= 0 && index < _whiteNotes.length) {
-        touchedNote = _whiteNotes[index]['note'];
+        touchedNoteData = _whiteNotes[index];
       }
     }
 
-    if (touchedNote != null) {
-      if (_pointerLastNote[event.pointer] != touchedNote) {
-        _pointerLastNote[event.pointer] = touchedNote;
-        _playNote(touchedNote);
+    if (touchedNoteData != null) {
+      final String id = touchedNoteData['id'];
+      if (_pointerLastNote[event.pointer] != id) {
+        _pointerLastNote[event.pointer] = id;
+        _playNote(touchedNoteData);
       }
     } else {
       _pointerLastNote.remove(event.pointer);
@@ -98,9 +149,14 @@ class _PianoScreenState extends ConsumerState<PianoScreen> {
 
   @override
   void dispose() {
-    for (var player in _players) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    for (var player in _players.values) {
       player.dispose();
     }
+    _activeNotesNotifier.dispose();
     super.dispose();
   }
 
@@ -112,7 +168,7 @@ class _PianoScreenState extends ConsumerState<PianoScreen> {
     
     final double horizontalPadding = isTablet ? screenWidth * 0.1 : 20;
     final double pianoAreaWidth = screenWidth - (horizontalPadding * 2);
-    final double whiteKeyWidth = pianoAreaWidth / 7;
+    final double whiteKeyWidth = pianoAreaWidth / _whiteNotes.length;
 
     return Scaffold(
       body: Stack(
@@ -143,7 +199,13 @@ class _PianoScreenState extends ConsumerState<PianoScreen> {
                   child: Row(
                     children: [
                       GestureDetector(
-                        onTap: () => Navigator.pop(context),
+                        onTap: () {
+                          SystemChrome.setPreferredOrientations([
+                            DeviceOrientation.portraitUp,
+                            DeviceOrientation.portraitDown,
+                          ]);
+                          Navigator.pop(context);
+                        },
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
@@ -158,10 +220,6 @@ class _PianoScreenState extends ConsumerState<PianoScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Play beautiful music!',
-                              style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color ?? AppColors.textGray, fontWeight: FontWeight.w600),
-                            ),
                             Text(
                               'Magic Piano 🎹',
                               style: TextStyle(
@@ -189,71 +247,66 @@ class _PianoScreenState extends ConsumerState<PianoScreen> {
                   ),
                 ),
                 
-                const Spacer(flex: 1),
-                
-                Text(
-                  'Tap the keys to play music!',
-                  style: TextStyle(
-                    fontSize: (screenWidth * 0.05).clamp(18.0, 22.0),
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFFFF8B66),
-                  ),
-                ),
-                
-                const Spacer(flex: 2),
+                const SizedBox(height: 16),
                 
                 // Realistic Piano Keyboard
-                Listener(
-                  onPointerDown: (event) => _handlePointerEvent(event, pianoAreaWidth, horizontalPadding),
-                  onPointerMove: (event) => _handlePointerEvent(event, pianoAreaWidth, horizontalPadding),
-                  onPointerUp: (event) => _pointerLastNote.remove(event.pointer),
-                  onPointerCancel: (event) => _pointerLastNote.remove(event.pointer),
-                  child: Container(
-                    height: 400,
-                    margin: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                    child: Stack(
-                      children: [
-                        // White Keys Layer
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: _whiteNotes.map((note) {
-                            return _WhiteKey(
-                              label: note['label'],
-                              color: note['color'],
-                              isPressed: _activeNote == note['note'],
-                              width: whiteKeyWidth,
-                            );
-                          }).toList(),
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final double pianoHeight = constraints.maxHeight;
+                      return Listener(
+                        behavior: HitTestBehavior.opaque,
+                        onPointerDown: (event) => _handlePointerEvent(event, pianoAreaWidth, horizontalPadding, pianoHeight),
+                        onPointerMove: (event) => _handlePointerEvent(event, pianoAreaWidth, horizontalPadding, pianoHeight),
+                        onPointerUp: (event) => _pointerLastNote.remove(event.pointer),
+                        onPointerCancel: (event) => _pointerLastNote.remove(event.pointer),
+                        child: Container(
+                          margin: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                          child: ValueListenableBuilder<Set<String>>(
+                            valueListenable: _activeNotesNotifier,
+                            builder: (context, activeNotes, _) {
+                              return Stack(
+                                children: [
+                                  // White Keys Layer
+                                  Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: _whiteNotes.map((note) {
+                                      return Expanded(
+                                        child: _WhiteKey(
+                                          color: note['color'],
+                                          isPressed: activeNotes.contains(note['id']),
+                                          width: whiteKeyWidth,
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                  // Black Keys Layer
+                                  ..._blackNotes.map((note) {
+                                    double blackKeyWidth = whiteKeyWidth * 0.65;
+                                    double leftPos = (note['position'] * whiteKeyWidth) - (blackKeyWidth / 2);
+                                    return Positioned(
+                                      left: leftPos,
+                                      child: _BlackKey(
+                                        color: note['color'],
+                                        isPressed: activeNotes.contains(note['id']),
+                                        width: blackKeyWidth,
+                                        height: pianoHeight * 0.6,
+                                      ),
+                                    );
+                                  }),
+                                ],
+                              );
+                            },
+                          ),
                         ),
-                        // Black Keys Layer
-                        ..._blackNotes.map((note) {
-                          double blackKeyWidth = whiteKeyWidth * 0.65;
-                          double leftPos = (note['position'] * whiteKeyWidth) - (blackKeyWidth / 2);
-                          return Positioned(
-                            left: leftPos,
-                            child: _BlackKey(
-                              label: note['label'],
-                              color: note['color'],
-                              isPressed: _activeNote == note['note'],
-                              width: blackKeyWidth,
-                              height: 240,
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ),
                 
-                const Spacer(flex: 2),
+                const SizedBox(height: 16),
               ],
             ),
-          ),
-          
-          // Banner Ad at the bottom
-          const Align(
-            alignment: Alignment.bottomCenter,
-            child: CustomBannerAd(),
           ),
         ],
       ),
@@ -262,13 +315,11 @@ class _PianoScreenState extends ConsumerState<PianoScreen> {
 }
 
 class _WhiteKey extends StatelessWidget {
-  final String label;
   final Color color;
   final bool isPressed;
   final double width;
 
   const _WhiteKey({
-    required this.label,
     required this.color,
     required this.isPressed,
     required this.width,
@@ -277,7 +328,6 @@ class _WhiteKey extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width - 2,
       margin: const EdgeInsets.symmetric(horizontal: 1),
       decoration: BoxDecoration(
         color: isPressed ? color.withOpacity(0.5) : Colors.white,
@@ -291,29 +341,17 @@ class _WhiteKey extends StatelessWidget {
         ],
         border: Border.all(color: Colors.grey.withOpacity(0.2)),
       ),
-      alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: color.withOpacity(0.8),
-        ),
-      ),
     );
   }
 }
 
 class _BlackKey extends StatelessWidget {
-  final String label;
   final Color color;
   final bool isPressed;
   final double width;
   final double height;
 
   const _BlackKey({
-    required this.label,
     required this.color,
     required this.isPressed,
     required this.width,
@@ -342,16 +380,6 @@ class _BlackKey extends StatelessWidget {
             offset: const Offset(2, 4),
           ),
         ],
-      ),
-      alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.only(bottom: 15),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: isPressed ? Colors.white : color.withOpacity(0.6),
-        ),
       ),
     );
   }

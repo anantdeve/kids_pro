@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kids_pro/core/widgets/magical_blob.dart';
 import 'dart:math';
 import 'dart:ui';
-import 'package:flutter_tts/flutter_tts.dart';
+import '../services/learning_tts_service.dart';
+import '../widgets/tts_animated_speaker.dart';
 
 enum PuzzlePart { top, bottom }
 
@@ -13,15 +15,15 @@ class PuzzlePieceData {
   PuzzlePieceData({required this.number, required this.part});
 }
 
-class NumberPuzzleGameScreen extends StatefulWidget {
+class NumberPuzzleGameScreen extends ConsumerStatefulWidget {
   const NumberPuzzleGameScreen({super.key});
 
   @override
-  State<NumberPuzzleGameScreen> createState() => _NumberPuzzleGameScreenState();
+  ConsumerState<NumberPuzzleGameScreen> createState() => _NumberPuzzleGameScreenState();
 }
 
-class _NumberPuzzleGameScreenState extends State<NumberPuzzleGameScreen> with TickerProviderStateMixin {
-  final FlutterTts flutterTts = FlutterTts();
+class _NumberPuzzleGameScreenState extends ConsumerState<NumberPuzzleGameScreen> with TickerProviderStateMixin {
+  late final LearningTtsNotifier _ttsNotifier;
   bool _isMuted = false;
   final Random random = Random();
   late int targetNumber;
@@ -45,6 +47,7 @@ class _NumberPuzzleGameScreenState extends State<NumberPuzzleGameScreen> with Ti
   @override
   void initState() {
     super.initState();
+    _ttsNotifier = ref.read(learningTtsServiceProvider.notifier);
     currentThemeColor = themeColors[0];
     _successController = AnimationController(
       vsync: this,
@@ -61,6 +64,7 @@ class _NumberPuzzleGameScreenState extends State<NumberPuzzleGameScreen> with Ti
   @override
   void dispose() {
     _successController.dispose();
+    _ttsNotifier.stop();
     super.dispose();
   }
 
@@ -74,6 +78,10 @@ class _NumberPuzzleGameScreenState extends State<NumberPuzzleGameScreen> with Ti
       isCompleted = false;
     });
     _successController.reset();
+
+    if (!_isMuted) {
+      ref.read(learningTtsServiceProvider.notifier).playInstruction('Assemble the number $targetNumber');
+    }
   }
 
   void _onPartPlaced(PuzzlePart part) {
@@ -82,7 +90,7 @@ class _NumberPuzzleGameScreenState extends State<NumberPuzzleGameScreen> with Ti
       if (placedParts.length == 2) {
         isCompleted = true;
         if (!_isMuted) {
-          flutterTts.speak(targetNumber.toString());
+          ref.read(learningTtsServiceProvider.notifier).playFeedback(targetNumber.toString());
         }
         _successController.forward();
         _showSuccessEffect();
@@ -175,45 +183,27 @@ class _NumberPuzzleGameScreenState extends State<NumberPuzzleGameScreen> with Ti
             ),
           ),
           const SizedBox(width: 8),
-          GestureDetector(
+          TtsAnimatedSpeaker(
+            isMuted: _isMuted,
+            color: const Color(0xFF2D3142),
             onTap: () {
               setState(() {
                 _isMuted = !_isMuted;
                 if (_isMuted) {
-                  flutterTts.stop();
+                  _ttsNotifier.stop();
                 }
               });
             },
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF5F0).withValues(alpha: 0.5),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-                color: const Color(0xFF2D3142),
-                size: 28,
-              ),
-            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Put the pieces together!',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF8D99AE),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
                 Text(
                   'Number Puzzle',
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: const Color(0xFF67E1F5).withValues(alpha: 0.9),
                     letterSpacing: -0.5,

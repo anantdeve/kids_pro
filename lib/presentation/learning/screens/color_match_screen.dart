@@ -1,19 +1,21 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import '../widgets/success_overlay.dart';
+import '../services/learning_tts_service.dart';
+import '../widgets/tts_animated_speaker.dart';
 
 
-class ColorMatchScreen extends StatefulWidget {
+class ColorMatchScreen extends ConsumerStatefulWidget {
   const ColorMatchScreen({super.key});
 
   @override
-  State<ColorMatchScreen> createState() => _ColorMatchScreenState();
+  ConsumerState<ColorMatchScreen> createState() => _ColorMatchScreenState();
 }
 
-class _ColorMatchScreenState extends State<ColorMatchScreen> {
-  final FlutterTts flutterTts = FlutterTts();
+class _ColorMatchScreenState extends ConsumerState<ColorMatchScreen> {
+  late final LearningTtsNotifier _ttsNotifier;
   bool _isSuccess = false;
   bool _isMuted = false;
 
@@ -55,6 +57,7 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
   @override
   void initState() {
     super.initState();
+    _ttsNotifier = ref.read(learningTtsServiceProvider.notifier);
     _setupGame();
   }
 
@@ -89,6 +92,12 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
     }
     
     matches.clear();
+  }
+
+  @override
+  void dispose() {
+    _ttsNotifier.stop();
+    super.dispose();
   }
 
   void _onPanStart(DragStartDetails details, String labelId) {
@@ -141,7 +150,7 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
     if (targetObjectId != null && targetObjectId == activeLabelId) {
       final matchedLabel = labels.firstWhere((l) => l.id == activeLabelId).label;
       if (!_isMuted) {
-        flutterTts.speak(matchedLabel.toLowerCase());
+        ref.read(learningTtsServiceProvider.notifier).playFeedback(matchedLabel.toLowerCase());
       }
 
       setState(() {
@@ -235,32 +244,16 @@ class _ColorMatchScreenState extends State<ColorMatchScreen> {
                           ],
                         ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardTheme.color ?? Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _isMuted = !_isMuted;
-                              if (_isMuted) {
-                                flutterTts.stop();
-                              }
-                            });
-                          },
-                          icon: Icon(
-                            _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-                            color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87,
-                          ),
-                        ),
+                      TtsAnimatedSpeaker(
+                        isMuted: _isMuted,
+                        onTap: () {
+                          setState(() {
+                            _isMuted = !_isMuted;
+                            if (_isMuted) {
+                              ref.read(learningTtsServiceProvider.notifier).stop();
+                            }
+                          });
+                        },
                       ),
                     ],
                   ),

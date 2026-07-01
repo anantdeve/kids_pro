@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
-import 'package:flutter_tts/flutter_tts.dart';
 import '../widgets/success_overlay.dart';
+import '../services/learning_tts_service.dart';
+import '../widgets/tts_animated_speaker.dart';
 
-class NumberMatchingGameScreen extends StatefulWidget {
+class NumberMatchingGameScreen extends ConsumerStatefulWidget {
   const NumberMatchingGameScreen({super.key});
 
   @override
-  State<NumberMatchingGameScreen> createState() => _NumberMatchingGameScreenState();
+  ConsumerState<NumberMatchingGameScreen> createState() => _NumberMatchingGameScreenState();
 }
 
-class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
-  final FlutterTts flutterTts = FlutterTts();
+class _NumberMatchingGameScreenState extends ConsumerState<NumberMatchingGameScreen> {
+  late final LearningTtsNotifier _ttsNotifier;
   bool _isMuted = false;
   final Random random = Random();
   late int targetNumber;
@@ -31,7 +33,14 @@ class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
   @override
   void initState() {
     super.initState();
+    _ttsNotifier = ref.read(learningTtsServiceProvider.notifier);
     _generateLevel();
+  }
+
+  @override
+  void dispose() {
+    _ttsNotifier.stop();
+    super.dispose();
   }
 
   void _generateLevel() {
@@ -46,6 +55,10 @@ class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
       }
       options.shuffle();
     });
+
+    if (!_isMuted) {
+      ref.read(learningTtsServiceProvider.notifier).playInstruction('Drag the number to match');
+    }
   }
 
   @override
@@ -92,32 +105,16 @@ class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _isMuted = !_isMuted;
-                              if (_isMuted) {
-                                flutterTts.stop();
-                              }
-                            });
-                          },
-                          icon: Icon(
-                            _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-                            color: Colors.black87,
-                          ),
-                        ),
+                      TtsAnimatedSpeaker(
+                        isMuted: _isMuted,
+                        onTap: () {
+                          setState(() {
+                            _isMuted = !_isMuted;
+                            if (_isMuted) {
+                              _ttsNotifier.stop();
+                            }
+                          });
+                        },
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -135,7 +132,7 @@ class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
                               child: const Text(
                                 'Matching Fun',
                                 style: TextStyle(
-                                  fontSize: 28,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,
                                   letterSpacing: -0.5,
@@ -291,7 +288,7 @@ class _NumberMatchingGameScreenState extends State<NumberMatchingGameScreen> {
 
   void _showSuccessEffect() {
     if (!_isMuted) {
-      flutterTts.speak(targetNumber.toString());
+      ref.read(learningTtsServiceProvider.notifier).playFeedback(targetNumber.toString());
     }
     setState(() {
       _isSuccess = true;

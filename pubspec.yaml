@@ -75,9 +75,9 @@ flutter:
 
   assets:
     - assets/images/
-    - assets/audio/piano/
     - assets/audio/drums/
     - assets/audio/xylophone/
+    - assets/piano/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

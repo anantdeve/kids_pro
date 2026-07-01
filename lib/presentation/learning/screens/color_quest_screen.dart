@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
-import 'package:flutter_tts/flutter_tts.dart';
 import '../widgets/success_overlay.dart';
+import '../services/learning_tts_service.dart';
+import '../widgets/tts_animated_speaker.dart';
 
-class ColorQuestScreen extends StatefulWidget {
+class ColorQuestScreen extends ConsumerStatefulWidget {
   const ColorQuestScreen({super.key});
 
   @override
-  State<ColorQuestScreen> createState() => _ColorQuestScreenState();
+  ConsumerState<ColorQuestScreen> createState() => _ColorQuestScreenState();
 }
 
-class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProviderStateMixin {
-  final FlutterTts flutterTts = FlutterTts();
+class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with TickerProviderStateMixin {
+  late final LearningTtsNotifier _ttsNotifier;
   bool _isMuted = false;
   final List<GameColor> allColors = [
     GameColor(name: 'YELLOW', color: const Color(0xFFFFD166)),
@@ -39,6 +41,7 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
   @override
   void initState() {
     super.initState();
+    _ttsNotifier = ref.read(learningTtsServiceProvider.notifier);
     _shakeController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -60,6 +63,7 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
   void dispose() {
     _shakeController.dispose();
     _floatController.dispose();
+    _ttsNotifier.stop();
     super.dispose();
   }
 
@@ -80,7 +84,7 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
     
     // Automatically speak the target color when a new level is generated
     if (!_isMuted) {
-      flutterTts.speak('Tap the ${targetColor.name.toLowerCase()}');
+      ref.read(learningTtsServiceProvider.notifier).playInstruction('Tap the ${targetColor.name.toLowerCase()}');
     }
   }
 
@@ -89,7 +93,7 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
     
     if (tappedColor.name == targetColor.name) {
       if (!_isMuted) {
-        flutterTts.speak(tappedColor.name.toLowerCase());
+        ref.read(learningTtsServiceProvider.notifier).playFeedback(tappedColor.name.toLowerCase());
       }
       _showSuccessEffect();
     } else {
@@ -196,32 +200,16 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
                           ],
                         ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardTheme.color ?? Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _isMuted = !_isMuted;
-                              if (_isMuted) {
-                                flutterTts.stop();
-                              }
-                            });
-                          },
-                          icon: Icon(
-                            _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-                            color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87,
-                          ),
-                        ),
+                      TtsAnimatedSpeaker(
+                        isMuted: _isMuted,
+                        onTap: () {
+                          setState(() {
+                            _isMuted = !_isMuted;
+                            if (_isMuted) {
+                              ref.read(learningTtsServiceProvider.notifier).stop();
+                            }
+                          });
+                        },
                       ),
                     ],
                   ),
@@ -241,45 +229,63 @@ class _ColorQuestScreenState extends State<ColorQuestScreen> with TickerProvider
                   child: GestureDetector(
                     onTap: () {
                       if (!_isMuted) {
-                        flutterTts.speak('Tap the ${targetColor.name.toLowerCase()}');
+                        ref.read(learningTtsServiceProvider.notifier).playInstruction('Tap the ${targetColor.name.toLowerCase()}');
                       }
                     },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
-                      margin: const EdgeInsets.symmetric(horizontal: 40),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardTheme.color ?? Colors.white,
-                        borderRadius: BorderRadius.circular(40),
-                        boxShadow: [
-                          BoxShadow(
-                            color: targetColor.color.withValues(alpha: 0.2),
-                            blurRadius: 30,
-                            offset: const Offset(0, 10),
+                    child: Consumer(
+                      builder: (context, ref, _) {
+                        final ttsWord = ref.watch(learningTtsServiceProvider).currentWord;
+                        final isTapHighlighted = ttsWord == 'tap' || ttsWord == 'the';
+                        final isColorHighlighted = ttsWord == targetColor.name.toLowerCase();
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+                          margin: const EdgeInsets.symmetric(horizontal: 40),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardTheme.color ?? Colors.white,
+                            borderRadius: BorderRadius.circular(40),
+                            boxShadow: [
+                              BoxShadow(
+                                color: targetColor.color.withValues(alpha: 0.2),
+                                blurRadius: 30,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Tap the',
-                            style: TextStyle(
-                              fontSize: 20,
-                              color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
-                              fontWeight: FontWeight.w700,
-                            ),
+                          child: Column(
+                            children: [
+                              AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 200),
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: isTapHighlighted 
+                                      ? targetColor.color 
+                                      : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600]),
+                                  fontWeight: isTapHighlighted ? FontWeight.w900 : FontWeight.w700,
+                                ),
+                                child: const Text('Tap the'),
+                              ),
+                              const SizedBox(height: 10),
+                              AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 200),
+                                style: TextStyle(
+                                  fontSize: isColorHighlighted ? 52 : 48,
+                                  fontWeight: FontWeight.w900,
+                                  color: targetColor.color,
+                                  letterSpacing: -0.5,
+                                  shadows: isColorHighlighted ? [
+                                    Shadow(
+                                      color: targetColor.color.withValues(alpha: 0.5),
+                                      blurRadius: 10,
+                                    )
+                                  ] : null,
+                                ),
+                                child: Text(targetColor.name),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 10),
-                          Text(
-                            targetColor.name,
-                            style: TextStyle(
-                              fontSize: 48, // Reduced from 60
-                              fontWeight: FontWeight.w900,
-                              color: targetColor.color,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   ),
                 ),

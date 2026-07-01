@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
-import 'package:flutter_tts/flutter_tts.dart';
+import '../services/learning_tts_service.dart';
+import '../widgets/tts_animated_speaker.dart';
 
-class MissingNumberGameScreen extends StatefulWidget {
+class MissingNumberGameScreen extends ConsumerStatefulWidget {
   const MissingNumberGameScreen({super.key});
 
   @override
-  State<MissingNumberGameScreen> createState() => _MissingNumberGameScreenState();
+  ConsumerState<MissingNumberGameScreen> createState() => _MissingNumberGameScreenState();
 }
 
-class _MissingNumberGameScreenState extends State<MissingNumberGameScreen> {
-  final FlutterTts flutterTts = FlutterTts();
+class _MissingNumberGameScreenState extends ConsumerState<MissingNumberGameScreen> {
+  late final LearningTtsNotifier _ttsNotifier;
   bool _isMuted = false;
   final Random random = Random();
   late List<int> sequence;
@@ -22,7 +24,14 @@ class _MissingNumberGameScreenState extends State<MissingNumberGameScreen> {
   @override
   void initState() {
     super.initState();
+    _ttsNotifier = ref.read(learningTtsServiceProvider.notifier);
     _generateLevel();
+  }
+
+  @override
+  void dispose() {
+    _ttsNotifier.stop();
+    super.dispose();
   }
 
   void _generateLevel() {
@@ -43,6 +52,10 @@ class _MissingNumberGameScreenState extends State<MissingNumberGameScreen> {
       }
       options.shuffle();
     });
+    
+    if (!_isMuted) {
+      ref.read(learningTtsServiceProvider.notifier).playInstruction('Find the missing number');
+    }
   }
 
   void _onOptionTap(int value) {
@@ -51,7 +64,7 @@ class _MissingNumberGameScreenState extends State<MissingNumberGameScreen> {
         isCorrect = true;
       });
       if (!_isMuted) {
-        flutterTts.speak(value.toString());
+        ref.read(learningTtsServiceProvider.notifier).playFeedback(value.toString());
       }
       _showSuccessEffect();
     } else {
@@ -133,32 +146,16 @@ class _MissingNumberGameScreenState extends State<MissingNumberGameScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _isMuted = !_isMuted;
-                              if (_isMuted) {
-                                flutterTts.stop();
-                              }
-                            });
-                          },
-                          icon: Icon(
-                            _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-                            color: Colors.black87,
-                          ),
-                        ),
+                      TtsAnimatedSpeaker(
+                        isMuted: _isMuted,
+                        onTap: () {
+                          setState(() {
+                            _isMuted = !_isMuted;
+                            if (_isMuted) {
+                              _ttsNotifier.stop();
+                            }
+                          });
+                        },
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -176,7 +173,7 @@ class _MissingNumberGameScreenState extends State<MissingNumberGameScreen> {
                               child: const Text(
                                 'Missing Number',
                                 style: TextStyle(
-                                  fontSize: 28,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,
                                   letterSpacing: -0.5,

@@ -126,7 +126,7 @@ class _ColorActivityCardState extends State<ColorActivityCard> with SingleTicker
                           Text(
                             widget.title,
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: widget.themeColor.withValues(alpha: 0.9),
                               letterSpacing: -0.5,

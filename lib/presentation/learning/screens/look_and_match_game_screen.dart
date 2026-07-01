@@ -4,9 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math';
-import 'package:flutter_tts/flutter_tts.dart';
 import '../widgets/success_overlay.dart';
 import '../../../core/providers/user_provider.dart';
+import '../services/learning_tts_service.dart';
+import '../widgets/tts_animated_speaker.dart';
 
 class LookAndMatchGameScreen extends ConsumerStatefulWidget {
   const LookAndMatchGameScreen({super.key});
@@ -16,7 +17,7 @@ class LookAndMatchGameScreen extends ConsumerStatefulWidget {
 }
 
 class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen> {
-  final FlutterTts flutterTts = FlutterTts();
+  late final LearningTtsNotifier _ttsNotifier;
   bool _isMuted = false;
   late List<MatchItem> leftItems;
   late List<MatchItem> rightItems;
@@ -45,6 +46,7 @@ class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen>
   @override
   void initState() {
     super.initState();
+    _ttsNotifier = ref.read(learningTtsServiceProvider.notifier);
     _generateLevel();
   }
 
@@ -71,6 +73,9 @@ class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen>
       }
       _isSuccess = false;
     });
+    if (!_isMuted) {
+      ref.read(learningTtsServiceProvider.notifier).playInstruction('Match the words to the numbers');
+    }
   }
 
   Offset _getCenterOfWidget(GlobalKey key) {
@@ -81,6 +86,12 @@ class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen>
       position.dx + renderBox.size.width / 2,
       position.dy + renderBox.size.height / 2,
     );
+  }
+
+  @override
+  void dispose() {
+    _ttsNotifier.stop();
+    super.dispose();
   }
 
   void _onPanStart(DragStartDetails details, int leftId) {
@@ -126,7 +137,7 @@ class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen>
         
         if (!_isMuted) {
           final matchedItem = rightItems.firstWhere((it) => it.id == foundRightId);
-          flutterTts.speak(matchedItem.text.toLowerCase());
+          ref.read(learningTtsServiceProvider.notifier).playFeedback(matchedItem.text.toLowerCase());
         }
 
         setState(() {
@@ -276,27 +287,17 @@ class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen>
             ),
           ),
           const SizedBox(width: 8),
-          GestureDetector(
+          TtsAnimatedSpeaker(
+            isMuted: _isMuted,
+            color: const Color(0xFF2D3142),
             onTap: () {
               setState(() {
                 _isMuted = !_isMuted;
                 if (_isMuted) {
-                  flutterTts.stop();
+                  _ttsNotifier.stop();
                 }
               });
             },
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF5F0).withValues(alpha: 0.5),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                _isMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-                color: const Color(0xFF2D3142),
-                size: 24,
-              ),
-            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -316,7 +317,7 @@ class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen>
                     child: const Text(
                       'LOOK AND MATCH',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 20,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
                         letterSpacing: -0.5,
