@@ -234,7 +234,7 @@ class _ColorMatchScreenState extends ConsumerState<ColorMatchScreen> {
                               child: const Text(
                                 'COLOR MATCH',
                                 style: TextStyle(
-                                  fontSize: 28,
+                                  fontSize: 18, // Updated to match Draw & Match card
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,
                                   letterSpacing: -0.5,
@@ -367,7 +367,10 @@ class _ColorMatchScreenState extends ConsumerState<ColorMatchScreen> {
                                   alignment: Alignment.center,
                                   child: Text(
                                     item.emoji,
-                                    style: const TextStyle(fontSize: 45),
+                                    style: const TextStyle(
+                                      fontSize: 45,
+                                      fontFamilyFallback: ['Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji'],
+                                    ),
                                   ),
                                 );
                               }).toList(),
@@ -383,7 +386,6 @@ class _ColorMatchScreenState extends ConsumerState<ColorMatchScreen> {
           ),
           SuccessOverlay(
             isVisible: _isSuccess,
-            showBadge: true,
             onFinished: () {
               setState(() {
                 _isSuccess = false;

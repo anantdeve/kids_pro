@@ -1,17 +1,23 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lottie/lottie.dart';
 
 class SuccessOverlay extends StatefulWidget {
   final bool isVisible;
   final VoidCallback onFinished;
   final bool showBadge;
+  final String? lottieUrl;
+  final BoxFit? lottieFit;
+  final double? lottieSize;
 
   const SuccessOverlay({
     super.key,
     required this.isVisible,
     required this.onFinished,
     this.showBadge = false,
+    this.lottieUrl,
+    this.lottieFit,
+    this.lottieSize,
   });
 
   @override
@@ -21,13 +27,20 @@ class SuccessOverlay extends StatefulWidget {
 class _SuccessOverlayState extends State<SuccessOverlay> with TickerProviderStateMixin {
   late AnimationController _badgeController;
   late Animation<double> _badgeScale;
-  late AnimationController _confettiController;
-  final List<ConfettiParticle> _particles = [];
-  final math.Random _random = math.Random();
+  late String _currentLottieUrl;
+
+  final List<String> _defaultLotties = [
+    'https://assets9.lottiefiles.com/packages/lf20_obhph3sh.json', // Confetti
+    'https://assets10.lottiefiles.com/packages/lf20_rovf9gzu.json', // Confetti 2
+    'https://assets9.lottiefiles.com/packages/lf20_pkanqwys.json', // Star burst
+    'https://assets2.lottiefiles.com/packages/lf20_u4yrau.json',   // Celebration
+  ];
 
   @override
   void initState() {
     super.initState();
+    _currentLottieUrl = widget.lottieUrl ?? (List.from(_defaultLotties)..shuffle()).first;
+    
     _badgeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -37,35 +50,23 @@ class _SuccessOverlayState extends State<SuccessOverlay> with TickerProviderStat
       parent: _badgeController,
       curve: Curves.elasticOut,
     );
-
-    _confettiController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..addListener(() {
-        _updateParticles();
-      });
   }
 
   @override
   void didUpdateWidget(SuccessOverlay oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.isVisible && !oldWidget.isVisible) {
+      if (widget.lottieUrl == null) {
+        setState(() {
+          _currentLottieUrl = (List.from(_defaultLotties)..shuffle()).first;
+        });
+      }
       _startCelebration();
     }
   }
 
   void _startCelebration() {
-    _particles.clear();
-    // Create particles
-    for (int i = 0; i < 100; i++) {
-      _particles.add(ConfettiParticle(
-        color: _getRandomColor(),
-        random: _random,
-      ));
-    }
-
     _badgeController.forward(from: 0);
-    _confettiController.forward(from: 0);
     
     // Provide haptic feedback
     HapticFeedback.heavyImpact();
@@ -80,30 +81,9 @@ class _SuccessOverlayState extends State<SuccessOverlay> with TickerProviderStat
     });
   }
 
-  void _updateParticles() {
-    setState(() {
-      for (var p in _particles) {
-        p.update(_confettiController.value);
-      }
-    });
-  }
-
-  Color _getRandomColor() {
-    final colors = [
-      const Color(0xFFFF7B9C), // Pink
-      const Color(0xFFB497FF), // Purple
-      const Color(0xFFFFD166), // Yellow
-      const Color(0xFF67E1F5), // Blue
-      const Color(0xFF5CD6A1), // Green
-      const Color(0xFFFF8B66), // Orange
-    ];
-    return colors[_random.nextInt(colors.length)];
-  }
-
   @override
   void dispose() {
     _badgeController.dispose();
-    _confettiController.dispose();
     super.dispose();
   }
 
@@ -126,12 +106,27 @@ class _SuccessOverlayState extends State<SuccessOverlay> with TickerProviderStat
             ),
           ),
 
-          // Confetti
-          Positioned.fill(
-            child: CustomPaint(
-              painter: ConfettiPainter(particles: _particles),
+          // Lottie Confetti Animation
+          if (widget.isVisible)
+            Positioned.fill(
+              child: widget.lottieSize != null
+                  ? Center(
+                      child: SizedBox(
+                        width: widget.lottieSize,
+                        height: widget.lottieSize,
+                        child: Lottie.network(
+                          _currentLottieUrl,
+                          fit: widget.lottieFit ?? BoxFit.contain,
+                          repeat: false,
+                        ),
+                      ),
+                    )
+                  : Lottie.network(
+                      _currentLottieUrl,
+                      fit: widget.lottieFit ?? BoxFit.cover,
+                      repeat: false,
+                    ),
             ),
-          ),
 
           // Success Badge
           if (widget.showBadge)
@@ -186,80 +181,4 @@ class _SuccessOverlayState extends State<SuccessOverlay> with TickerProviderStat
       ),
     );
   }
-}
-
-class ConfettiParticle {
-  late double x, y;
-  late double vx, vy;
-  late double size;
-  final Color color;
-  late double rotation;
-  late double rotationSpeed;
-  final math.Random random;
-
-  ConfettiParticle({required this.color, required this.random}) {
-    reset();
-  }
-
-  void reset() {
-    // Start from center
-    x = 0.5;
-    y = 0.4;
-    
-    // Random explosion velocity
-    double angle = random.nextDouble() * 2 * math.pi;
-    double speed = random.nextDouble() * 0.05 + 0.01;
-    vx = math.cos(angle) * speed;
-    vy = math.sin(angle) * speed - 0.02; // Initial upward boost
-    
-    size = random.nextDouble() * 10 + 5;
-    rotation = random.nextDouble() * 2 * math.pi;
-    rotationSpeed = (random.nextDouble() - 0.5) * 0.2;
-  }
-
-  void update(double progress) {
-    // Gravity
-    vy += 0.0015;
-    
-    // Drag
-    vx *= 0.98;
-    vy *= 0.98;
-    
-    x += vx;
-    y += vy;
-    rotation += rotationSpeed;
-  }
-}
-
-class ConfettiPainter extends CustomPainter {
-  final List<ConfettiParticle> particles;
-
-  ConfettiPainter({required this.particles});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (var p in particles) {
-      final paint = Paint()..color = p.color;
-      final center = Offset(p.x * size.width, p.y * size.height);
-      
-      canvas.save();
-      canvas.translate(center.dx, center.dy);
-      canvas.rotate(p.rotation);
-      
-      // Draw different shapes
-      if (p.random.nextBool()) {
-        canvas.drawRect(
-          Rect.fromCenter(center: Offset.zero, width: p.size, height: p.size * 0.6),
-          paint,
-        );
-      } else {
-        canvas.drawCircle(Offset.zero, p.size / 2, paint);
-      }
-      
-      canvas.restore();
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant ConfettiPainter oldDelegate) => true;
 }

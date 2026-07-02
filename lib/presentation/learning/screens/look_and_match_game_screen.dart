@@ -261,6 +261,7 @@ class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen>
             // Success Overlay
             SuccessOverlay(
               isVisible: _isSuccess,
+              lottieUrl: 'https://assets9.lottiefiles.com/packages/lf20_obhph3sh.json', // Confetti
               onFinished: () {
                 _generateLevel();
               },

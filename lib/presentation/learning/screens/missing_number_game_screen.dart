@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'dart:math';
 import '../services/learning_tts_service.dart';
 import '../widgets/tts_animated_speaker.dart';
+import '../widgets/success_overlay.dart';
+import '../../../core/providers/user_provider.dart';
 
 class MissingNumberGameScreen extends ConsumerStatefulWidget {
   const MissingNumberGameScreen({super.key});
@@ -20,6 +22,8 @@ class _MissingNumberGameScreenState extends ConsumerState<MissingNumberGameScree
   late int missingIndex;
   late List<int> options;
   bool isCorrect = false;
+  bool _isSuccess = false;
+  int _points = 0;
 
   @override
   void initState() {
@@ -37,6 +41,7 @@ class _MissingNumberGameScreenState extends ConsumerState<MissingNumberGameScree
   void _generateLevel() {
     setState(() {
       isCorrect = false;
+      _isSuccess = false;
       int start = random.nextInt(15) + 1; // 1 to 15
       sequence = List.generate(5, (index) => start + index);
       missingIndex = random.nextInt(5);
@@ -73,21 +78,11 @@ class _MissingNumberGameScreenState extends ConsumerState<MissingNumberGameScree
   }
 
   void _showSuccessEffect() {
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Brilliant! You found it! 🌟'),
-          duration: const Duration(milliseconds: 1000),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: const Color(0xFFB497FF),
-        ),
-      );
-      Future.delayed(const Duration(milliseconds: 1500), () {
-        if (mounted) _generateLevel();
-      });
+    setState(() {
+      _isSuccess = true;
+      _points += 50;
     });
+    ref.read(userProvider.notifier).addPoints('Learning', 50);
   }
 
   void _showErrorEffect() {
@@ -183,6 +178,43 @@ class _MissingNumberGameScreenState extends ConsumerState<MissingNumberGameScree
                           ],
                         ),
                       ),
+                      const SizedBox(width: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFD166),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFFD166).withValues(alpha: 0.4),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.star_rounded, color: Colors.white, size: 24),
+                            const SizedBox(width: 4),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              transitionBuilder: (Widget child, Animation<double> animation) {
+                                return ScaleTransition(scale: animation, child: child);
+                              },
+                              child: Text(
+                                '$_points',
+                                key: ValueKey<int>(_points),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -230,6 +262,15 @@ class _MissingNumberGameScreenState extends ConsumerState<MissingNumberGameScree
                 const Spacer(flex: 1),
               ],
             ),
+          ),
+
+          // Success Overlay
+          SuccessOverlay(
+            isVisible: _isSuccess,
+            lottieUrl: 'https://assets2.lottiefiles.com/packages/lf20_u4yrau.json', // Celebration Balloons
+            onFinished: () {
+              if (mounted) _generateLevel();
+            },
           ),
         ],
       ),

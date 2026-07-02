@@ -5,6 +5,7 @@ import 'dart:math';
 import '../widgets/success_overlay.dart';
 import '../services/learning_tts_service.dart';
 import '../widgets/tts_animated_speaker.dart';
+import 'package:lottie/lottie.dart';
 
 class ColorQuestScreen extends ConsumerStatefulWidget {
   const ColorQuestScreen({super.key});
@@ -34,6 +35,7 @@ class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with Ticker
   String? _lastTappedName;
   bool _isSuccess = false;
   GameColor? _lastTargetColor;
+  int _points = 0;
 
   late AnimationController _floatController;
   late Animation<double> _floatAnimation;
@@ -95,6 +97,7 @@ class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with Ticker
       if (!_isMuted) {
         ref.read(learningTtsServiceProvider.notifier).playFeedback(tappedColor.name.toLowerCase());
       }
+      setState(() => _points += 10);
       _showSuccessEffect();
     } else {
       _shakeController.forward(from: 0);
@@ -191,7 +194,7 @@ class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with Ticker
                             Text(
                               'COLOR QUEST',
                               style: TextStyle(
-                                fontSize: 24,
+                                fontSize: 18, // Updated to match other screens
                                 fontWeight: FontWeight.w900,
                                 color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF4A4A4A),
                                 letterSpacing: -0.5,
@@ -200,6 +203,43 @@ class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with Ticker
                           ],
                         ),
                       ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFD166),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFFD166).withValues(alpha: 0.4),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.star_rounded, color: Colors.white, size: 24),
+                            const SizedBox(width: 4),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              transitionBuilder: (Widget child, Animation<double> animation) {
+                                return ScaleTransition(scale: animation, child: child);
+                              },
+                              child: Text(
+                                '$_points',
+                                key: ValueKey<int>(_points),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
                       TtsAnimatedSpeaker(
                         isMuted: _isMuted,
                         onTap: () {
@@ -320,20 +360,37 @@ class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with Ticker
                               child: child,
                             );
                           },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: item.color,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Theme.of(context).cardTheme.color ?? Colors.white, width: 8),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: item.color.withValues(alpha: 0.3),
-                                  blurRadius: 20,
-                                  spreadRadius: 5,
-                                  offset: const Offset(0, 8),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            clipBehavior: Clip.none,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: item.color,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Theme.of(context).cardTheme.color ?? Colors.white, width: 8),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: item.color.withValues(alpha: 0.3),
+                                      blurRadius: 20,
+                                      spreadRadius: 5,
+                                      offset: const Offset(0, 8),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              if (_isSuccess && _lastTappedName == item.name)
+                                Positioned.fill(
+                                  child: Transform.scale(
+                                    scale: 2.5, // Scale up to cover button and burst outwards
+                                    child: Lottie.network(
+                                      'https://assets3.lottiefiles.com/packages/lf20_touohxv0.json',
+                                      repeat: false,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       );

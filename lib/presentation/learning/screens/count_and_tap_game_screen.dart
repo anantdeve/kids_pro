@@ -4,7 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'dart:math';
 import '../widgets/success_overlay.dart';
 import '../services/learning_tts_service.dart';
+import '../services/learning_tts_service.dart';
 import '../widgets/tts_animated_speaker.dart';
+import 'package:lottie/lottie.dart';
+import '../../../core/providers/user_provider.dart';
 
 class GameObject {
   final int id;
@@ -40,6 +43,7 @@ class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> w
   int level = 1;
   late int targetNumber;
   int currentCount = 0;
+  int _points = 0;
   List<GameObject> gameObjects = [];
   bool _isSuccess = false;
   
@@ -154,6 +158,7 @@ class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> w
       setState(() {
         obj.isTapped = true;
         currentCount++;
+        _points += 10;
       });
       
       if (!_isMuted) {
@@ -172,6 +177,7 @@ class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> w
     setState(() {
       _isSuccess = true;
     });
+    ref.read(userProvider.notifier).addPoints('Learning', targetNumber * 10);
   }
 
   @override
@@ -233,6 +239,7 @@ class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> w
           // Success Overlay
           SuccessOverlay(
             isVisible: _isSuccess,
+            lottieUrl: 'https://assets9.lottiefiles.com/packages/lf20_pkanqwys.json', // Star burst
             onFinished: () {
               setState(() {
                 level++;
@@ -291,6 +298,43 @@ class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> w
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF2D3142),
                     letterSpacing: -0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFD166),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFFFD166).withValues(alpha: 0.4),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.star_rounded, color: Colors.white, size: 24),
+                const SizedBox(width: 4),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return ScaleTransition(scale: animation, child: child);
+                  },
+                  child: Text(
+                    '$_points',
+                    key: ValueKey<int>(_points),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],
@@ -471,6 +515,18 @@ class _GameObjectWidgetState extends State<_GameObjectWidget> with TickerProvide
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
                         shadows: [Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+                      ),
+                    ),
+                  if (widget.object.isTapped)
+                    Positioned.fill(
+                      child: Transform.scale(
+                        scale: 2.5,
+                        child: IgnorePointer(
+                          child: Lottie.network(
+                            'https://assets9.lottiefiles.com/packages/lf20_pkanqwys.json', // Verified working beautiful burst
+                            repeat: false,
+                          ),
+                        ),
                       ),
                     ),
                 ],

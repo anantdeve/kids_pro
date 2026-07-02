@@ -23,6 +23,8 @@ import '../../presentation/games/screens/memory_match_screen.dart';
 import '../../presentation/games/screens/bubble_pop_screen.dart';
 import '../../presentation/games/screens/shadow_matcher_screen.dart';
 import '../../presentation/games/screens/magic_paint_screen.dart';
+import '../../presentation/games/screens/asmr_coloring_screen.dart';
+
 import '../../presentation/learning/screens/magic_story_selection_screen.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -127,6 +129,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/magic-paint',
       builder: (context, state) => const MagicPaintScreen(),
+    ),
+    GoRoute(
+      path: '/asmr-coloring',
+      builder: (context, state) => const AsmrColoringScreen(),
     ),
     GoRoute(
       path: '/magic-story',

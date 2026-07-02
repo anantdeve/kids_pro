@@ -173,12 +173,12 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
                                 ],
                               ).createShader(bounds),
                               child: const Text(
-                                'OBJECT THE COLOR',
+                                'COLOR THE OBJECT',
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 18, // Matching other screens
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,
-                                  letterSpacing: -0.2,
+                                  letterSpacing: -0.5, // Matching other screens
                                 ),
                               ),
                             ),

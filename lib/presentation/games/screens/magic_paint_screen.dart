@@ -1,435 +1,309 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/providers/child_standard_provider.dart';
-import '../../../../domain/entities/child_standard.dart';
+import 'dart:ui';
+import '../../../core/widgets/custom_banner_ad.dart';
 
-class MagicPaintScreen extends ConsumerStatefulWidget {
+class MagicPaintScreen extends StatelessWidget {
   const MagicPaintScreen({super.key});
-
-  @override
-  ConsumerState<MagicPaintScreen> createState() => _MagicPaintScreenState();
-}
-
-class _MagicPaintScreenState extends ConsumerState<MagicPaintScreen> {
-  List<DrawingPoint?> points = [];
-  Color selectedColor = Colors.red;
-  double strokeWidth = 5.0;
-  double opacity = 1.0;
-  bool isEraser = false;
-  final GlobalKey _canvasKey = GlobalKey();
-  int? activePointerId;
-
-  final List<Color> colors = [
-    const Color(0xFFFF3D41), // Red
-    const Color(0xFFFF914D), // Orange
-    const Color(0xFFFFDE59), // Yellow
-    const Color(0xFF00FF00), // Green
-    const Color(0xFF00FFFF), // Cyan
-    const Color(0xFF38B6FF), // Blue
-    const Color(0xFF7D3CFF), // Purple
-    const Color(0xFFFF31B2), // Pink
-  ];
-
-  final Map<String, double> sizes = {
-    'S': 3.0,
-    'M': 8.0,
-    'L': 15.0,
-    'XL': 25.0,
-  };
-
-  String selectedSize = 'M';
-
-  @override
-  void initState() {
-    super.initState();
-    strokeWidth = sizes[selectedSize]!;
-  }
-
-  void _undo() {
-    setState(() {
-      if (points.isNotEmpty) {
-        // Find the last null (end of a stroke) and remove everything after it, then remove the null itself
-        int lastNull = points.lastIndexOf(null);
-        if (lastNull == points.length - 1) {
-          // If the last point is null, find the one before it
-          points.removeLast();
-          lastNull = points.lastIndexOf(null);
-        }
-        points.removeRange(lastNull + 1, points.length);
-      }
-    });
-  }
-
-  void _clear() {
-    setState(() {
-      points.clear();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildTopBar(),
-            Expanded(
-              child: Listener(
-                onPointerDown: (event) {
-                  if (activePointerId != null) return;
-                  
-                  final RenderBox? renderBox = _canvasKey.currentContext?.findRenderObject() as RenderBox?;
-                  if (renderBox == null) return;
-                  
-                  setState(() {
-                    activePointerId = event.pointer;
-                    points.add(DrawingPoint(
-                      offset: renderBox.globalToLocal(event.position),
-                      paint: Paint()
-                        ..color = (isEraser ? Colors.white : selectedColor).withValues(alpha: opacity)
-                        ..strokeCap = StrokeCap.round
-                        ..strokeWidth = strokeWidth
-                        ..isAntiAlias = true,
-                    ));
-                  });
-                },
-                onPointerMove: (event) {
-                  if (event.pointer != activePointerId) return;
-                  
-                  final RenderBox? renderBox = _canvasKey.currentContext?.findRenderObject() as RenderBox?;
-                  if (renderBox == null) return;
-                  
-                  setState(() {
-                    points.add(DrawingPoint(
-                      offset: renderBox.globalToLocal(event.position),
-                      paint: Paint()
-                        ..color = (isEraser ? Colors.white : selectedColor).withValues(alpha: opacity)
-                        ..strokeCap = StrokeCap.round
-                        ..strokeWidth = strokeWidth
-                        ..isAntiAlias = true,
-                    ));
-                  });
-                },
-                onPointerUp: (event) {
-                  if (event.pointer == activePointerId) {
-                    setState(() {
-                      activePointerId = null;
-                      points.add(null);
-                    });
-                  }
-                },
-                onPointerCancel: (event) {
-                  if (event.pointer == activePointerId) {
-                    setState(() {
-                      activePointerId = null;
-                      points.add(null);
-                    });
-                  }
-                },
-                child: CustomPaint(
-                  key: _canvasKey,
-                  size: Size.infinite,
-                  painter: DrawingPainter(pointsList: points),
-                ),
-              ),
-            ),
-            _buildBottomControls(ref.watch(childStandardProvider).value ?? ChildStandard.standard1),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTopBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-      child: Row(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Stack(
         children: [
-          IconButton(
-            onPressed: () => context.pop(),
-            icon: const Icon(Icons.arrow_back, size: 24),
-            style: IconButton.styleFrom(
-              backgroundColor: const Color(0xFFFFF1EB),
-              padding: const EdgeInsets.all(8),
-              minimumSize: const Size(40, 40),
-            ),
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Creative Corner 🎨',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3436),
-                ),
-              ),
-            ),
-          ),
-          IconButton(
-            onPressed: _undo,
-            icon: const Icon(Icons.undo_rounded, color: Color(0xFF2D3436), size: 22),
-            constraints: const BoxConstraints(),
-            padding: const EdgeInsets.all(8),
-          ),
-          IconButton(
-            onPressed: _clear,
-            icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFFF7675), size: 22),
-            constraints: const BoxConstraints(),
-            padding: const EdgeInsets.all(8),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomControls(ChildStandard standard) {
-    bool isStandard1 = standard == ChildStandard.standard1;
-    bool isStandard3 = standard == ChildStandard.standard3;
-    
-    // Standard 1: Basic colors only
-    List<Color> availableColors = isStandard1 ? colors.take(4).toList() : colors;
-
-    return Container(
-      margin: const EdgeInsets.all(16.0),
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(35),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Tools and Sizes
-          Row(
-            children: [
-              // Pencil/Wand Toggle (Hide wand for standard 1)
-              if (!isStandard1)
-                Flexible(
-                  flex: 3,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF1EB),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        children: [
-                          _buildToolButton(Icons.edit_rounded, !isEraser, () {
-                            setState(() => isEraser = false);
-                          }),
-                          _buildToolButton(Icons.auto_fix_high_rounded, isEraser, () {
-                            setState(() => isEraser = true);
-                          }),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              if (!isStandard1) const Spacer(),
-              // Size Selection (Standard 1 only has thick sizes)
-              Flexible(
-                flex: isStandard1 ? 7 : 4,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: isStandard1 ? Alignment.center : Alignment.centerRight,
-                  child: Row(
-                    children: sizes.keys
-                        .where((s) => !isStandard1 || (s == 'L' || s == 'XL'))
-                        .map((s) => _buildSizeButton(s, standard))
-                        .toList(),
+          if (Theme.of(context).brightness == Brightness.light)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFE8F6FA),
+                      Color(0xFFFEF2F4),
+                      Color(0xFFFAFAFA),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          // Colors
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: availableColors.map((c) => _buildColorButton(c, standard)).toList(),
             ),
-          ),
-          // Standard 3: Advanced Tools (Opacity)
-          if (isStandard3) ...[
-            const SizedBox(height: 12),
-            Row(
+          
+          SafeArea(
+            child: Column(
               children: [
-                const Icon(Icons.opacity_rounded, color: Colors.grey, size: 20),
+                _buildHeader(context),
                 Expanded(
-                  child: Slider(
-                    value: opacity,
-                    min: 0.1,
-                    max: 1.0,
-                    activeColor: selectedColor,
-                    onChanged: (val) {
-                      setState(() {
-                        opacity = val;
-                      });
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    itemCount: 1,
+                    itemBuilder: (context, index) {
+                      final List<Widget> cards = [
+                        _PaintCard(
+                          title: 'ASMR Coloring',
+                          subtitle: 'Trace and fill with magic!',
+                          emoji: '🖍️',
+                          color: const Color(0xFF64B5F6),
+                          imagePath: 'assets/images/magic_paint.png',
+                          onTap: () => context.push('/asmr-coloring'),
+                        ),
+                      ];
+
+                      return TweenAnimationBuilder<double>(
+                        duration: Duration(milliseconds: 600 + (index * 150)),
+                        curve: Curves.easeOutBack,
+                        tween: Tween<double>(begin: 0, end: 1),
+                        builder: (context, value, child) {
+                          return Transform.translate(
+                            offset: Offset(0, 30 * (1 - value)),
+                            child: Opacity(
+                              opacity: value.clamp(0.0, 1.0),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: cards[index],
+                        ),
+                      );
                     },
                   ),
                 ),
               ],
             ),
-          ],
+          ),
+          
+          const Align(
+            alignment: Alignment.bottomCenter,
+            child: CustomBannerAd(),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildToolButton(IconData icon, bool isSelected, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 5,
-                  )
-                ]
-              : null,
-        ),
-        child: Icon(
-          icon,
-          color: isSelected ? const Color(0xFFFF7A59) : Colors.grey,
-          size: 24,
-        ),
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => context.pop(),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardTheme.color ?? Colors.white.withValues(alpha: 0.6),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142), size: 24),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: ShaderMask(
+                    shaderCallback: (bounds) => const LinearGradient(
+                      colors: [
+                        Color(0xFFFF7B9C),
+                        Color(0xFFB497FF),
+                      ],
+                    ).createShader(bounds),
+                    child: const Text(
+                      'Magic Paint Hub',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
+}
 
-  Widget _buildSizeButton(String label, ChildStandard standard) {
-    bool isSelected = selectedSize == label;
-    bool isStandard1 = standard == ChildStandard.standard1;
-    double size = isStandard1 ? 50.0 : 40.0; // Larger for standard 1
+class _PaintCard extends StatefulWidget {
+  final String title;
+  final String subtitle;
+  final String emoji;
+  final Color color;
+  final String imagePath;
+  final VoidCallback onTap;
 
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedSize = label;
-          strokeWidth = sizes[label]!;
-        });
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: Container(
-          width: size,
-          height: size,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: isSelected ? const Color(0xFFFF7A59) : Colors.transparent,
-              width: 2,
-            ),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? const Color(0xFFFF7A59) : Colors.grey,
-              fontWeight: FontWeight.bold,
-              fontSize: isStandard1 ? 18 : 14,
-            ),
-          ),
-        ),
-      ),
+  const _PaintCard({
+    required this.title,
+    required this.subtitle,
+    required this.emoji,
+    required this.color,
+    required this.imagePath,
+    required this.onTap,
+  });
+
+  @override
+  State<_PaintCard> createState() => _PaintCardState();
+}
+
+class _PaintCardState extends State<_PaintCard> with SingleTickerProviderStateMixin {
+  late AnimationController _floatController;
+  late Animation<double> _floatAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _floatController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1500 + (widget.title.length * 50)),
+    )..repeat(reverse: true);
+
+    _floatAnimation = Tween<double>(begin: 0, end: -4.0).animate(
+      CurvedAnimation(parent: _floatController, curve: Curves.easeInOutSine),
     );
   }
 
-  Widget _buildColorButton(Color color, ChildStandard standard) {
-    bool isSelected = selectedColor == color && !isEraser;
-    bool isStandard1 = standard == ChildStandard.standard1;
-    bool isStandard3 = standard == ChildStandard.standard3;
-    
-    double size = isStandard1 ? 48.0 : (isStandard3 ? 32.0 : 38.0); // Adjust sizes
+  @override
+  void dispose() {
+    _floatController.dispose();
+    super.dispose();
+  }
 
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedColor = color;
-          isEraser = false;
-        });
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _floatAnimation,
+      builder: (context, child) => Transform.translate(
+        offset: Offset(0, _floatAnimation.value),
+        child: child,
+      ),
+      child: GestureDetector(
+        onTap: widget.onTap,
         child: Container(
-          width: size,
-          height: size,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: opacity),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: isSelected ? Colors.black.withValues(alpha: 0.2) : Colors.transparent,
-              width: 3,
+            gradient: LinearGradient(
+              colors: [
+                widget.color.withValues(alpha: 0.4),
+                widget.color.withValues(alpha: 0.05),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
+            borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: color.withValues(alpha: 0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
+                color: widget.color.withValues(alpha: 0.08),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
+          padding: const EdgeInsets.all(2.5),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 105),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardTheme.color ?? Colors.white,
+              borderRadius: BorderRadius.circular(37.5),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  Container(
+                    width: 75,
+                    height: 75,
+                    decoration: BoxDecoration(
+                      color: widget.color.withValues(alpha: 0.05),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: widget.color.withValues(alpha: 0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: Image.asset(
+                            widget.imagePath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Icon(Icons.palette, color: widget.color, size: 30),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            widget.title,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFFFF8A65),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Text(
+                              widget.emoji,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                widget.subtitle,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Theme.of(context).textTheme.bodyMedium?.color ?? const Color(0xFF8D99AE),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: widget.color.withValues(alpha: 0.4),
+                    size: 28,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
-}
-
-class DrawingPoint {
-  Offset offset;
-  Paint paint;
-
-  DrawingPoint({required this.offset, required this.paint});
-}
-
-class DrawingPainter extends CustomPainter {
-  final List<DrawingPoint?> pointsList;
-
-  DrawingPainter({required this.pointsList});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (int i = 0; i < pointsList.length - 1; i++) {
-      if (pointsList[i] != null && pointsList[i + 1] != null) {
-        canvas.drawLine(
-          pointsList[i]!.offset,
-          pointsList[i + 1]!.offset,
-          pointsList[i]!.paint,
-        );
-      } else if (pointsList[i] != null && pointsList[i + 1] == null) {
-        canvas.drawPoints(
-          PointMode.points,
-          [pointsList[i]!.offset],
-          pointsList[i]!.paint,
-        );
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

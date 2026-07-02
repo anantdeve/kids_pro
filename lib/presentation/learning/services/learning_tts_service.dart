@@ -35,9 +35,9 @@ class LearningTtsNotifier extends Notifier<LearningTtsState> {
   Future<void> _initTts() async {
     // Setup for fallback Flutter TTS
     await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.45);
+    await flutterTts.setSpeechRate(0.35); // Slower speech rate
     await flutterTts.setVolume(1.0);
-    await flutterTts.setPitch(1.6); // Increased pitch to simulate a child's voice
+    await flutterTts.setPitch(1.9); // Higher pitch to sound more like a child
     await flutterTts.awaitSpeakCompletion(true);
 
     flutterTts.setStartHandler(() {

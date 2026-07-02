@@ -166,7 +166,7 @@ class _PianoScreenState extends ConsumerState<PianoScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
     final isTablet = screenWidth > 600;
     
-    final double horizontalPadding = isTablet ? screenWidth * 0.1 : 20;
+    final double horizontalPadding = isTablet ? screenWidth * 0.05 : 2;
     final double pianoAreaWidth = screenWidth - (horizontalPadding * 2);
     final double whiteKeyWidth = pianoAreaWidth / _whiteNotes.length;
 

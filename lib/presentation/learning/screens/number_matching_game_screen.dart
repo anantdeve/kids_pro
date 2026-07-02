@@ -5,6 +5,7 @@ import 'dart:math';
 import '../widgets/success_overlay.dart';
 import '../services/learning_tts_service.dart';
 import '../widgets/tts_animated_speaker.dart';
+import '../../../core/providers/user_provider.dart';
 
 class NumberMatchingGameScreen extends ConsumerStatefulWidget {
   const NumberMatchingGameScreen({super.key});
@@ -20,6 +21,7 @@ class _NumberMatchingGameScreenState extends ConsumerState<NumberMatchingGameScr
   late int targetNumber;
   late List<int> options;
   bool _isSuccess = false;
+  int _points = 0;
   final List<String> icons = ['❤️', '🚀', '⭐', '🍎', '🐱', '🦋'];
   final List<Color> iconColors = [
     const Color(0xFFFF7B9C), // Pink
@@ -142,6 +144,43 @@ class _NumberMatchingGameScreenState extends ConsumerState<NumberMatchingGameScr
                           ],
                         ),
                       ),
+                      const SizedBox(width: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFD166),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFFD166).withValues(alpha: 0.4),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.star_rounded, color: Colors.white, size: 24),
+                            const SizedBox(width: 4),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              transitionBuilder: (Widget child, Animation<double> animation) {
+                                return ScaleTransition(scale: animation, child: child);
+                              },
+                              child: Text(
+                                '$_points',
+                                key: ValueKey<int>(_points),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -178,6 +217,8 @@ class _NumberMatchingGameScreenState extends ConsumerState<NumberMatchingGameScr
           // Success Overlay
           SuccessOverlay(
             isVisible: _isSuccess,
+            lottieUrl: 'https://assets9.lottiefiles.com/packages/lf20_touohxv0.json', // Trophy Cup
+            lottieSize: 350,
             onFinished: () {
               setState(() {
                 _isSuccess = false;
@@ -292,6 +333,8 @@ class _NumberMatchingGameScreenState extends ConsumerState<NumberMatchingGameScr
     }
     setState(() {
       _isSuccess = true;
+      _points += 50;
     });
+    ref.read(userProvider.notifier).addPoints('Learning', 50);
   }
 }

@@ -123,13 +123,23 @@ class _ColorActivityCardState extends State<ColorActivityCard> with SingleTicker
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            widget.title,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: widget.themeColor.withValues(alpha: 0.9),
-                              letterSpacing: -0.5,
+                          ShaderMask(
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [
+                                widget.themeColor,
+                                widget.themeColor.withValues(alpha: 0.6),
+                              ],
+                            ).createShader(bounds),
+                            child: Text(
+                              widget.title,
+                              style: const TextStyle(
+                                fontSize: 18, // Slightly bigger than original 16
+                                fontWeight: FontWeight.w900, // Same as Color adventure
+                                color: Colors.white,
+                                letterSpacing: -0.5,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(height: 2),

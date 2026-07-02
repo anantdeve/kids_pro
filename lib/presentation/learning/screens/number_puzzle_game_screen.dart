@@ -6,6 +6,8 @@ import 'dart:math';
 import 'dart:ui';
 import '../services/learning_tts_service.dart';
 import '../widgets/tts_animated_speaker.dart';
+import '../widgets/success_overlay.dart';
+import '../../../core/providers/user_provider.dart';
 
 enum PuzzlePart { top, bottom }
 
@@ -30,6 +32,8 @@ class _NumberPuzzleGameScreenState extends ConsumerState<NumberPuzzleGameScreen>
   List<PuzzlePart> placedParts = [];
   List<PuzzlePart> availablePieces = [];
   bool isCompleted = false;
+  bool _isSuccess = false;
+  int _points = 0;
 
   late AnimationController _successController;
   late Animation<double> _successScale;
@@ -76,6 +80,7 @@ class _NumberPuzzleGameScreenState extends ConsumerState<NumberPuzzleGameScreen>
       availablePieces = [PuzzlePart.top, PuzzlePart.bottom];
       availablePieces.shuffle();
       isCompleted = false;
+      _isSuccess = false;
     });
     _successController.reset();
 
@@ -99,9 +104,11 @@ class _NumberPuzzleGameScreenState extends ConsumerState<NumberPuzzleGameScreen>
   }
 
   void _showSuccessEffect() {
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) _generateLevel();
+    setState(() {
+      _isSuccess = true;
+      _points += 50;
     });
+    ref.read(userProvider.notifier).addPoints('Learning', 50);
   }
 
   @override
@@ -161,6 +168,14 @@ class _NumberPuzzleGameScreenState extends ConsumerState<NumberPuzzleGameScreen>
               ],
             ),
           ),
+          // Success Overlay
+          SuccessOverlay(
+            isVisible: _isSuccess,
+            lottieUrl: 'https://assets10.lottiefiles.com/packages/lf20_rovf9gzu.json', // Confetti 2
+            onFinished: () {
+              if (mounted) _generateLevel();
+            },
+          ),
         ],
       ),
     );
@@ -207,6 +222,43 @@ class _NumberPuzzleGameScreenState extends ConsumerState<NumberPuzzleGameScreen>
                     fontWeight: FontWeight.w800,
                     color: const Color(0xFF67E1F5).withValues(alpha: 0.9),
                     letterSpacing: -0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFD166),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFFFD166).withValues(alpha: 0.4),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.star_rounded, color: Colors.white, size: 24),
+                const SizedBox(width: 4),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return ScaleTransition(scale: animation, child: child);
+                  },
+                  child: Text(
+                    '$_points',
+                    key: ValueKey<int>(_points),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],
