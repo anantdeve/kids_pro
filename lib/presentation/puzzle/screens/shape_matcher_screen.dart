@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:math';
+import '../../learning/services/learning_tts_service.dart';
+import '../../learning/widgets/tts_animated_speaker.dart';
 
-class ShapeMatcherScreen extends StatefulWidget {
+class ShapeMatcherScreen extends ConsumerStatefulWidget {
   const ShapeMatcherScreen({super.key});
 
   @override
-  State<ShapeMatcherScreen> createState() => _ShapeMatcherScreenState();
+  ConsumerState<ShapeMatcherScreen> createState() => _ShapeMatcherScreenState();
 }
 
-class _ShapeMatcherScreenState extends State<ShapeMatcherScreen> with TickerProviderStateMixin {
+class _ShapeMatcherScreenState extends ConsumerState<ShapeMatcherScreen> with TickerProviderStateMixin {
+  late final LearningTtsNotifier _ttsNotifier;
+  bool _isMuted = false;
   final AudioPlayer _audioPlayer = AudioPlayer();
   final Random _random = Random();
 
@@ -28,6 +33,7 @@ class _ShapeMatcherScreenState extends State<ShapeMatcherScreen> with TickerProv
   @override
   void initState() {
     super.initState();
+    _ttsNotifier = ref.read(learningTtsServiceProvider.notifier);
     _generateLevel();
     _audioPlayer.setPlayerMode(PlayerMode.lowLatency);
   }
@@ -39,12 +45,20 @@ class _ShapeMatcherScreenState extends State<ShapeMatcherScreen> with TickerProv
       _placedShapes.clear();
       _isCompleted = false;
     });
+
+    if (!_isMuted) {
+      ref.read(learningTtsServiceProvider.notifier).playInstruction('Match the magic Shape');
+    }
   }
 
   void _onSuccess() async {
     // Play success sound
     // await _audioPlayer.play(AssetSource('audio/sparkle.mp3'));
     
+    if (!_isMuted) {
+      ref.read(learningTtsServiceProvider.notifier).playFeedback('Amazing!');
+    }
+
     setState(() {
       _isCompleted = true;
     });
@@ -58,6 +72,7 @@ class _ShapeMatcherScreenState extends State<ShapeMatcherScreen> with TickerProv
 
   @override
   void dispose() {
+    _ttsNotifier.stop();
     _audioPlayer.dispose();
     super.dispose();
   }
@@ -234,11 +249,29 @@ class _ShapeMatcherScreenState extends State<ShapeMatcherScreen> with TickerProv
               child: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68), size: 24),
             ),
           ),
+          const SizedBox(width: 8),
+          TtsAnimatedSpeaker(
+            isMuted: _isMuted,
+            color: const Color(0xFF334E68),
+            onTap: () {
+              setState(() {
+                _isMuted = !_isMuted;
+                if (_isMuted) {
+                  _ttsNotifier.stop();
+                }
+              });
+            },
+          ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              'Shape Matcher 🌟',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68)),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Shape Matcher 🌟',
+                maxLines: 1,
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68)),
+              ),
             ),
           ),
         ],

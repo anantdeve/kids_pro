@@ -238,10 +238,7 @@ class _BlockBusterPuzzleScreenState extends State<BlockBusterPuzzleScreen> with 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Puzzle Time!',
-                  style: TextStyle(fontSize: 14, color: AppColors.textGray, fontWeight: FontWeight.w700),
-                ),
+
                 Text(
                   'BlockBuster',
                   style: TextStyle(

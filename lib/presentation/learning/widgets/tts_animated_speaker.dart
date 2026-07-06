@@ -25,7 +25,7 @@ class TtsAnimatedSpeaker extends ConsumerWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        padding: EdgeInsets.all(isSpeaking ? 12 : 10),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Theme.of(context).cardTheme.color ?? Colors.white,
           shape: BoxShape.circle,
@@ -40,20 +40,10 @@ class TtsAnimatedSpeaker extends ConsumerWidget {
             ),
           ],
         ),
-        child: TweenAnimationBuilder<double>(
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-          tween: Tween<double>(begin: 1.0, end: isSpeaking ? 1.2 : 1.0),
-          builder: (context, value, child) {
-            return Transform.scale(
-              scale: value,
-              child: Icon(
-                isMuted ? Icons.volume_off_rounded : (isSpeaking ? Icons.volume_up_rounded : Icons.volume_up_outlined),
-                color: isMuted ? Colors.grey : (color ?? Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87),
-                size: size,
-              ),
-            );
-          },
+        child: Icon(
+          isMuted ? Icons.volume_off_rounded : (isSpeaking ? Icons.volume_up_rounded : Icons.volume_up_outlined),
+          color: isMuted ? Colors.grey : (color ?? Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87),
+          size: size,
         ),
       ),
     );

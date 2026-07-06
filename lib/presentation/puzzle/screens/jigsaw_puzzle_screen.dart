@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math' as math;
+import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:lottie/lottie.dart';
 
 class JigsawPuzzleScreen extends StatefulWidget {
   final String initialAnimalTag;
   final String animalName;
   final int animalIndex;
+  final int initialGridSize;
   
   const JigsawPuzzleScreen({
     super.key, 
     this.initialAnimalTag = 'animal',
     this.animalName = 'Animal Jigsaw',
     this.animalIndex = 0,
+    this.initialGridSize = 2,
   });
 
   @override
@@ -21,40 +25,29 @@ class JigsawPuzzleScreen extends StatefulWidget {
 }
 
 class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
-  int _gridSize = 2; // Default 2x2
-  final List<int> _difficultyOptions = [2, 3, 4];
+  late int _gridSize;
   
   late List<int?> _placedPieces;
   late List<int> _availablePieces;
   bool _isCompleted = false;
   
   String _currentImageUrl = '';
-  int _unlockedLevel = 2; // 2, 3, or 4
   bool _isLoadingImage = true;
+  
+  Timer? _timer;
+  int _elapsedSeconds = 0;
 
   @override
   void initState() {
     super.initState();
-    _loadProgress();
-  }
-
-  Future<void> _loadProgress() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _unlockedLevel = prefs.getInt('jigsaw_unlocked_level') ?? 2;
-    });
+    _gridSize = widget.initialGridSize;
     _startNewGame();
   }
 
-  Future<void> _saveProgress(int level) async {
-    final prefs = await SharedPreferences.getInstance();
-    
-    // Save level difficulty progress (existing logic)
-    int currentUnlockedLevel = prefs.getInt('jigsaw_unlocked_level') ?? 2;
-    if (level > currentUnlockedLevel) {
-      await prefs.setInt('jigsaw_unlocked_level', level);
-      setState(() => _unlockedLevel = level);
-    }
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   Future<void> _unlockNextAnimal() async {
@@ -74,6 +67,16 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
       _placedPieces = List.filled(totalPieces, null);
       _availablePieces = List.generate(totalPieces, (index) => index)..shuffle();
       _isCompleted = false;
+      _elapsedSeconds = 0;
+    });
+    
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!_isCompleted) {
+        setState(() {
+          _elapsedSeconds++;
+        });
+      }
     });
   }
 
@@ -85,25 +88,153 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
         
         if (_availablePieces.isEmpty) {
           _isCompleted = true;
-          // Unlock next difficulty level
-          if (_gridSize == 2) _saveProgress(3);
-          else if (_gridSize == 3) _saveProgress(4);
+          _timer?.cancel();
+          
+          // Calculate stars based on elapsed seconds
+          int earnedStars = 1;
+          if (_elapsedSeconds <= 10) {
+            earnedStars = 3;
+          } else if (_elapsedSeconds <= 20) {
+            earnedStars = 2;
+          }
           
           // Unlock the next animal in the selection list
           _unlockNextAnimal();
           
-          _celebrateSuccess();
+          _showSuccessCard(earnedStars, _elapsedSeconds);
         }
       });
     }
   }
 
-  void _celebrateSuccess() {
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      if (mounted) {
-        _startNewGame();
-      }
-    });
+  void _showSuccessCard(int earnedStars, int timeTaken) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black87,
+      transitionDuration: const Duration(milliseconds: 600),
+      pageBuilder: (context, animation, secondaryAnimation) => const SizedBox(),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(parent: animation, curve: Curves.elasticOut),
+          child: AlertDialog(
+            backgroundColor: Colors.transparent,
+            contentPadding: EdgeInsets.zero,
+            elevation: 0,
+            content: Container(
+              width: 340,
+              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 30),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFFD54F), Color(0xFFFF8F00)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(40),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orangeAccent.withOpacity(0.6),
+                    blurRadius: 30,
+                    spreadRadius: 10,
+                    offset: const Offset(0, 15),
+                  ),
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.4),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                    offset: const Offset(-3, -3),
+                  ),
+                ],
+                border: Border.all(color: Colors.white, width: 4),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(3, (index) {
+                      bool isEarned = index < earnedStars;
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index == 1 ? 20.0 : 0.0, // middle star higher
+                          left: 8.0,
+                          right: 8.0,
+                        ),
+                        child: Icon(
+                          Icons.star_rounded,
+                          size: index == 1 ? 90 : 70,
+                          color: isEarned ? Colors.white : Colors.white.withOpacity(0.4),
+                          shadows: isEarned 
+                              ? [const Shadow(color: Colors.black26, blurRadius: 10, offset: Offset(2, 4))] 
+                              : null,
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'AMAZING!',
+                    style: TextStyle(
+                      fontSize: 36, 
+                      fontWeight: FontWeight.w900, 
+                      color: Colors.white,
+                      letterSpacing: 2.5,
+                      shadows: [
+                        Shadow(color: Colors.black26, blurRadius: 5, offset: Offset(2, 3)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Time: ${timeTaken}s\nYou solved the puzzle! 🎉',
+                    style: TextStyle(
+                      fontSize: 18, 
+                      fontWeight: FontWeight.bold, 
+                      color: Colors.white.withOpacity(0.95),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 40),
+                  Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.deepOrange.withOpacity(0.4),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                      borderRadius: BorderRadius.circular(40),
+                    ),
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFFFF8F00),
+                        padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 18),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // close dialog
+                        Navigator.of(context).pop(); // go back to list
+                      },
+                      icon: const Icon(Icons.play_arrow_rounded, size: 30),
+                      label: const Text(
+                        'NEXT LEVEL',
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 1.2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -132,20 +263,6 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
               children: [
                 _buildHeader(context),
                 
-                // Difficulty Selector
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: _difficultyOptions.map((size) {
-                      bool isSelected = _gridSize == size;
-                      bool isLocked = size > _unlockedLevel;
-                      
-                      return _buildDifficultyButton(size, isSelected, isLocked);
-                    }).toList(),
-                  ),
-                ),
-
                 const SizedBox(height: 20),
 
                 // Puzzle Board
@@ -155,6 +272,7 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
                     Container(
                       width: puzzleSize,
                       height: puzzleSize,
+                      clipBehavior: Clip.antiAlias,
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(20),
@@ -171,7 +289,7 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
                             top: row * pSize,
                             width: pSize,
                             height: pSize,
-                            child: _buildTargetSlot(index, pSize),
+                            child: _buildTargetSlot(index, pSize, row, col),
                           );
                         }),
                       ),
@@ -211,16 +329,7 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
                   ),
 
                 if (_isCompleted)
-                  const Column(
-                    children: [
-                      Icon(Icons.auto_awesome, size: 60, color: Colors.orangeAccent),
-                      Text(
-                        'Fantastic! 🎉',
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.orangeAccent),
-                      ),
-                      SizedBox(height: 40),
-                    ],
-                  ),
+                  const SizedBox(),
               ],
             ),
           ),
@@ -229,8 +338,9 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
     );
   }
 
-  Widget _buildTargetSlot(int index, double pieceSize) {
+  Widget _buildTargetSlot(int index, double pieceSize, int row, int col) {
     bool isFilled = _placedPieces[index] != null;
+    Color borderColor = isFilled ? Colors.transparent : Colors.grey.withOpacity(0.6);
     
     return DragTarget<int>(
       onWillAcceptWithDetails: (details) => details.data == index && !isFilled,
@@ -238,12 +348,18 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
       builder: (context, candidateData, rejectedData) {
         return Container(
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.white.withOpacity(0.3), width: 0.5),
+            color: isFilled ? Colors.transparent : Colors.white.withOpacity(0.4),
+            border: Border(
+              top: row == 0 ? BorderSide.none : BorderSide(color: borderColor, width: 1.5),
+              left: col == 0 ? BorderSide.none : BorderSide(color: borderColor, width: 1.5),
+              bottom: BorderSide.none,
+              right: BorderSide.none,
+            ),
           ),
           child: isFilled
               ? _buildPuzzlePiece(index, pieceSize, false)
               : candidateData.isNotEmpty
-                  ? Container(color: Colors.lightBlueAccent.withOpacity(0.2))
+                  ? Container(color: Colors.lightBlueAccent.withOpacity(0.5))
                   : null,
         );
       },
@@ -294,54 +410,6 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
     );
   }
 
-  Widget _buildDifficultyButton(int size, bool isSelected, bool isLocked) {
-    String label = '';
-    IconData icon;
-    Color color;
-
-    switch (size) {
-      case 2: label = 'Baby'; icon = Icons.child_care; color = Colors.greenAccent; break;
-      case 3: label = 'Toddler'; icon = Icons.face; color = Colors.orangeAccent; break;
-      case 4: label = 'Expert'; icon = Icons.school; color = Colors.purpleAccent; break;
-      default: label = 'Easy'; icon = Icons.star; color = Colors.blueAccent;
-    }
-
-    return GestureDetector(
-      onTap: isLocked ? null : () {
-        setState(() {
-          _gridSize = size;
-          _startNewGame();
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        margin: const EdgeInsets.symmetric(horizontal: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isLocked ? Colors.grey.shade200 : (isSelected ? color : Colors.white),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? color : Colors.transparent, width: 2),
-          boxShadow: isSelected ? [BoxShadow(color: color.withOpacity(0.4), blurRadius: 8)] : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(isLocked ? Icons.lock : icon, size: 18, color: isLocked ? Colors.grey : (isSelected ? Colors.white : color)),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-                color: isLocked ? Colors.grey : (isSelected ? Colors.white : Colors.black87),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -360,6 +428,26 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
             child: Text(
               widget.animalName,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF334E68)),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2)),
+              ],
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.timer_rounded, color: Colors.orangeAccent, size: 24),
+                const SizedBox(width: 6),
+                Text(
+                  '${_elapsedSeconds}s',
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF334E68)),
+                ),
+              ],
             ),
           ),
         ],

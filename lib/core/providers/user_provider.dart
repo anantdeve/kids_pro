@@ -58,6 +58,15 @@ class UserNotifier extends AsyncNotifier<UserModel> {
     await _saveUser(updatedUser);
   }
 
+  Future<void> addArtwork(String path) async {
+    final currentUser = state.value;
+    if (currentUser == null) return;
+
+    final updatedArtworks = List<String>.from(currentUser.savedArtworks)..add(path);
+    final updatedUser = currentUser.copyWith(savedArtworks: updatedArtworks);
+    await _saveUser(updatedUser);
+  }
+
   Future<void> _saveUser(UserModel user) async {
     state = AsyncData(user);
     final prefs = await SharedPreferences.getInstance();

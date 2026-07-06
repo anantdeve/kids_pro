@@ -24,6 +24,7 @@ import '../../presentation/games/screens/bubble_pop_screen.dart';
 import '../../presentation/games/screens/shadow_matcher_screen.dart';
 import '../../presentation/games/screens/magic_paint_screen.dart';
 import '../../presentation/games/screens/asmr_coloring_screen.dart';
+import '../../presentation/profile/screens/saved_art_gallery_screen.dart';
 
 import '../../presentation/learning/screens/magic_story_selection_screen.dart';
 
@@ -137,6 +138,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/magic-story',
       builder: (context, state) => const MagicStorySelectionScreen(),
+    ),
+    GoRoute(
+      path: '/saved-art',
+      builder: (context, state) => const SavedArtGalleryScreen(),
     ),
     // TODO: Add other routes here (numbers, colors, animals, etc.)
   ],

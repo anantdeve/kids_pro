@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/user_provider.dart';
+import '../../../../core/providers/navigation_provider.dart';
 
 class HomeHeader extends ConsumerWidget {
   const HomeHeader({super.key});
@@ -26,24 +27,29 @@ class HomeHeader extends ConsumerWidget {
             child: Row(
               children: [
                 // Avatar with Glow
-                Container(
-                  width: avatarSize,
-                  height: avatarSize,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.orangePrimary.withOpacity(0.2),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: ClipOval(
-                    child: user.avatarPath != null
-                        ? Image.file(File(user.avatarPath!), fit: BoxFit.cover)
-                        : Image.asset('assets/images/avatar.png', fit: BoxFit.cover),
+                GestureDetector(
+                  onTap: () {
+                    ref.read(navigationIndexProvider.notifier).setIndex(3);
+                  },
+                  child: Container(
+                    width: avatarSize,
+                    height: avatarSize,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.orangePrimary.withOpacity(0.2),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: user.avatarPath != null
+                          ? Image.file(File(user.avatarPath!), fit: BoxFit.cover)
+                          : Image.asset('assets/images/avatar.png', fit: BoxFit.cover),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -70,7 +76,7 @@ class HomeHeader extends ConsumerWidget {
                               'Hi, ${user.name}!',
                               style: TextStyle(
                                 fontSize: isSmallScreen ? 18 : 22, 
-                                color: Theme.of(context).textTheme.displayMedium?.color ?? AppColors.textDark, 
+                                color: AppColors.pinkPrimary, 
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: -0.5,
                               ),

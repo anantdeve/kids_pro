@@ -4,11 +4,13 @@ class UserModel {
   final String name;
   final String? avatarPath;
   final Map<String, int> featurePoints;
+  final List<String> savedArtworks;
 
   UserModel({
     required this.name,
     this.avatarPath,
     required this.featurePoints,
+    this.savedArtworks = const [],
   });
 
   int get totalPoints => featurePoints.values.fold(0, (sum, points) => sum + points);
@@ -17,11 +19,13 @@ class UserModel {
     String? name,
     String? avatarPath,
     Map<String, int>? featurePoints,
+    List<String>? savedArtworks,
   }) {
     return UserModel(
       name: name ?? this.name,
       avatarPath: avatarPath ?? this.avatarPath,
       featurePoints: featurePoints ?? this.featurePoints,
+      savedArtworks: savedArtworks ?? this.savedArtworks,
     );
   }
 
@@ -30,6 +34,7 @@ class UserModel {
       'name': name,
       'avatarPath': avatarPath,
       'featurePoints': featurePoints,
+      'savedArtworks': savedArtworks,
     };
   }
 
@@ -44,6 +49,9 @@ class UserModel {
         'Quiz': 0,
         'Games': 0,
       }),
+      savedArtworks: map['savedArtworks'] != null 
+          ? List<String>.from(map['savedArtworks']) 
+          : [],
     );
   }
 

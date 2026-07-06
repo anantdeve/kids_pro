@@ -16,12 +16,12 @@ class _AnimalJigsawListScreenState extends State<AnimalJigsawListScreen> {
   bool _isLoading = true;
 
   final List<Map<String, dynamic>> _animals = const [
-    {'name': 'Lion King 🦁', 'tag': 'lion', 'color': Colors.orangeAccent},
-    {'name': 'Happy Elephant 🐘', 'tag': 'elephant', 'color': Colors.blueAccent},
-    {'name': 'Cute Panda 🐼', 'tag': 'panda', 'color': Colors.grey},
-    {'name': 'Playful Monkey 🐒', 'tag': 'monkey', 'color': Colors.brown},
-    {'name': 'Magic Zebra 🦓', 'tag': 'zebra', 'color': Colors.blueGrey},
-    {'name': 'Tall Giraffe 🦒', 'tag': 'giraffe', 'color': Colors.amber},
+    {'name': 'Level 1: Lion King 🦁', 'tag': 'lion', 'color': Colors.orangeAccent, 'gridSize': 2},
+    {'name': 'Level 2: Happy Elephant 🐘', 'tag': 'elephant', 'color': Colors.blueAccent, 'gridSize': 3},
+    {'name': 'Level 3: Cute Panda 🐼', 'tag': 'panda', 'color': Colors.grey, 'gridSize': 4},
+    {'name': 'Level 4: Playful Monkey 🐒', 'tag': 'monkey', 'color': Colors.brown, 'gridSize': 4},
+    {'name': 'Level 5: Magic Zebra 🦓', 'tag': 'zebra', 'color': Colors.blueGrey, 'gridSize': 5},
+    {'name': 'Level 6: Tall Giraffe 🦒', 'tag': 'giraffe', 'color': Colors.amber, 'gridSize': 5},
   ];
 
   @override
@@ -93,6 +93,7 @@ class _AnimalJigsawListScreenState extends State<AnimalJigsawListScreen> {
                                     initialAnimalTag: animal['tag'],
                                     animalName: animal['name'],
                                     animalIndex: index,
+                                    initialGridSize: animal['gridSize'],
                                   ),
                                 ),
                               ).then((_) => _loadProgress());

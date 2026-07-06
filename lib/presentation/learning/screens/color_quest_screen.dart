@@ -161,245 +161,248 @@ class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with Ticker
           }),
 
           SafeArea(
-            child: Column(
-              children: [
-                // Header
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardTheme.color ?? Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: IconButton(
-                          onPressed: () => context.pop(),
-                          icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-
-                            Text(
-                              'COLOR QUEST',
-                              style: TextStyle(
-                                fontSize: 18, // Updated to match other screens
-                                fontWeight: FontWeight.w900,
-                                color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF4A4A4A),
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFD166),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFFFD166).withValues(alpha: 0.4),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.star_rounded, color: Colors.white, size: 24),
-                            const SizedBox(width: 4),
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 300),
-                              transitionBuilder: (Widget child, Animation<double> animation) {
-                                return ScaleTransition(scale: animation, child: child);
-                              },
-                              child: Text(
-                                '$_points',
-                                key: ValueKey<int>(_points),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      TtsAnimatedSpeaker(
-                        isMuted: _isMuted,
-                        onTap: () {
-                          setState(() {
-                            _isMuted = !_isMuted;
-                            if (_isMuted) {
-                              ref.read(learningTtsServiceProvider.notifier).stop();
-                            }
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-
-                const Spacer(),
-
-                // Target Card
-                AnimatedBuilder(
-                  animation: _floatAnimation,
-                  builder: (context, child) {
-                    return Transform.translate(
-                      offset: Offset(0, _floatAnimation.value),
-                      child: child,
-                    );
-                  },
-                  child: GestureDetector(
-                    onTap: () {
-                      if (!_isMuted) {
-                        ref.read(learningTtsServiceProvider.notifier).playInstruction('Tap the ${targetColor.name.toLowerCase()}');
-                      }
-                    },
-                    child: Consumer(
-                      builder: (context, ref, _) {
-                        final ttsWord = ref.watch(learningTtsServiceProvider).currentWord;
-                        final isTapHighlighted = ttsWord == 'tap' || ttsWord == 'the';
-                        final isColorHighlighted = ttsWord == targetColor.name.toLowerCase();
-
-                        return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
-                          margin: const EdgeInsets.symmetric(horizontal: 40),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).cardTheme.color ?? Colors.white,
-                            borderRadius: BorderRadius.circular(40),
-                            boxShadow: [
-                              BoxShadow(
-                                color: targetColor.color.withValues(alpha: 0.2),
-                                blurRadius: 30,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              AnimatedDefaultTextStyle(
-                                duration: const Duration(milliseconds: 200),
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  color: isTapHighlighted 
-                                      ? targetColor.color 
-                                      : (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600]),
-                                  fontWeight: isTapHighlighted ? FontWeight.w900 : FontWeight.w700,
-                                ),
-                                child: const Text('Tap the'),
-                              ),
-                              const SizedBox(height: 10),
-                              AnimatedDefaultTextStyle(
-                                duration: const Duration(milliseconds: 200),
-                                style: TextStyle(
-                                  fontSize: isColorHighlighted ? 52 : 48,
-                                  fontWeight: FontWeight.w900,
-                                  color: targetColor.color,
-                                  letterSpacing: -0.5,
-                                  shadows: isColorHighlighted ? [
-                                    Shadow(
-                                      color: targetColor.color.withValues(alpha: 0.5),
-                                      blurRadius: 10,
-                                    )
-                                  ] : null,
-                                ),
-                                child: Text(targetColor.name),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-
-                const Spacer(),
-
-                // Color Options Grid
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 30,
-                      mainAxisSpacing: 30,
-                    ),
-                    itemCount: options.length,
-                    itemBuilder: (context, index) {
-                      final item = options[index];
-                      return GestureDetector(
-                        onTap: () => _onColorTap(item),
-                        child: AnimatedBuilder(
-                          animation: _shakeController,
-                          builder: (context, child) {
-                            double offset = 0;
-                            if (_lastTappedName == item.name && item.name != targetColor.name) {
-                              offset = sin(_shakeController.value * 4 * pi) * 10;
-                            }
-                            return Transform.translate(
-                              offset: Offset(offset, 0),
-                              child: child,
-                            );
-                          },
-                          child: Stack(
-                            alignment: Alignment.center,
-                            clipBehavior: Clip.none,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Header
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                          child: Row(
                             children: [
                               Container(
                                 decoration: BoxDecoration(
-                                  color: item.color,
+                                  color: Theme.of(context).cardTheme.color ?? Colors.white,
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Theme.of(context).cardTheme.color ?? Colors.white, width: 8),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: item.color.withValues(alpha: 0.3),
-                                      blurRadius: 20,
-                                      spreadRadius: 5,
-                                      offset: const Offset(0, 8),
+                                      color: Colors.black.withValues(alpha: 0.05),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: IconButton(
+                                  onPressed: () => context.pop(),
+                                  icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'COLOR QUEST',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w900,
+                                          color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF4A4A4A),
+                                          letterSpacing: -0.5,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
-                              if (_isSuccess && _lastTappedName == item.name)
-                                Positioned.fill(
-                                  child: Transform.scale(
-                                    scale: 2.5, // Scale up to cover button and burst outwards
-                                    child: Lottie.network(
-                                      'https://assets3.lottiefiles.com/packages/lf20_touohxv0.json',
-                                      repeat: false,
-                                      fit: BoxFit.cover,
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFD166),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFFFFD166).withValues(alpha: 0.4),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
                                     ),
-                                  ),
+                                  ],
                                 ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.star_rounded, color: Colors.white, size: 24),
+                                    const SizedBox(width: 4),
+                                    AnimatedSwitcher(
+                                      duration: const Duration(milliseconds: 300),
+                                      transitionBuilder: (Widget child, Animation<double> animation) {
+                                        return ScaleTransition(scale: animation, child: child);
+                                      },
+                                      child: Text(
+                                        '$_points',
+                                        key: ValueKey<int>(_points),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              TtsAnimatedSpeaker(
+                                isMuted: _isMuted,
+                                onTap: () {
+                                  setState(() {
+                                    _isMuted = !_isMuted;
+                                    if (_isMuted) {
+                                      ref.read(learningTtsServiceProvider.notifier).stop();
+                                    }
+                                  });
+                                },
+                              ),
                             ],
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ),
 
-                const Spacer(flex: 2),
-              ],
+                        // Target Card
+                        AnimatedBuilder(
+                          animation: _floatAnimation,
+                          builder: (context, child) {
+                            return Transform.translate(
+                              offset: Offset(0, _floatAnimation.value),
+                              child: child,
+                            );
+                          },
+                          child: GestureDetector(
+                            onTap: () {
+                              if (!_isMuted) {
+                                ref.read(learningTtsServiceProvider.notifier).playInstruction('Tap the ${targetColor.name.toLowerCase()}');
+                              }
+                            },
+                            child: Consumer(
+                              builder: (context, ref, _) {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+                                  margin: const EdgeInsets.symmetric(horizontal: 40),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).cardTheme.color ?? Colors.white,
+                                    borderRadius: BorderRadius.circular(40),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: targetColor.color.withValues(alpha: 0.2),
+                                        blurRadius: 30,
+                                        offset: const Offset(0, 10),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        'Tap the',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey[600],
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          targetColor.name,
+                                          style: TextStyle(
+                                            fontSize: 48,
+                                            fontWeight: FontWeight.w900,
+                                            color: targetColor.color,
+                                            letterSpacing: -0.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+
+                        // Color Options Grid
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                          child: Center(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 400),
+                              child: GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 30,
+                                  mainAxisSpacing: 30,
+                                ),
+                                itemCount: options.length,
+                                itemBuilder: (context, index) {
+                                  final item = options[index];
+                                  return GestureDetector(
+                                    onTap: () => _onColorTap(item),
+                                    child: AnimatedBuilder(
+                                      animation: _shakeController,
+                                      builder: (context, child) {
+                                        double offset = 0;
+                                        if (_lastTappedName == item.name && item.name != targetColor.name) {
+                                          offset = sin(_shakeController.value * 4 * pi) * 10;
+                                        }
+                                        return Transform.translate(
+                                          offset: Offset(offset, 0),
+                                          child: child,
+                                        );
+                                      },
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color: item.color,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(color: Theme.of(context).cardTheme.color ?? Colors.white, width: 8),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: item.color.withValues(alpha: 0.3),
+                                                  blurRadius: 20,
+                                                  spreadRadius: 5,
+                                                  offset: const Offset(0, 8),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          if (_isSuccess && _lastTappedName == item.name)
+                                            Positioned.fill(
+                                              child: Transform.scale(
+                                                scale: 2.5,
+                                                child: Lottie.network(
+                                                  'https://assets3.lottiefiles.com/packages/lf20_touohxv0.json',
+                                                  repeat: false,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
           SuccessOverlay(

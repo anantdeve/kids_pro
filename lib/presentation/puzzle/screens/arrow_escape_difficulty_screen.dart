@@ -82,10 +82,7 @@ class _ArrowEscapeDifficultyScreenState extends State<ArrowEscapeDifficultyScree
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Arrow Escape',
-                  style: TextStyle(fontSize: 14, color: AppColors.textGray, fontWeight: FontWeight.w700),
-                ),
+
                 Text(
                   'Select Difficulty',
                   style: TextStyle(

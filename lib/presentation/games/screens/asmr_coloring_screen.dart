@@ -251,10 +251,12 @@ class _AsmrColoringScreenState extends ConsumerState<AsmrColoringScreen> with Si
                           }
                         }
                         Future.microtask(() {
-                          if (mounted && _validPathCells.isEmpty) {
+                          if (mounted && (_validPathCells.isEmpty || _currentBounds != bounds)) {
                             setState(() {
                               _currentBounds = bounds;
                               _validPathCells = validCells;
+                              // Clear colored cells if the bounds just changed
+                              _coloredCells.clear();
                             });
                           }
                         });

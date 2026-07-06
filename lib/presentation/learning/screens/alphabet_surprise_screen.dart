@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math';
 import '../widgets/success_overlay.dart';
 import '../../../core/widgets/magical_blob.dart';
+import '../../../core/providers/user_provider.dart';
 
-class AlphabetSurpriseScreen extends StatefulWidget {
+class AlphabetSurpriseScreen extends ConsumerStatefulWidget {
   const AlphabetSurpriseScreen({super.key});
 
   @override
-  State<AlphabetSurpriseScreen> createState() => _AlphabetSurpriseScreenState();
+  ConsumerState<AlphabetSurpriseScreen> createState() => _AlphabetSurpriseScreenState();
 }
 
-class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with TickerProviderStateMixin {
+class _AlphabetSurpriseScreenState extends ConsumerState<AlphabetSurpriseScreen> with TickerProviderStateMixin {
   late String currentLetter;
   final List<String> alphabets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   final Random random = Random();
@@ -50,6 +52,7 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
   int winningBoxIndex = 0;
   bool isDragging = false;
   bool _isBigReveal = false;
+  int sessionScore = 0;
 
   late AnimationController _floatController;
   late Animation<double> _floatAnimation;
@@ -340,6 +343,38 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
               ),
             ),
           ),
+          const SizedBox(width: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFFFD166), Color(0xFFFF9F1C)],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFFF9F1C).withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.stars_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 6),
+                Text(
+                  sessionScore.toString(),
+                  style: const TextStyle(
+                    color: Colors.white, 
+                    fontWeight: FontWeight.w900, 
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -356,7 +391,9 @@ class _AlphabetSurpriseScreenState extends State<AlphabetSurpriseScreen> with Ti
             setState(() {
               revealedBoxIndex = index;
               _isBigReveal = true;
+              sessionScore += 10;
             });
+            ref.read(userProvider.notifier).addPoints('Learning', 10);
             _openingController.forward(from: 0);
             _bigRevealController.forward(from: 0);
             _showSurprise();

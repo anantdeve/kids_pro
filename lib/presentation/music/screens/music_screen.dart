@@ -28,48 +28,20 @@ class MusicScreen extends StatelessWidget {
                     horizontal: isTablet ? screenWidth * 0.08 : 20.0,
                     vertical: 16.0,
                   ),
-                  child: Row(
-                    children: [
-                      // Avatar
-                      Container(
-                        width: isTablet ? 60 : 50,
-                        height: isTablet ? 60 : 50,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/avatar.png'),
-                            fit: BoxFit.cover,
-                          ),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: AppColors.shadowGlow,
-                              blurRadius: 10,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16.0, top: 0.0, bottom: 0.0),
+                      child: Text(
+                        'Music',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.pinkPrimary,
+                          letterSpacing: 0.5,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-
-                            Text(
-                              'Music Magic Hub 🎶🎶',
-                              style: TextStyle(
-                                fontSize: (screenWidth * 0.055).clamp(20.0, 26.0),
-                                fontWeight: FontWeight.w900,
-                                color: Theme.of(context).textTheme.displayMedium?.color ?? const Color(0xFF334E68),
-                                height: 1.1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
 

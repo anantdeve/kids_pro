@@ -1,16 +1,22 @@
 import 'dart:ui' as ui;
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
+import '../../../core/providers/user_provider.dart';
 
-class ColorTheMagicScreen extends StatefulWidget {
+class ColorTheMagicScreen extends ConsumerStatefulWidget {
   const ColorTheMagicScreen({super.key});
 
   @override
-  State<ColorTheMagicScreen> createState() => _ColorTheMagicScreenState();
+  ConsumerState<ColorTheMagicScreen> createState() => _ColorTheMagicScreenState();
 }
 
-class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
+class _ColorTheMagicScreenState extends ConsumerState<ColorTheMagicScreen> {
   List<DrawnLine> lines = [];
   DrawnLine? currentLine;
   Color selectedColor = const Color(0xFFFF4848); // Initial Red
@@ -18,8 +24,10 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
   String currentTool = 'pencil'; // 'pencil', 'crayon', or 'move'
   final TransformationController _transformationController = TransformationController();
   final GlobalKey _canvasKey = GlobalKey();
+  final GlobalKey _boundaryKey = GlobalKey();
   ui.Image? _maskImage;
   bool _isLoadingMask = false;
+  bool _isCompleted = false;
 
   final List<ColoringObject> objects = [
     ColoringObject(name: 'BANANA', colorName: 'YELLOW', color: const Color(0xFFFFE000), imagePath: 'assets/images/banana_outline.png'),
@@ -33,11 +41,16 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
 
   final List<Color> palette = [
     const Color(0xFFFF4848), // Red
-    const Color(0xFF0091FF), // Blue
-    const Color(0xFF00C34F), // Green
+    const Color(0xFFFF8B66), // Orange
     const Color(0xFFFFE000), // Yellow
+    const Color(0xFF00C34F), // Green
+    const Color(0xFF00B4D8), // Cyan
+    const Color(0xFF0091FF), // Blue
     const Color(0xFF9000D4), // Purple
     const Color(0xFFFF007A), // Pink
+    const Color(0xFF8D6E63), // Brown
+    const Color(0xFFE0E0E0), // Light Grey
+    const Color(0xFF2D3142), // Dark/Black
   ];
 
   @override
@@ -51,20 +64,112 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
     setState(() => _isLoadingMask = true);
     try {
       final ByteData data = await rootBundle.load(assetPath);
-      final ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+      // Downscale to 300px for fast processing
+      final ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(), targetWidth: 300);
       final ui.FrameInfo fi = await codec.getNextFrame();
-      setState(() {
-        _maskImage = fi.image;
-        _isLoadingMask = false;
+      final ui.Image rawImage = fi.image;
+      
+      final ByteData? rgbaData = await rawImage.toByteData(format: ui.ImageByteFormat.rawRgba);
+      if (rgbaData == null) {
+        setState(() => _isLoadingMask = false);
+        return;
+      }
+      final Uint8List pixels = rgbaData.buffer.asUint8List();
+      
+      final int width = rawImage.width;
+      final int height = rawImage.height;
+      
+      final List<bool> visited = List.filled(width * height, false);
+      final Int32List queueX = Int32List(width * height);
+      final Int32List queueY = Int32List(width * height);
+      int head = 0;
+      int tail = 0;
+      
+      bool isBorder(int idx) {
+        int offset = idx * 4;
+        int r = pixels[offset];
+        int g = pixels[offset + 1];
+        int b = pixels[offset + 2];
+        int a = pixels[offset + 3];
+        if (a < 20) return false; // Transparent is not border
+        if ((r + g + b) / 3 > 220) return false; // White is not border
+        return true; // Dark lines
+      }
+      
+      void tryEnqueue(int x, int y) {
+        int idx = y * width + x;
+        if (!visited[idx]) {
+          if (!isBorder(idx)) {
+            visited[idx] = true;
+            queueX[tail] = x;
+            queueY[tail] = y;
+            tail++;
+          }
+        }
+      }
+
+      // Enqueue edges
+      for (int x = 0; x < width; x++) {
+        tryEnqueue(x, 0);
+        tryEnqueue(x, height - 1);
+      }
+      for (int y = 0; y < height; y++) {
+        tryEnqueue(0, y);
+        tryEnqueue(width - 1, y);
+      }
+      
+      // BFS
+      final dx = [0, 0, -1, 1];
+      final dy = [-1, 1, 0, 0];
+      while (head < tail) {
+        int cx = queueX[head];
+        int cy = queueY[head];
+        head++;
+        for (int i = 0; i < 4; i++) {
+          int nx = cx + dx[i];
+          int ny = cy + dy[i];
+          if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+            tryEnqueue(nx, ny);
+          }
+        }
+      }
+      
+      // Build mask: transparent outside, opaque white inside
+      final Uint8List maskPixels = Uint8List(width * height * 4);
+      for (int i = 0; i < width * height; i++) {
+        int offset = i * 4;
+        if (visited[i]) {
+          maskPixels[offset] = 0;
+          maskPixels[offset + 1] = 0;
+          maskPixels[offset + 2] = 0;
+          maskPixels[offset + 3] = 0;
+        } else {
+          maskPixels[offset] = 255;
+          maskPixels[offset + 1] = 255;
+          maskPixels[offset + 2] = 255;
+          maskPixels[offset + 3] = 255;
+        }
+      }
+      
+      ui.decodeImageFromPixels(maskPixels, width, height, ui.PixelFormat.rgba8888, (ui.Image mask) {
+        if (mounted) {
+          setState(() {
+            _maskImage = mask;
+            _isLoadingMask = false;
+          });
+        }
       });
     } catch (e) {
-      setState(() => _isLoadingMask = false);
+      if (mounted) {
+        setState(() => _isLoadingMask = false);
+      }
     }
   }
 
   void _generateNewObject() {
     setState(() {
       lines.clear();
+      _isCompleted = false;
       final currentIndex = objects.indexOf(currentObject);
       int nextIndex;
       do {
@@ -112,6 +217,173 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
       lines.add(currentLine!);
       currentLine = null;
     });
+    _checkCompletion();
+  }
+
+  void _checkCompletion() {
+    if (_isCompleted) return;
+    
+    int totalPoints = 0;
+    for (var line in lines) {
+      totalPoints += line.path.length;
+    }
+    
+    // A decent scribble to fill an object usually takes > 400 points
+    if (totalPoints > 400) {
+      _isCompleted = true;
+      _showSuccessEffect();
+    }
+  }
+
+  void _showSuccessEffect() {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black87,
+      transitionDuration: const Duration(milliseconds: 600),
+      pageBuilder: (context, animation, secondaryAnimation) => const SizedBox(),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(parent: animation, curve: Curves.elasticOut),
+          child: AlertDialog(
+            backgroundColor: Colors.transparent,
+            contentPadding: EdgeInsets.zero,
+            elevation: 0,
+            content: Container(
+              width: 340,
+              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 30),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFFD54F), Color(0xFFFF8F00)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(40),
+                boxShadow: [
+                  BoxShadow(color: Colors.orangeAccent.withOpacity(0.6), blurRadius: 30, spreadRadius: 10, offset: const Offset(0, 15)),
+                  BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 10, spreadRadius: 2, offset: const Offset(-3, -3)),
+                ],
+                border: Border.all(color: Colors.white, width: 4),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.star_rounded, size: 90, color: Colors.white, shadows: [Shadow(color: Colors.black26, blurRadius: 10, offset: Offset(2, 4))]),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'AMAZING!',
+                    style: TextStyle(
+                      fontSize: 36, 
+                      fontWeight: FontWeight.w900, 
+                      color: Colors.white,
+                      letterSpacing: 2.5,
+                      shadows: [Shadow(color: Colors.black26, blurRadius: 5, offset: Offset(2, 3))],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Beautiful Artwork! 🎉',
+                    style: TextStyle(
+                      fontSize: 18, 
+                      fontWeight: FontWeight.bold, 
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 40),
+                  Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [BoxShadow(color: Colors.deepOrange.withOpacity(0.4), blurRadius: 15, offset: const Offset(0, 8))],
+                      borderRadius: BorderRadius.circular(40),
+                    ),
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFFFF8F00),
+                        padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 18),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _generateNewObject();
+                      },
+                      icon: const Icon(Icons.play_arrow_rounded, size: 30),
+                      label: const Text(
+                        'NEXT LEVEL',
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 1.2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _saveArtwork() async {
+    final bool? shouldSave = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Save Artwork?', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Do you want to save this beautiful artwork to your gallery?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey, fontSize: 16)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF8B66),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+            child: const Text('Save', style: TextStyle(color: Colors.white, fontSize: 16)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldSave == true) {
+      try {
+        RenderRepaintBoundary boundary = _boundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+        ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+        ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        Uint8List pngBytes = byteData!.buffer.asUint8List();
+
+        final directory = await getApplicationDocumentsDirectory();
+        final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+        final String filePath = '${directory.path}/artwork_$timestamp.png';
+        final File imgFile = File(filePath);
+        await imgFile.writeAsBytes(pngBytes);
+
+        await ref.read(userProvider.notifier).addArtwork(filePath);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Artwork saved! Check your profile.', style: TextStyle(fontWeight: FontWeight.bold)),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Failed to save artwork.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -199,6 +471,10 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
                         },
                         icon: const Icon(Icons.delete_sweep, color: Color(0xFFFF4848)),
                       ),
+                      IconButton(
+                        onPressed: _saveArtwork,
+                        icon: const Icon(Icons.save_alt_rounded, color: Colors.green),
+                      ),
                     ],
                   ),
                 ),
@@ -221,32 +497,38 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
                         onPanStart: _onPanStart,
                         onPanUpdate: _onPanUpdate,
                         onPanEnd: _onPanEnd,
-                        child: Stack(
-                          key: _canvasKey,
-                          alignment: Alignment.center,
-                          children: [
-                            // 1. Outline (Background)
-                            Opacity(
-                              opacity: 0.1,
-                              child: Image.asset(
-                                currentObject.imagePath,
-                                width: 300,
-                                fit: BoxFit.contain,
-                                key: ValueKey(currentObject.imagePath),
-                              ),
-                            ),
-                            
-                            // 2. Drawing Canvas (With Masking)
-                            Positioned.fill(
-                              child: CustomPaint(
-                                painter: DrawingPainter(
-                                  lines: lines, 
-                                  currentLine: currentLine,
-                                  maskImage: _maskImage,
+                        child: RepaintBoundary(
+                          key: _boundaryKey,
+                          child: Container(
+                            color: Colors.transparent, // Background for the captured image
+                            child: Stack(
+                              key: _canvasKey,
+                              alignment: Alignment.center,
+                              children: [
+                                // 1. Outline (Background)
+                                Opacity(
+                                  opacity: 0.1,
+                                  child: Image.asset(
+                                    currentObject.imagePath,
+                                    width: 300,
+                                    fit: BoxFit.contain,
+                                    key: ValueKey(currentObject.imagePath),
+                                  ),
                                 ),
-                              ),
+                                
+                                // 2. Drawing Canvas (With Masking)
+                                Positioned.fill(
+                                  child: CustomPaint(
+                                    painter: DrawingPainter(
+                                      lines: lines, 
+                                      currentLine: currentLine,
+                                      maskImage: _maskImage,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -278,15 +560,21 @@ class _ColorTheMagicScreenState extends State<ColorTheMagicScreen> {
                           const SizedBox(width: 12),
                           _buildToolButton('Move', Icons.back_hand, 'move'),
                           const Spacer(),
-                          TextButton.icon(
-                            onPressed: _generateNewObject,
-                            icon: const Icon(Icons.refresh, size: 18),
-                            label: const Text('New Object'),
-                            style: TextButton.styleFrom(
-                              backgroundColor: const Color(0xFFFFE8E0),
-                              foregroundColor: const Color(0xFFFF8B66),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              if (!_isCompleted) {
+                                setState(() => _isCompleted = true);
+                                _showSuccessEffect();
+                              }
+                            },
+                            icon: const Icon(Icons.star_rounded, size: 24),
+                            label: const Text('I\'m Done!', style: TextStyle(fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFF8B66),
+                              foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              elevation: 4,
                             ),
                           ),
                         ],
