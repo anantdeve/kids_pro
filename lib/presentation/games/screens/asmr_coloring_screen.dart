@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -71,6 +72,9 @@ class _AsmrColoringScreenState extends ConsumerState<AsmrColoringScreen> with Si
       AsmrLevel('Magic Heart', '💖', _getHeartPath),
       AsmrLevel('Shiny Star', '⭐', _getStarPath),
       AsmrLevel('Juicy Apple', '🍎', _getApplePath),
+      AsmrLevel('Happy Moon', '🌙', _getMoonPath),
+      AsmrLevel('Pretty Flower', '🌸', _getFlowerPath),
+      AsmrLevel('Cozy House', '🏠', _getHousePath),
     ];
   }
 
@@ -490,6 +494,69 @@ class _AsmrColoringScreenState extends ConsumerState<AsmrColoringScreen> with Si
     path.moveTo(dx + w * 0.5, dy + h * 0.1);
     path.cubicTo(dx + w * 0.9, dy - h * 0.1, dx + w * 1.1, dy + h * 0.6, dx + w * 0.5, dy + h);
     path.cubicTo(dx - w * 0.1, dy + h * 0.6, dx + w * 0.1, dy - h * 0.1, dx + w * 0.5, dy + h * 0.1);
+    path.close();
+    return path;
+  }
+
+  Path _getMoonPath(Size size) {
+    final w = size.width * 0.5;
+    final h = w * 1.2;
+    final dx = (size.width - w) / 2;
+    final dy = (size.height - h) / 2;
+
+    final path = Path();
+    path.moveTo(dx + w * 0.8, dy);
+    path.quadraticBezierTo(dx + w * 1.5, dy + h * 0.5, dx + w * 0.8, dy + h);
+    path.quadraticBezierTo(dx + w * 1.1, dy + h * 0.5, dx + w * 0.8, dy);
+    path.close();
+    return path;
+  }
+
+  Path _getFlowerPath(Size size) {
+    final w = size.width * 0.6;
+    final h = w;
+    final dx = (size.width - w) / 2;
+    final dy = (size.height - h) / 2;
+
+    final path = Path();
+    final center = Offset(dx + w / 2, dy + h / 2);
+    final radius = w / 4;
+    
+    for(int i = 0; i < 8; i++) {
+       double angle1 = (i * 45) * math.pi / 180;
+       double angle2 = ((i + 1) * 45) * math.pi / 180;
+       double midAngle = (angle1 + angle2) / 2;
+       
+       double p1x = center.dx + math.cos(angle1) * radius;
+       double p1y = center.dy + math.sin(angle1) * radius;
+       
+       double cx = center.dx + math.cos(midAngle) * radius * 2.2;
+       double cy = center.dy + math.sin(midAngle) * radius * 2.2;
+       
+       double p2x = center.dx + math.cos(angle2) * radius;
+       double p2y = center.dy + math.sin(angle2) * radius;
+       
+       if (i == 0) path.moveTo(p1x, p1y);
+       path.quadraticBezierTo(cx, cy, p2x, p2y);
+    }
+    path.close();
+    return path;
+  }
+
+  Path _getHousePath(Size size) {
+    final w = size.width * 0.6;
+    final h = w;
+    final dx = (size.width - w) / 2;
+    final dy = (size.height - h) / 2;
+
+    final path = Path();
+    path.moveTo(dx + w / 2, dy);
+    path.lineTo(dx + w, dy + h * 0.4);
+    path.lineTo(dx + w * 0.8, dy + h * 0.4);
+    path.lineTo(dx + w * 0.8, dy + h);
+    path.lineTo(dx + w * 0.2, dy + h);
+    path.lineTo(dx + w * 0.2, dy + h * 0.4);
+    path.lineTo(dx, dy + h * 0.4);
     path.close();
     return path;
   }

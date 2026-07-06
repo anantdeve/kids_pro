@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:go_router/go_router.dart';
 import 'dart:math' as math;
 import 'dart:async';
@@ -111,7 +112,7 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black87,
+      barrierColor: Colors.black.withOpacity(0.4),
       transitionDuration: const Duration(milliseconds: 600),
       pageBuilder: (context, animation, secondaryAnimation) => const SizedBox(),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
@@ -121,101 +122,87 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
             backgroundColor: Colors.transparent,
             contentPadding: EdgeInsets.zero,
             elevation: 0,
-            content: Container(
-              width: 340,
-              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 30),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFFD54F), Color(0xFFFF8F00)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(40),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.orangeAccent.withOpacity(0.6),
-                    blurRadius: 30,
-                    spreadRadius: 10,
-                    offset: const Offset(0, 15),
+            content: ClipRRect(
+              borderRadius: BorderRadius.circular(40),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                child: Container(
+                  width: 290, 
+                  padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20), 
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(35),
+                    border: Border.all(color: Colors.white.withOpacity(0.6), width: 2),
                   ),
-                  BoxShadow(
-                    color: Colors.white.withOpacity(0.4),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                    offset: const Offset(-3, -3),
-                  ),
-                ],
-                border: Border.all(color: Colors.white, width: 4),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(3, (index) {
-                      bool isEarned = index < earnedStars;
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          bottom: index == 1 ? 20.0 : 0.0, // middle star higher
-                          left: 8.0,
-                          right: 8.0,
-                        ),
-                        child: Icon(
-                          Icons.star_rounded,
-                          size: index == 1 ? 90 : 70,
-                          color: isEarned ? Colors.white : Colors.white.withOpacity(0.4),
-                          shadows: isEarned 
-                              ? [const Shadow(color: Colors.black26, blurRadius: 10, offset: Offset(2, 4))] 
-                              : null,
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-                  const SizedBox(height: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(3, (index) {
+                          bool isEarned = index < earnedStars;
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              bottom: index == 1 ? 16.0 : 0.0,
+                              left: 6.0,
+                              right: 6.0,
+                            ),
+                            child: Icon(
+                              Icons.star_rounded,
+                              size: index == 1 ? 70 : 55, 
+                              color: isEarned ? Colors.amberAccent : Colors.white.withOpacity(0.3),
+                              shadows: isEarned 
+                                  ? [const Shadow(color: Colors.black45, blurRadius: 10, offset: Offset(2, 3))] 
+                                  : null,
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  const SizedBox(height: 16),
                   const Text(
                     'AMAZING!',
                     style: TextStyle(
-                      fontSize: 36, 
+                      fontSize: 28, 
                       fontWeight: FontWeight.w900, 
                       color: Colors.white,
-                      letterSpacing: 2.5,
+                      letterSpacing: 2.0,
                       shadows: [
-                        Shadow(color: Colors.black26, blurRadius: 5, offset: Offset(2, 3)),
+                        Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(2, 2)),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Text(
-                    'Time: ${timeTaken}s\nYou solved the puzzle! 🎉',
+                    'Time: ${timeTaken}s\nYou solved it! 🎉',
                     style: TextStyle(
-                      fontSize: 18, 
+                      fontSize: 16, 
                       fontWeight: FontWeight.bold, 
                       color: Colors.white.withOpacity(0.95),
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 22), 
                   Container(
                     decoration: BoxDecoration(
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.deepOrange.withOpacity(0.4),
-                          blurRadius: 15,
-                          offset: const Offset(0, 8),
+                          color: Colors.deepOrange.withOpacity(0.35),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
                         ),
                       ],
-                      borderRadius: BorderRadius.circular(40),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: const Color(0xFFFF8F00),
-                        padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 18),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14), 
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                       ),
                       onPressed: () {
                         Navigator.of(context).pop(); // close dialog
@@ -232,10 +219,12 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
-  }
+  },
+);
+}
 
   @override
   Widget build(BuildContext context) {
