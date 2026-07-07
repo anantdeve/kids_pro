@@ -6,8 +6,10 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:lottie/lottie.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/providers/user_provider.dart';
 
-class JigsawPuzzleScreen extends StatefulWidget {
+class JigsawPuzzleScreen extends ConsumerStatefulWidget {
   final String initialAnimalTag;
   final String animalName;
   final int animalIndex;
@@ -22,10 +24,10 @@ class JigsawPuzzleScreen extends StatefulWidget {
   });
 
   @override
-  State<JigsawPuzzleScreen> createState() => _JigsawPuzzleScreenState();
+  ConsumerState<JigsawPuzzleScreen> createState() => _JigsawPuzzleScreenState();
 }
 
-class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
+class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
   late int _gridSize;
   
   late List<int?> _placedPieces;
@@ -92,23 +94,33 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
           _timer?.cancel();
           
           // Calculate stars based on elapsed seconds
-          int earnedStars = 1;
+          int earnedStars = 0;
+          int deduction = 0;
           if (_elapsedSeconds <= 10) {
             earnedStars = 3;
+            // Optionally reward points for fast completion, but focusing on deduction per requirement.
           } else if (_elapsedSeconds <= 20) {
             earnedStars = 2;
+          } else if (_elapsedSeconds <= 30) {
+            earnedStars = 1;
+          } else {
+            // Deduct 2 points for every 10 seconds over 30s
+            int additionalSeconds = _elapsedSeconds - 30;
+            int penaltyBlocks = (additionalSeconds / 10).ceil();
+            deduction = penaltyBlocks * 2;
+            ref.read(userProvider.notifier).addPoints('Puzzle', -deduction);
           }
           
           // Unlock the next animal in the selection list
           _unlockNextAnimal();
           
-          _showSuccessCard(earnedStars, _elapsedSeconds);
+          _showSuccessCard(earnedStars, _elapsedSeconds, deduction);
         }
       });
     }
   }
 
-  void _showSuccessCard(int earnedStars, int timeTaken) {
+  void _showSuccessCard(int earnedStars, int timeTaken, int deduction) {
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -162,9 +174,9 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
                       ),
                     ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'AMAZING!',
-                    style: TextStyle(
+                  Text(
+                    deduction > 0 ? 'GOOD TRY!' : 'AMAZING!',
+                    style: const TextStyle(
                       fontSize: 28, 
                       fontWeight: FontWeight.w900, 
                       color: Colors.white,
@@ -176,7 +188,9 @@ class _JigsawPuzzleScreenState extends State<JigsawPuzzleScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Time: ${timeTaken}s\nYou solved it! 🎉',
+                    deduction > 0
+                      ? 'Time: ${timeTaken}s\nYou finished, but lost $deduction points! 📉'
+                      : 'Time: ${timeTaken}s\nYou solved it! 🎉',
                     style: TextStyle(
                       fontSize: 16, 
                       fontWeight: FontWeight.bold, 
