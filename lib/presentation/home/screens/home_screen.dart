@@ -50,14 +50,14 @@ class HomeScreen extends ConsumerWidget {
     final List<Widget> cards = [
       HomeCard(
         title: 'Learning World',
-        subtitle: 'Explore & Discover',
+        subtitle: '',
         imagePath: 'assets/images/learning_world.png',
         shadowColor: const Color(0x2600D4FF),
         onTap: () => context.push('/learning-hub'),
       ),
       HomeCard(
         title: 'Magic Quiz',
-        subtitle: 'Show your skills!',
+        subtitle: '',
         imagePath: 'assets/images/magic_quiz.png',
         shadowColor: const Color(0x264CAF50),
         onTap: () {
@@ -66,14 +66,14 @@ class HomeScreen extends ConsumerWidget {
       ),
       HomeCard(
         title: 'Fun Games',
-        subtitle: 'Play & Laugh',
+        subtitle: '',
         imagePath: 'assets/images/fun_games.png',
         shadowColor: const Color(0x262196F3),
         onTap: () => context.push('/fun-games'),
       ),
       HomeCard(
         title: 'Magic Paint',
-        subtitle: 'Create Art',
+        subtitle: '',
         imagePath: 'assets/images/magic_paint.png',
         shadowColor: const Color(0x26FF5722),
         onTap: () => context.push('/magic-paint'),

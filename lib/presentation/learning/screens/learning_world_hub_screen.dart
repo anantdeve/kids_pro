@@ -96,13 +96,13 @@ class LearningWorldHubScreen extends StatelessWidget {
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                    itemCount: 3,
+                    itemCount: 6,
                     itemBuilder: (context, index) {
                       final List<Widget> cards = [
                         LearningHubCard(
                           title: 'Colors Adventure',
                           subtitle: 'Paint the world with colors!',
-                          secondaryEmoji: '🌈',
+
                           imagePath: 'assets/images/colors_adventure.png',
                           fallbackIcon: Icons.palette_rounded,
                           titleColor: const Color(0xFFFF8B66), // Salmon
@@ -111,7 +111,7 @@ class LearningWorldHubScreen extends StatelessWidget {
                         LearningHubCard(
                           title: 'Number Magic',
                           subtitle: 'Learn counting and math fun!',
-                          secondaryEmoji: '🔢',
+
                           imagePath: 'assets/images/number_magic.png',
                           fallbackIcon: Icons.calculate_rounded,
                           titleColor: const Color(0xFF4ECDC4), // Teal
@@ -121,11 +121,41 @@ class LearningWorldHubScreen extends StatelessWidget {
                           title: 'Alphabet Fun',
                           subtitle: 'Discover letters and surprises!',
                           titleEmoji: '🎁',
-                          secondaryEmoji: '✨',
+
                           imagePath: 'assets/images/alphabet_fun.png',
                           fallbackIcon: Icons.abc_rounded,
                           titleColor: const Color(0xFFFF7B9C), // Pink
                           onTap: () => context.push('/alphabet-surprise'),
+                        ),
+                        LearningHubCard(
+                          title: 'Word Match',
+                          subtitle: 'Match words to pictures!',
+                          titleEmoji: '🧩',
+
+                          imagePath: 'assets/images/word_matching.png',
+                          fallbackIcon: Icons.image_search_rounded,
+                          titleColor: const Color(0xFF8C52FF), // Purple
+                          onTap: () => context.push('/match-word'),
+                        ),
+                        LearningHubCard(
+                          title: 'Listen & Choose',
+                          subtitle: 'Hear the word, find the match!',
+                          titleEmoji: '👂',
+
+                          imagePath: 'assets/images/listen_and_choose.png',
+                          fallbackIcon: Icons.hearing_rounded,
+                          titleColor: const Color(0xFFFF914D), // Orange
+                          onTap: () => context.push('/listen-word'),
+                        ),
+                        LearningHubCard(
+                          title: 'Word Builder',
+                          subtitle: 'Drag letters to build words!',
+                          titleEmoji: '🏗️',
+                      
+                          imagePath: 'assets/images/alphabet_fun.png',
+                          fallbackIcon: Icons.extension_rounded,
+                          titleColor: const Color(0xFF00BF63), // Green
+                          onTap: () => context.push('/drag-letters'),
                         ),
                       ];
 

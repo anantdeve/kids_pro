@@ -27,6 +27,9 @@ import '../../presentation/games/screens/asmr_coloring_screen.dart';
 import '../../presentation/profile/screens/saved_art_gallery_screen.dart';
 
 import '../../presentation/learning/screens/magic_story_selection_screen.dart';
+import '../../presentation/learning/screens/match_word_to_picture_screen.dart';
+import '../../presentation/learning/screens/listen_and_choose_screen.dart';
+import '../../presentation/learning/screens/drag_letters_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -142,6 +145,18 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/saved-art',
       builder: (context, state) => const SavedArtGalleryScreen(),
+    ),
+    GoRoute(
+      path: '/match-word',
+      builder: (context, state) => const MatchWordToPictureScreen(),
+    ),
+    GoRoute(
+      path: '/listen-word',
+      builder: (context, state) => const ListenAndChooseScreen(),
+    ),
+    GoRoute(
+      path: '/drag-letters',
+      builder: (context, state) => const DragLettersScreen(),
     ),
     // TODO: Add other routes here (numbers, colors, animals, etc.)
   ],

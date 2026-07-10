@@ -10,13 +10,23 @@ import '../../../core/config/env.dart';
 class LearningTtsState {
   final bool isSpeaking;
   final String currentWord;
+  final bool isMuted;
 
-  LearningTtsState({this.isSpeaking = false, this.currentWord = ''});
+  LearningTtsState({
+    this.isSpeaking = false,
+    this.currentWord = '',
+    this.isMuted = false,
+  });
 
-  LearningTtsState copyWith({bool? isSpeaking, String? currentWord}) {
+  LearningTtsState copyWith({
+    bool? isSpeaking,
+    String? currentWord,
+    bool? isMuted,
+  }) {
     return LearningTtsState(
       isSpeaking: isSpeaking ?? this.isSpeaking,
       currentWord: currentWord ?? this.currentWord,
+      isMuted: isMuted ?? this.isMuted,
     );
   }
 }
@@ -87,7 +97,16 @@ class LearningTtsNotifier extends Notifier<LearningTtsState> {
     }
   }
 
+  void toggleMute() {
+    state = state.copyWith(isMuted: !state.isMuted);
+    if (state.isMuted) {
+      stop();
+    }
+  }
+
   Future<void> _speak(String text) async {
+    if (state.isMuted) return;
+
     // Use ElevenLabs if API key is provided
     if (Env.elevenLabsApiKey.isNotEmpty) {
       try {

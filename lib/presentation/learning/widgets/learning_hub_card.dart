@@ -113,24 +113,27 @@ class _LearningHubCardState extends State<LearningHubCard> with SingleTickerProv
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(iconSize / 2),
-                        child: Image.asset(
-                          widget.imagePath,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  widget.titleColor.withValues(alpha: 0.1),
-                                  widget.titleColor.withValues(alpha: 0.2),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Image.asset(
+                            widget.imagePath,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    widget.titleColor.withValues(alpha: 0.1),
+                                    widget.titleColor.withValues(alpha: 0.2),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
                               ),
-                            ),
-                            child: Icon(
-                              widget.fallbackIcon,
-                              color: widget.titleColor,
-                              size: iconSize * 0.45,
+                              child: Icon(
+                                widget.fallbackIcon,
+                                color: widget.titleColor,
+                                size: iconSize * 0.45,
+                              ),
                             ),
                           ),
                         ),
