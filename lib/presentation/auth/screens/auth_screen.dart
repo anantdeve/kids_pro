@@ -172,45 +172,52 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
           ),
           
           SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Floating Image
-                    AnimatedBuilder(
-                      animation: _floatAnimation,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              blurRadius: 20, // Reduced from 30 for better performance
-                              offset: const Offset(0, 15),
-                            ),
-                          ],
-                        ),
-                        child: Image.asset(
-                          'assets/images/splash_child.png',
-                          width: 150,
-                          height: 150,
-                          fit: BoxFit.contain,
-                          cacheWidth: 300, // Decode image at smaller resolution
-                          errorBuilder: (context, error, stackTrace) => 
-                              const Icon(Icons.sentiment_satisfied_alt, size: 100, color: Colors.white),
-                        ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Center(
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight > 32 ? constraints.maxHeight - 32 : 0,
+                        maxWidth: 450,
                       ),
-                      builder: (context, child) {
-                        return Transform.translate(
-                          offset: Offset(0, _floatAnimation.value),
-                          child: child,
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 24),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Floating Image
+                          AnimatedBuilder(
+                            animation: _floatAnimation,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                    blurRadius: 20, // Reduced from 30 for better performance
+                                    offset: const Offset(0, 15),
+                                  ),
+                                ],
+                              ),
+                              child: Image.asset(
+                                'assets/images/splash_child.png',
+                                width: constraints.maxHeight > 650 ? 120 : 90,
+                                height: constraints.maxHeight > 650 ? 120 : 90,
+                                fit: BoxFit.contain,
+                                cacheWidth: 300, // Decode image at smaller resolution
+                                errorBuilder: (context, error, stackTrace) => 
+                                    const Icon(Icons.sentiment_satisfied_alt, size: 100, color: Colors.white),
+                              ),
+                            ),
+                            builder: (context, child) {
+                              return Transform.translate(
+                                offset: Offset(0, _floatAnimation.value),
+                                child: child,
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 16),
 
                     // Auth Card
                     Card(
@@ -220,7 +227,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                         borderRadius: BorderRadius.circular(32),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(32.0),
+                        padding: const EdgeInsets.all(24.0),
                         child: Form(
                           key: _formKey,
                           child: AnimatedSize(
@@ -238,7 +245,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                                   child: Text(
                                     _isLogin ? 'Welcome Back!' : 'Join the Fun!',
                                     style: const TextStyle(
-                                      fontSize: 32,
+                                      fontSize: 28,
                                       fontWeight: FontWeight.w900,
                                       color: Colors.white,
                                       letterSpacing: 1.5,
@@ -246,7 +253,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
-                                const SizedBox(height: 32),
+                                const SizedBox(height: 24),
                                 
                                 if (!_isLogin) ...[
                                   _buildTextField(
@@ -255,7 +262,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                                     icon: Icons.person_outline,
                                     validator: (v) => v!.isEmpty ? 'Please enter your name' : null,
                                   ),
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 12),
                                 ],
 
                                 _buildTextField(
@@ -265,7 +272,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                                   keyboardType: TextInputType.emailAddress,
                                   validator: (v) => !v!.contains('@') ? 'Enter a valid email' : null,
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 12),
 
                                 _buildTextField(
                                   controller: _passwordController,
@@ -274,7 +281,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                                   isPassword: true,
                                   validator: (v) => v!.length < 6 ? 'At least 6 characters long' : null,
                                 ),
-                                const SizedBox(height: 32),
+                                const SizedBox(height: 24),
 
                                 _isLoading
                                     ? const CircularProgressIndicator(color: AppColors.primaryYellow)
@@ -298,7 +305,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                                         ),
                                       ),
                                 
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 12),
                                 const Row(
                                   children: [
                                     Expanded(child: Divider()),
@@ -306,7 +313,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                                     Expanded(child: Divider()),
                                   ],
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 12),
                                 OutlinedButton.icon(
                                   onPressed: _isLoading ? null : _signInWithGoogle,
                                   icon: Image.network(
@@ -331,7 +338,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 12),
                                 TextButton(
                                   onPressed: () {
                                     setState(() {
@@ -362,10 +369,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                 ),
               ),
             ),
-          ),
-        ],
+          );
+        },
       ),
-    );
+    ),
+  ],
+),
+);
   }
 
   Widget _buildTextField({

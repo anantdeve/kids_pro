@@ -26,6 +26,7 @@ import '../../presentation/games/screens/shadow_matcher_screen.dart';
 import '../../presentation/games/screens/magic_paint_screen.dart';
 import '../../presentation/games/screens/asmr_coloring_screen.dart';
 import '../../presentation/games/screens/nuts_sort_puzzle_screen.dart';
+import '../../presentation/games/screens/tangle_master_screen.dart';
 import '../../presentation/profile/screens/saved_art_gallery_screen.dart';
 
 import '../../presentation/learning/screens/magic_story_selection_screen.dart';
@@ -151,6 +152,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/nuts-sort',
       builder: (context, state) => const NutsSortPuzzleScreen(),
+    ),
+    GoRoute(
+      path: '/tangle-master',
+      builder: (context, state) => const TangleMasterScreen(),
     ),
     GoRoute(
       path: '/magic-story',

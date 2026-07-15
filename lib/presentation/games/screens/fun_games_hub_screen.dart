@@ -37,7 +37,7 @@ class FunGamesHubScreen extends StatelessWidget {
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                    itemCount: 4,
+                    itemCount: 5,
                     itemBuilder: (context, index) {
                       final List<Widget> cards = [
                         _GameCard(
@@ -71,6 +71,14 @@ class FunGamesHubScreen extends StatelessWidget {
                           color: const Color(0xFF8D6E63),
                           imagePath: 'assets/images/nuts_sort_icon.png',
                           onTap: () => context.push('/nuts-sort'),
+                        ),
+                        _GameCard(
+                          title: 'Tangle Master',
+                          subtitle: 'Untangle the magic ropes!',
+                          emoji: '🪢',
+                          color: const Color(0xFF4DB6AC),
+                          imagePath: 'assets/images/tangle_master_icon.png',
+                          onTap: () => context.push('/tangle-master'),
                         ),
                       ];
 
