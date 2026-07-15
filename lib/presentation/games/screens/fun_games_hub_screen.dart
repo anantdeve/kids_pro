@@ -37,7 +37,7 @@ class FunGamesHubScreen extends StatelessWidget {
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                    itemCount: 3,
+                    itemCount: 4,
                     itemBuilder: (context, index) {
                       final List<Widget> cards = [
                         _GameCard(
@@ -63,6 +63,14 @@ class FunGamesHubScreen extends StatelessWidget {
                           color: const Color(0xFFF06292),
                           imagePath: 'assets/images/shadow_matcher_icon.png',
                           onTap: () => context.push('/shadow-matcher'),
+                        ),
+                        _GameCard(
+                          title: 'Nuts Sort',
+                          subtitle: 'Sort the nuts by color!',
+                          emoji: '🔩',
+                          color: const Color(0xFF8D6E63),
+                          imagePath: 'assets/images/nuts_sort_icon.png',
+                          onTap: () => context.push('/nuts-sort'),
                         ),
                       ];
 
@@ -133,10 +141,10 @@ class FunGamesHubScreen extends StatelessWidget {
                         Color(0xFFB39DDB),
                       ],
                     ).createShader(bounds),
-                    child: const Text(
-                      'Magic Games Garden',
+                    child: Text(
+                      'Games',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: (MediaQuery.of(context).size.width * 0.07).clamp(24.0, 32.0),
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
                         letterSpacing: -0.5,
@@ -282,7 +290,7 @@ class _GameCardState extends State<_GameCard> with SingleTickerProviderStateMixi
                           child: Text(
                             widget.title,
                             style: const TextStyle(
-                              fontSize: 20,
+                              fontSize: 18,
                               fontWeight: FontWeight.w800,
                               color: Color(0xFFFF8A65), // Salmon
                             ),

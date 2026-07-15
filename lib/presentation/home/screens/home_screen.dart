@@ -17,7 +17,7 @@ class HomeScreen extends ConsumerWidget {
     final isTablet = screenWidth > 600;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           

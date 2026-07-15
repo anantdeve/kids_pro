@@ -26,6 +26,7 @@ class QuizSelectionScreen extends ConsumerWidget {
         {'id': LocalQuizRepository.catFruitsVeggies, 'name': 'Fruits & Veggies', 'emoji': '🍎', 'requiredPoints': 200, 'level': 3, 'color': const Color(0xFF9575CD)},
         {'id': LocalQuizRepository.catToys, 'name': 'Toys & Play', 'emoji': '🧸', 'requiredPoints': 400, 'level': 4, 'color': const Color(0xFFFFB74D)},
         {'id': LocalQuizRepository.catFarmFriends, 'name': 'Farm Friends', 'emoji': '🐄', 'requiredPoints': 600, 'level': 5, 'color': const Color(0xFF81C784)},
+        {'id': 9, 'name': 'GK', 'emoji': '🧠', 'requiredPoints': 800, 'level': 6, 'color': const Color(0xFFF06292), 'isApi': true},
       ];
     } else if (standard == ChildStandard.standard2) {
       categories = [
@@ -95,12 +96,19 @@ class QuizSelectionScreen extends ConsumerWidget {
                           padding: const EdgeInsets.only(bottom: 20),
                           child: _PortalCard(
                             title: cat['name'],
+                            subtitle: cat['subtitle'],
                             level: cat['level'],
                             emoji: cat['emoji'],
                             color: cat['color'],
                             isLocked: isLocked,
                             requiredPoints: cat['requiredPoints'],
-                            onTap: () => context.push('/magic-quiz?categoryId=${cat['id']}&difficulty=easy'),
+                            onTap: () {
+                              if (cat['isApi'] == true) {
+                                context.push('/api-quiz?categoryId=${cat['id']}&difficulty=easy');
+                              } else {
+                                context.push('/magic-quiz?categoryId=${cat['id']}&difficulty=easy');
+                              }
+                            },
                           ),
                         ),
                       );
@@ -147,10 +155,10 @@ class QuizSelectionScreen extends ConsumerWidget {
                         Color(0xFFFF7B9C),
                       ],
                     ).createShader(bounds),
-                    child: const Text(
+                    child: Text(
                       'Quiz Topics',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: (MediaQuery.of(context).size.width * 0.07).clamp(24.0, 32.0),
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
                         letterSpacing: -0.5,
@@ -191,6 +199,7 @@ class QuizSelectionScreen extends ConsumerWidget {
 
 class _PortalCard extends StatefulWidget {
   final String title;
+  final String? subtitle;
   final int level;
   final String emoji;
   final Color color;
@@ -200,6 +209,7 @@ class _PortalCard extends StatefulWidget {
 
   const _PortalCard({
     required this.title,
+    this.subtitle,
     required this.level,
     required this.emoji,
     required this.color,
@@ -311,11 +321,21 @@ class _PortalCardState extends State<_PortalCard> with SingleTickerProviderState
                     Text(
                       widget.title,
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: widget.isLocked ? Colors.grey[600] : const Color(0xFFFF8A65), // Salmon
                       ),
                     ),
+                    if (widget.subtitle != null) ...[
+                      Text(
+                        widget.subtitle!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: widget.isLocked ? Colors.grey[500] : widget.color,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 2),
                     Text(
                       widget.isLocked ? 'Needs ${widget.requiredPoints} Stars' : 'LEVEL ${widget.level}',

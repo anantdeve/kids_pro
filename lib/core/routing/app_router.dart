@@ -18,12 +18,14 @@ import '../../presentation/learning/screens/look_and_match_game_screen.dart';
 import '../../presentation/learning/screens/alphabet_surprise_screen.dart';
 import '../../presentation/quiz/screens/quiz_selection_screen.dart';
 import '../../presentation/quiz/screens/magic_quiz_screen.dart';
+import '../../presentation/quiz/screens/api_quiz_screen.dart';
 import '../../presentation/games/screens/fun_games_hub_screen.dart';
 import '../../presentation/games/screens/memory_match_screen.dart';
 import '../../presentation/games/screens/bubble_pop_screen.dart';
 import '../../presentation/games/screens/shadow_matcher_screen.dart';
 import '../../presentation/games/screens/magic_paint_screen.dart';
 import '../../presentation/games/screens/asmr_coloring_screen.dart';
+import '../../presentation/games/screens/nuts_sort_puzzle_screen.dart';
 import '../../presentation/profile/screens/saved_art_gallery_screen.dart';
 
 import '../../presentation/learning/screens/magic_story_selection_screen.dart';
@@ -109,9 +111,17 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/magic-quiz',
       builder: (context, state) {
-        final categoryId = int.parse(state.uri.queryParameters['categoryId'] ?? '27');
+        final categoryId = int.parse(state.uri.queryParameters['categoryId'] ?? '1');
         final difficulty = state.uri.queryParameters['difficulty'] ?? 'easy';
         return MagicQuizScreen(categoryId: categoryId, difficulty: difficulty);
+      },
+    ),
+    GoRoute(
+      path: '/api-quiz',
+      builder: (context, state) {
+        final categoryId = int.parse(state.uri.queryParameters['categoryId'] ?? '9');
+        final difficulty = state.uri.queryParameters['difficulty'] ?? 'easy';
+        return ApiQuizScreen(categoryId: categoryId, difficulty: difficulty);
       },
     ),
     GoRoute(
@@ -137,6 +147,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/asmr-coloring',
       builder: (context, state) => const AsmrColoringScreen(),
+    ),
+    GoRoute(
+      path: '/nuts-sort',
+      builder: (context, state) => const NutsSortPuzzleScreen(),
     ),
     GoRoute(
       path: '/magic-story',
