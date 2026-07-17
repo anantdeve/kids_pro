@@ -36,7 +36,7 @@ class FunGamesHubScreen extends StatelessWidget {
                 _buildHeader(context),
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                     itemCount: 5,
                     itemBuilder: (context, index) {
                       final List<Widget> cards = [
@@ -96,7 +96,7 @@ class FunGamesHubScreen extends StatelessWidget {
                           );
                         },
                         child: Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
+                          padding: const EdgeInsets.only(bottom: 16),
                           child: cards[index],
                         ),
                       );
@@ -106,7 +106,6 @@ class FunGamesHubScreen extends StatelessWidget {
               ],
             ),
           ),
-          
           // Banner Ad at the bottom
           const Align(
             alignment: Alignment.bottomCenter,
@@ -138,7 +137,6 @@ class FunGamesHubScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
@@ -250,7 +248,7 @@ class _GameCardState extends State<_GameCard> with SingleTickerProviderStateMixi
               borderRadius: BorderRadius.circular(37.5),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
                   // Icon area

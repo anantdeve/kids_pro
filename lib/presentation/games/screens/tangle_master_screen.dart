@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -36,6 +37,7 @@ class _TangleMasterScreenState extends State<TangleMasterScreen> with SingleTick
   Offset? _dragPosition;
   
   bool _isLevelComplete = false;
+  bool isPlaying = false;
 
   @override
   void initState() {
@@ -55,6 +57,7 @@ class _TangleMasterScreenState extends State<TangleMasterScreen> with SingleTick
   void _generateLevel(Size size) {
     setState(() {
       _isLevelComplete = false;
+      isPlaying = false;
       _draggedSocketIndex = null;
       _dragPosition = null;
       
@@ -156,7 +159,7 @@ class _TangleMasterScreenState extends State<TangleMasterScreen> with SingleTick
   }
 
   void _onPanStart(DragStartDetails details) {
-    if (_isLevelComplete || _topSockets.isEmpty) return;
+    if (_isLevelComplete || _topSockets.isEmpty || !isPlaying) return;
     
     // Find nearest occupied top socket
     for (int i = 0; i < _numSockets; i++) {
@@ -253,26 +256,67 @@ class _TangleMasterScreenState extends State<TangleMasterScreen> with SingleTick
               children: [
                 _buildHeader(),
                 Expanded(
-                  child: GestureDetector(
-                    onPanStart: _onPanStart,
-                    onPanUpdate: _onPanUpdate,
-                    onPanEnd: _onPanEnd,
-                    child: Container(
-                      color: Colors.transparent, // Catch all touches
-                      width: double.infinity,
-                      height: double.infinity,
-                      child: CustomPaint(
-                        painter: _TanglePainter(
-                          topSockets: _topSockets,
-                          bottomAnchors: _bottomAnchors,
-                          socketOccupants: _socketOccupants,
-                          ropes: _ropes,
-                          draggedSocketIndex: _draggedSocketIndex,
-                          dragPosition: _dragPosition,
-                          intersectingRopeIds: _getIntersectingRopes(),
+                  child: Stack(
+                    children: [
+                      GestureDetector(
+                        onPanStart: _onPanStart,
+                        onPanUpdate: _onPanUpdate,
+                        onPanEnd: _onPanEnd,
+                        child: Container(
+                          color: Colors.transparent, // Catch all touches
+                          width: double.infinity,
+                          height: double.infinity,
+                          child: CustomPaint(
+                            painter: _TanglePainter(
+                              topSockets: _topSockets,
+                              bottomAnchors: _bottomAnchors,
+                              socketOccupants: _socketOccupants,
+                              ropes: _ropes,
+                              draggedSocketIndex: _draggedSocketIndex,
+                              dragPosition: _dragPosition,
+                              intersectingRopeIds: _getIntersectingRopes(),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      
+                      // Play button overlay
+                      if (!isPlaying && !_isLevelComplete)
+                        Positioned.fill(
+                          child: Container(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            child: Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 60.0),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isPlaying = true;
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF4CAF50),
+                                    padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    elevation: 5,
+                                  ),
+                                  child: const Text(
+                                    'Play',
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],
@@ -565,6 +609,42 @@ class _TanglePainter extends CustomPainter {
         ..strokeWidth = 12
         ..strokeCap = StrokeCap.round;
       canvas.drawPath(path, ropePaint);
+      
+      // Braided Texture
+      final metrics = path.computeMetrics();
+      final braidDark = Paint()
+        ..color = Colors.black.withOpacity(0.25)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5
+        ..strokeCap = StrokeCap.round;
+        
+      final braidLight = Paint()
+        ..color = Colors.white.withOpacity(0.3)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5
+        ..strokeCap = StrokeCap.round;
+
+      for (var metric in metrics) {
+        for (double d = 0; d < metric.length; d += 10) {
+          final ui.Tangent? tangent = metric.getTangentForOffset(d);
+          if (tangent != null) {
+            final pos = tangent.position;
+            final vec = tangent.vector;
+            final normal = Offset(-vec.dy, vec.dx); // Perpendicular vector
+            
+            // Draw criss-cross diagonals to simulate braiding
+            final start1 = pos - (normal * 5) - (vec * 4);
+            final end1 = pos + (normal * 5) + (vec * 4);
+            canvas.drawLine(start1, end1, braidDark);
+            canvas.drawLine(start1 + const Offset(1, 1), end1 + const Offset(1, 1), braidLight);
+            
+            final start2 = pos + (normal * 5) - (vec * 4);
+            final end2 = pos - (normal * 5) + (vec * 4);
+            canvas.drawLine(start2, end2, braidDark);
+            canvas.drawLine(start2 + const Offset(1, 1), end2 + const Offset(1, 1), braidLight);
+          }
+        }
+      }
       
       // Rope highlight (3D shine)
       final highlightPaint = Paint()

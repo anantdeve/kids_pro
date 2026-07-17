@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
 import '../widgets/success_overlay.dart';
+import '../widgets/failure_overlay.dart';
 import '../../../core/providers/user_provider.dart';
 import '../services/learning_tts_service.dart';
 
@@ -28,6 +29,7 @@ class _DragLettersScreenState extends ConsumerState<DragLettersScreen> {
   late List<String?> _placedLetters;
   late List<Map<String, dynamic>> _availableLetters; 
   bool _isSuccess = false;
+  bool _isFailure = false;
 
   @override
   void initState() {
@@ -56,6 +58,7 @@ class _DragLettersScreenState extends ConsumerState<DragLettersScreen> {
 
     setState(() {
       _isSuccess = false;
+      _isFailure = false;
     });
 
     // Play word audio
@@ -65,6 +68,8 @@ class _DragLettersScreenState extends ConsumerState<DragLettersScreen> {
   }
 
   void _onLetterDropped(Map<String, dynamic> draggedItem, int targetIndex) {
+    if (_isSuccess || _isFailure) return;
+
     if (draggedItem['letter'] == _currentWord[targetIndex]) {
       setState(() {
         _placedLetters[targetIndex] = draggedItem['letter'];
@@ -77,6 +82,9 @@ class _DragLettersScreenState extends ConsumerState<DragLettersScreen> {
         }
       });
     } else {
+      setState(() {
+        _isFailure = true;
+      });
       ref.read(learningTtsServiceProvider.notifier).playInstruction('Try again');
     }
   }
@@ -202,6 +210,16 @@ class _DragLettersScreenState extends ConsumerState<DragLettersScreen> {
             lottieUrl: 'https://assets9.lottiefiles.com/packages/lf20_obhph3sh.json',
             onFinished: _generateLevel,
           ),
+          
+          // Failure Overlay
+          FailureOverlay(
+            isVisible: _isFailure,
+            onFinished: () {
+              setState(() {
+                _isFailure = false;
+              });
+            },
+          ),
         ],
       ),
     );
@@ -270,13 +288,17 @@ class _DragLettersScreenState extends ConsumerState<DragLettersScreen> {
               shaderCallback: (bounds) => const LinearGradient(
                 colors: [Color(0xFF00BF63), Color(0xFF009688)],
               ).createShader(bounds),
-              child: const Text(
-                'WORD BUILDER',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  letterSpacing: -0.5,
+              child: const FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'WORD BUILDER',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
+                  ),
                 ),
               ),
             ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
 import '../widgets/success_overlay.dart';
+import '../widgets/failure_overlay.dart';
 import '../../../core/providers/user_provider.dart';
 import '../services/learning_tts_service.dart';
 
@@ -33,6 +34,8 @@ class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
   late String _correctWord;
   late List<Map<String, String>> _options;
   bool _isSuccess = false;
+  bool _isFailure = false;
+  final Map<String, bool> _attemptedOptions = {};
 
   @override
   void initState() {
@@ -60,6 +63,8 @@ class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
 
     setState(() {
       _isSuccess = false;
+      _isFailure = false;
+      _attemptedOptions.clear();
     });
 
     _playAudio();
@@ -70,12 +75,19 @@ class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
   }
 
   void _onOptionSelected(String selectedWord) {
+    if (_isSuccess || _isFailure) return;
+
     if (selectedWord == _correctWord) {
       setState(() {
         _isSuccess = true;
+        _attemptedOptions[selectedWord] = true;
       });
       ref.read(userProvider.notifier).addPoints('Learning', 20);
     } else {
+      setState(() {
+        _isFailure = true;
+        _attemptedOptions[selectedWord] = false;
+      });
       // Play a bump or 'try again' sound (could use TTS for try again)
       ref.read(learningTtsServiceProvider.notifier).playInstruction('Try again');
     }
@@ -148,6 +160,13 @@ class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
                             physics: const NeverScrollableScrollPhysics(),
                             childAspectRatio: 1.2,
                             children: _options.map((item) {
+                              Color borderColor = Colors.transparent;
+                              double borderWidth = 0.0;
+                              if (_attemptedOptions.containsKey(item['word']!)) {
+                                borderColor = _attemptedOptions[item['word']!]! ? Colors.green : Colors.red;
+                                borderWidth = 4.0;
+                              }
+
                               return ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
@@ -155,6 +174,7 @@ class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
                                   elevation: 4,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
+                                    side: BorderSide(color: borderColor, width: borderWidth),
                                   ),
                                 ),
                                 onPressed: () => _onOptionSelected(item['word']!),
@@ -184,6 +204,16 @@ class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
             isVisible: _isSuccess,
             lottieUrl: 'https://assets9.lottiefiles.com/packages/lf20_obhph3sh.json',
             onFinished: _generateLevel,
+          ),
+          
+          // Failure Overlay
+          FailureOverlay(
+            isVisible: _isFailure,
+            onFinished: () {
+              setState(() {
+                _isFailure = false;
+              });
+            },
           ),
         ],
       ),

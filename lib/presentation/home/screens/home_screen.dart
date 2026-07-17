@@ -20,7 +20,6 @@ class HomeScreen extends ConsumerWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
-          
           // Content
           SafeArea(
             child: SingleChildScrollView(
@@ -32,11 +31,11 @@ class HomeScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const HomeHeader(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   const FeaturedBanner(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   _buildGrid(context, ref, isTablet, screenWidth),
-                  const SizedBox(height: 100), // Padding for Curved Navigation Bar
+                  const SizedBox(height: 80), // Padding for Curved Navigation Bar
                 ],
               ),
             ),

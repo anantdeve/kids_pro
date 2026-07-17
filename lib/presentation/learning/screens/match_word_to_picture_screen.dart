@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
 import '../widgets/success_overlay.dart';
+import '../widgets/failure_overlay.dart';
 import '../../../core/providers/user_provider.dart';
 
 class MatchWordToPictureScreen extends ConsumerStatefulWidget {
@@ -28,6 +29,8 @@ class _MatchWordToPictureScreenState extends ConsumerState<MatchWordToPictureScr
   late String _correctPicture;
   late List<String> _options;
   bool _isSuccess = false;
+  bool _isFailure = false;
+  final Map<String, bool> _attemptedOptions = {};
 
   @override
   void initState() {
@@ -51,17 +54,25 @@ class _MatchWordToPictureScreenState extends ConsumerState<MatchWordToPictureScr
 
     setState(() {
       _isSuccess = false;
+      _isFailure = false;
+      _attemptedOptions.clear();
     });
   }
 
   void _onOptionSelected(String selectedPicture) {
+    if (_isSuccess || _isFailure) return;
+
     if (selectedPicture == _correctPicture) {
       setState(() {
         _isSuccess = true;
+        _attemptedOptions[selectedPicture] = true;
       });
       ref.read(userProvider.notifier).addPoints('Learning', 20);
     } else {
-      // Could show a red shake animation here, but keeping it simple
+      setState(() {
+        _attemptedOptions[selectedPicture] = false;
+        _isFailure = true;
+      });
     }
   }
 
@@ -127,6 +138,13 @@ class _MatchWordToPictureScreenState extends ConsumerState<MatchWordToPictureScr
                             mainAxisSpacing: 20,
                             physics: const NeverScrollableScrollPhysics(),
                             children: _options.map((emoji) {
+                              Color borderColor = Colors.grey.withValues(alpha: 0.2);
+                              double borderWidth = 2.0;
+                              if (_attemptedOptions.containsKey(emoji)) {
+                                borderColor = _attemptedOptions[emoji]! ? Colors.green : Colors.red;
+                                borderWidth = 4.0;
+                              }
+
                               return GestureDetector(
                                 onTap: () => _onOptionSelected(emoji),
                                 child: Container(
@@ -140,7 +158,7 @@ class _MatchWordToPictureScreenState extends ConsumerState<MatchWordToPictureScr
                                         offset: const Offset(0, 4),
                                       ),
                                     ],
-                                    border: Border.all(color: Colors.grey.withValues(alpha: 0.2), width: 2),
+                                    border: Border.all(color: borderColor, width: borderWidth),
                                   ),
                                   child: Center(
                                     child: FittedBox(
@@ -169,6 +187,16 @@ class _MatchWordToPictureScreenState extends ConsumerState<MatchWordToPictureScr
             isVisible: _isSuccess,
             lottieUrl: 'https://assets9.lottiefiles.com/packages/lf20_obhph3sh.json',
             onFinished: _generateLevel,
+          ),
+          
+          // Failure Overlay
+          FailureOverlay(
+            isVisible: _isFailure,
+            onFinished: () {
+              setState(() {
+                _isFailure = false;
+              });
+            },
           ),
         ],
       ),
