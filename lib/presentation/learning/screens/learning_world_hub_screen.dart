@@ -96,9 +96,18 @@ class LearningWorldHubScreen extends StatelessWidget {
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                    itemCount: 6,
+                    itemCount: 7,
                     itemBuilder: (context, index) {
                       final List<Widget> cards = [
+                        LearningHubCard(
+                          title: 'Maths fun',
+                          subtitle: 'Fun math games and puzzles!',
+                          titleEmoji: '🔢',
+                          imagePath: 'assets/images/number_magic.png', // reusing an existing asset
+                          fallbackIcon: Icons.calculate_rounded,
+                          titleColor: const Color(0xFFF06292), // Pink
+                          onTap: () => context.push('/arithmetic-hub'),
+                        ),
                         LearningHubCard(
                           title: 'Colors Adventure',
                           subtitle: 'Paint the world with colors!',

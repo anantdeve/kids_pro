@@ -26,7 +26,7 @@ class QuizSelectionScreen extends ConsumerWidget {
         {'id': LocalQuizRepository.catFruitsVeggies, 'name': 'Fruits & Veggies', 'emoji': '🍎', 'requiredPoints': 200, 'level': 3, 'color': const Color(0xFF9575CD)},
         {'id': LocalQuizRepository.catToys, 'name': 'Toys & Play', 'emoji': '🧸', 'requiredPoints': 400, 'level': 4, 'color': const Color(0xFFFFB74D)},
         {'id': LocalQuizRepository.catFarmFriends, 'name': 'Farm Friends', 'emoji': '🐄', 'requiredPoints': 600, 'level': 5, 'color': const Color(0xFF81C784)},
-        {'id': 9, 'name': 'GK', 'emoji': '🧠', 'requiredPoints': 800, 'level': 6, 'color': const Color(0xFFF06292), 'isApi': true},
+        {'id': 9, 'name': 'MCQ', 'emoji': '🧠', 'requiredPoints': 800, 'level': 6, 'color': const Color(0xFFF06292), 'isApi': true},
       ];
     } else if (standard == ChildStandard.standard2) {
       categories = [

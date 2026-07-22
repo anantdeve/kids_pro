@@ -33,7 +33,10 @@ import '../../presentation/learning/screens/magic_story_selection_screen.dart';
 import '../../presentation/learning/screens/match_word_to_picture_screen.dart';
 import '../../presentation/learning/screens/listen_and_choose_screen.dart';
 import '../../presentation/learning/screens/drag_letters_screen.dart';
-
+import '../../presentation/learning/screens/arithmetic_hub_screen.dart';
+import '../../presentation/learning/screens/feed_the_monster_screen.dart';
+import '../../presentation/learning/screens/frog_jumps_screen.dart';
+import '../../presentation/learning/screens/magic_potions_screen.dart';
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
   routes: [
@@ -176,6 +179,22 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/drag-letters',
       builder: (context, state) => const DragLettersScreen(),
+    ),
+    GoRoute(
+      path: '/arithmetic-hub',
+      builder: (context, state) => const ArithmeticHubScreen(),
+    ),
+    GoRoute(
+      path: '/feed-monster',
+      builder: (context, state) => const FeedTheMonsterScreen(),
+    ),
+    GoRoute(
+      path: '/frog-jumps',
+      builder: (context, state) => const FrogJumpsScreen(),
+    ),
+    GoRoute(
+      path: '/magic-potions',
+      builder: (context, state) => const MagicPotionsScreen(),
     ),
     // TODO: Add other routes here (numbers, colors, animals, etc.)
   ],

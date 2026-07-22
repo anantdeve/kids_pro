@@ -1,0 +1,380 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'dart:math' as math;
+
+class ArithmeticHubScreen extends StatefulWidget {
+  const ArithmeticHubScreen({super.key});
+
+  @override
+  State<ArithmeticHubScreen> createState() => _ArithmeticHubScreenState();
+}
+
+class _ArithmeticHubScreenState extends State<ArithmeticHubScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _backgroundController;
+
+  @override
+  void initState() {
+    super.initState();
+    _backgroundController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 20),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _backgroundController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFDDF6FF),
+      body: Stack(
+        children: [
+          // Magical Sky Gradient Background
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF8FD3FF), Color(0xFFDDF6FF)],
+              ),
+            ),
+          ),
+          
+          // Animated Clouds
+          AnimatedBuilder(
+            animation: _backgroundController,
+            builder: (context, child) {
+              return Stack(
+                children: [
+                  _buildCloud(context, 0.2, 50, _backgroundController.value),
+                  _buildCloud(context, 0.5, 120, _backgroundController.value + 0.3),
+                  _buildCloud(context, 0.8, 80, _backgroundController.value + 0.6),
+                ],
+              );
+            },
+          ),
+
+          // Twinkling Stars
+          _buildTwinklingStars(),
+
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Row(
+                    children: [
+                      _buildBackButton(context),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            Text(
+                              'Fun Math Games',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: 1.0,
+                                shadows: [Shadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Grid of Games
+                Expanded(
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 20,
+                    childAspectRatio: 0.85,
+                    children: [
+                      _buildGameCard(
+                        context: context,
+                        title: 'Feed the\nMonster',
+                        icon: 'assets/images/feed_monster_logo.png',
+                        colors: [const Color(0xFFFF9A9E), const Color(0xFFFECFEF)],
+                        route: '/feed-monster',
+                        delay: 0,
+                      ),
+                      _buildGameCard(
+                        context: context,
+                        title: 'Frog\nJumps',
+                        icon: '🐸',
+                        colors: [const Color(0xFF84FAB0), const Color(0xFF8FD3F4)],
+                        route: '/frog-jumps',
+                        delay: 100,
+                      ),
+
+                      _buildGameCard(
+                        context: context,
+                        title: 'Magic\nPotions',
+                        icon: '🧪',
+                        colors: [const Color(0xFFE0C3FC), const Color(0xFF8EC5FC)],
+                        route: '/magic-potions',
+                        delay: 300,
+                      ),
+
+
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBackButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.pop(),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF2D3142), size: 28),
+      ),
+    );
+  }
+
+  Widget _buildCloud(BuildContext context, double scale, double topOffset, double progress) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Normalize progress to loop
+    final p = progress % 1.0;
+    // Start offscreen left, move to offscreen right
+    final leftPos = -100.0 + (screenWidth + 200) * p;
+    
+    return Positioned(
+      top: topOffset,
+      left: leftPos,
+      child: Opacity(
+        opacity: 0.8,
+        child: Icon(Icons.cloud_rounded, color: Colors.white, size: 100 * scale),
+      ),
+    );
+  }
+
+  Widget _buildTwinklingStars() {
+    return Stack(
+      children: List.generate(15, (index) {
+        return Positioned(
+          left: math.Random().nextDouble() * 400,
+          top: math.Random().nextDouble() * 300,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.2, end: 1.0),
+            duration: Duration(milliseconds: 1000 + math.Random().nextInt(2000)),
+            builder: (context, val, child) {
+              return Opacity(
+                opacity: (math.sin(val * math.pi) + 1) / 2,
+                child: const Icon(Icons.star_rounded, color: Colors.white, size: 12),
+              );
+            },
+            onEnd: () {},
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildGameCard({
+    required BuildContext context,
+    required String title,
+    required String icon,
+    required List<Color> colors,
+    required String route,
+    required int delay,
+  }) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.elasticOut,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: value,
+          child: child,
+        );
+      },
+      child: _BouncingCard(
+        title: title,
+        icon: icon,
+        colors: colors,
+        onTap: () {
+          if (route.isNotEmpty) {
+            context.push(route);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Magical updates coming soon! ✨')));
+          }
+        },
+      ),
+    );
+  }
+}
+
+class _BouncingCard extends StatefulWidget {
+  final String title;
+  final String icon;
+  final List<Color> colors;
+  final VoidCallback onTap;
+
+  const _BouncingCard({
+    required this.title,
+    required this.icon,
+    required this.colors,
+    required this.onTap,
+  });
+
+  @override
+  State<_BouncingCard> createState() => _BouncingCardState();
+}
+
+class _BouncingCardState extends State<_BouncingCard> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _floatAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+      reverseDuration: const Duration(milliseconds: 150),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.92).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+    );
+    
+    // Add subtle continuous floating
+    Future.delayed(Duration(milliseconds: math.Random().nextInt(1000)), () {
+      if (mounted) {
+        _controller.repeat(reverse: true, period: const Duration(seconds: 2));
+        _scaleAnimation = Tween<double>(begin: 1.0, end: 1.03).animate(
+          CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) {
+        _controller.stop();
+        _controller.value = 1.0;
+        _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(_controller);
+        _controller.forward(from: 0);
+      },
+      onTapUp: (_) {
+        _controller.reverse().then((_) {
+          widget.onTap();
+          // Resume floating
+          _scaleAnimation = Tween<double>(begin: 1.0, end: 1.03).animate(_controller);
+          _controller.repeat(reverse: true, period: const Duration(seconds: 2));
+        });
+      },
+      onTapCancel: () {
+        _controller.reverse().then((_) {
+          _scaleAnimation = Tween<double>(begin: 1.0, end: 1.03).animate(_controller);
+          _controller.repeat(reverse: true, period: const Duration(seconds: 2));
+        });
+      },
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) => Transform.scale(
+          scale: _scaleAnimation.value,
+          child: child,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: widget.colors,
+            ),
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: [
+              BoxShadow(
+                color: widget.colors[0].withValues(alpha: 0.4),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
+            border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5)),
+                  ],
+                ),
+                child: widget.icon.endsWith('.png')
+                    ? ClipOval(
+                        child: Image.asset(
+                          widget.icon,
+                          width: 45,
+                          height: 45,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Text(
+                        widget.icon,
+                        style: const TextStyle(fontSize: 40),
+                      ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                widget.title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  height: 1.2,
+                  letterSpacing: 0.5,
+                  shadows: [Shadow(color: Colors.black26, blurRadius: 5, offset: Offset(0, 2))],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
