@@ -56,11 +56,12 @@ class _ArithmeticHubScreenState extends ConsumerState<ArithmeticHubScreen> with 
           AnimatedBuilder(
             animation: _backgroundController,
             builder: (context, child) {
+              final screenHeight = MediaQuery.of(context).size.height;
               return Stack(
                 children: [
-                  _buildCloud(context, 0.2, 50, _backgroundController.value),
-                  _buildCloud(context, 0.5, 120, _backgroundController.value + 0.3),
-                  _buildCloud(context, 0.8, 80, _backgroundController.value + 0.6),
+                  _buildCloud(context, 0.2, screenHeight * 0.4, _backgroundController.value),
+                  _buildCloud(context, 0.5, screenHeight * 0.55, _backgroundController.value + 0.3),
+                  _buildCloud(context, 0.8, screenHeight * 0.45, _backgroundController.value + 0.6),
                 ],
               );
             },
