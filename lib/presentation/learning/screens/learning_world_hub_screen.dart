@@ -96,7 +96,7 @@ class LearningWorldHubScreen extends StatelessWidget {
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                    itemCount: 7,
+                    itemCount: 8,
                     itemBuilder: (context, index) {
                       final List<Widget> cards = [
                         LearningHubCard(
@@ -165,6 +165,15 @@ class LearningWorldHubScreen extends StatelessWidget {
                           fallbackIcon: Icons.extension_rounded,
                           titleColor: const Color(0xFF00BF63), // Green
                           onTap: () => context.push('/drag-letters'),
+                        ),
+                        LearningHubCard(
+                          title: 'Learn Grammar',
+                          subtitle: 'Master words and sentences!',
+                          titleEmoji: '📝',
+                          imagePath: 'assets/images/grammar.png',
+                          fallbackIcon: Icons.menu_book_rounded,
+                          titleColor: const Color(0xFFFF66B2), // Bright Pink
+                          onTap: () => context.push('/grammar-hub'),
                         ),
                       ];
 

@@ -37,6 +37,9 @@ import '../../presentation/learning/screens/arithmetic_hub_screen.dart';
 import '../../presentation/learning/screens/feed_the_monster_screen.dart';
 import '../../presentation/learning/screens/frog_jumps_screen.dart';
 import '../../presentation/learning/screens/magic_potions_screen.dart';
+import '../../presentation/learning/screens/grammar_hub_screen.dart';
+import '../../presentation/learning/screens/fill_in_the_blanks_screen.dart';
+
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
   routes: [
@@ -195,6 +198,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/magic-potions',
       builder: (context, state) => const MagicPotionsScreen(),
+    ),
+    GoRoute(
+      path: '/grammar-hub',
+      builder: (context, state) => const GrammarHubScreen(),
+    ),
+    GoRoute(
+      path: '/fill-in-the-blanks',
+      builder: (context, state) => const FillInTheBlanksScreen(),
     ),
     // TODO: Add other routes here (numbers, colors, animals, etc.)
   ],

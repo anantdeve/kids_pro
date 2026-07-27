@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/providers/user_provider.dart';
 import 'dart:math' as math;
 
-class ArithmeticHubScreen extends ConsumerStatefulWidget {
-  const ArithmeticHubScreen({super.key});
+class GrammarHubScreen extends StatefulWidget {
+  const GrammarHubScreen({super.key});
 
   @override
-  ConsumerState<ArithmeticHubScreen> createState() => _ArithmeticHubScreenState();
+  State<GrammarHubScreen> createState() => _GrammarHubScreenState();
 }
 
-class _ArithmeticHubScreenState extends ConsumerState<ArithmeticHubScreen> with SingleTickerProviderStateMixin {
+class _GrammarHubScreenState extends State<GrammarHubScreen> with SingleTickerProviderStateMixin {
   late AnimationController _backgroundController;
 
   @override
@@ -31,14 +29,8 @@ class _ArithmeticHubScreenState extends ConsumerState<ArithmeticHubScreen> with 
 
   @override
   Widget build(BuildContext context) {
-    final userState = ref.watch(userProvider);
-    final feedMonsterPoints = userState.value?.featurePoints['FeedMonster'] ?? 0;
-    final frogJumpsPoints = userState.value?.featurePoints['FrogJumps'] ?? 0;
-    final magicPotionsPoints = userState.value?.featurePoints['MagicPotions'] ?? 0;
-    final totalMathsPoints = feedMonsterPoints + frogJumpsPoints + magicPotionsPoints;
-
     return Scaffold(
-      backgroundColor: const Color(0xFFDDF6FF),
+      backgroundColor: const Color(0xFFFFF0F5), // Light pink/purple theme for grammar
       body: Stack(
         children: [
           // Magical Sky Gradient Background
@@ -47,7 +39,7 @@ class _ArithmeticHubScreenState extends ConsumerState<ArithmeticHubScreen> with 
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFF8FD3FF), Color(0xFFDDF6FF)],
+                colors: [Color(0xFFE0C3FC), Color(0xFFFFF0F5)],
               ),
             ),
           ),
@@ -66,9 +58,6 @@ class _ArithmeticHubScreenState extends ConsumerState<ArithmeticHubScreen> with 
             },
           ),
 
-          // Twinkling Stars
-          _buildTwinklingStars(),
-
           SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,40 +73,14 @@ class _ArithmeticHubScreenState extends ConsumerState<ArithmeticHubScreen> with 
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-
                             Text(
-                              'Math Games',
+                              'Grammar',
                               style: TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white,
                                 letterSpacing: 1.0,
                                 shadows: [Shadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: const [
-                            BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.star_rounded, color: Color(0xFFFFD700), size: 24),
-                            const SizedBox(width: 4),
-                            Text(
-                              '$totalMathsPoints',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF2D3142),
                               ),
                             ),
                           ],
@@ -138,31 +101,11 @@ class _ArithmeticHubScreenState extends ConsumerState<ArithmeticHubScreen> with 
                     children: [
                       _buildGameCard(
                         context: context,
-                        title: 'Feed the\nMonster',
-                        icon: 'assets/images/feed_monster_logo.png',
+                        title: 'Fill in the\nBlanks',
+                        icon: '📝',
                         colors: [const Color(0xFFFF9A9E), const Color(0xFFFECFEF)],
-                        route: '/feed-monster',
-                        delay: 0,
+                        route: '/fill-in-the-blanks',
                       ),
-                      _buildGameCard(
-                        context: context,
-                        title: 'Frog\nJumps',
-                        icon: '🐸',
-                        colors: [const Color(0xFF84FAB0), const Color(0xFF8FD3F4)],
-                        route: '/frog-jumps',
-                        delay: 100,
-                      ),
-
-                      _buildGameCard(
-                        context: context,
-                        title: 'Magic\nPotions',
-                        icon: '🧪',
-                        colors: [const Color(0xFFE0C3FC), const Color(0xFF8EC5FC)],
-                        route: '/magic-potions',
-                        delay: 300,
-                      ),
-
-
                     ],
                   ),
                 ),
@@ -197,9 +140,7 @@ class _ArithmeticHubScreenState extends ConsumerState<ArithmeticHubScreen> with 
 
   Widget _buildCloud(BuildContext context, double scale, double topOffset, double progress) {
     final screenWidth = MediaQuery.of(context).size.width;
-    // Normalize progress to loop
     final p = progress % 1.0;
-    // Start offscreen left, move to offscreen right
     final leftPos = -100.0 + (screenWidth + 200) * p;
     
     return Positioned(
@@ -212,35 +153,12 @@ class _ArithmeticHubScreenState extends ConsumerState<ArithmeticHubScreen> with 
     );
   }
 
-  Widget _buildTwinklingStars() {
-    return Stack(
-      children: List.generate(15, (index) {
-        return Positioned(
-          left: math.Random().nextDouble() * 400,
-          top: math.Random().nextDouble() * 300,
-          child: TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.2, end: 1.0),
-            duration: Duration(milliseconds: 1000 + math.Random().nextInt(2000)),
-            builder: (context, val, child) {
-              return Opacity(
-                opacity: (math.sin(val * math.pi) + 1) / 2,
-                child: const Icon(Icons.star_rounded, color: Colors.white, size: 12),
-              );
-            },
-            onEnd: () {},
-          ),
-        );
-      }),
-    );
-  }
-
   Widget _buildGameCard({
     required BuildContext context,
     required String title,
     required String icon,
     required List<Color> colors,
     required String route,
-    required int delay,
   }) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
@@ -257,11 +175,7 @@ class _ArithmeticHubScreenState extends ConsumerState<ArithmeticHubScreen> with 
         icon: icon,
         colors: colors,
         onTap: () {
-          if (route.isNotEmpty) {
-            context.push(route);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Magical updates coming soon! ✨')));
-          }
+          context.push(route);
         },
       ),
     );
@@ -288,7 +202,6 @@ class _BouncingCard extends StatefulWidget {
 class _BouncingCardState extends State<_BouncingCard> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _floatAnimation;
 
   @override
   void initState() {
@@ -302,7 +215,6 @@ class _BouncingCardState extends State<_BouncingCard> with SingleTickerProviderS
       CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
     
-    // Add subtle continuous floating
     Future.delayed(Duration(milliseconds: math.Random().nextInt(1000)), () {
       if (mounted) {
         _controller.repeat(reverse: true, period: const Duration(seconds: 2));
@@ -331,7 +243,6 @@ class _BouncingCardState extends State<_BouncingCard> with SingleTickerProviderS
       onTapUp: (_) {
         _controller.reverse().then((_) {
           widget.onTap();
-          // Resume floating
           _scaleAnimation = Tween<double>(begin: 1.0, end: 1.03).animate(_controller);
           _controller.repeat(reverse: true, period: const Duration(seconds: 2));
         });

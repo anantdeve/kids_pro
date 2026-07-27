@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/providers/user_provider.dart';
 import 'dart:math' as math;
 
-class MagicPotionsScreen extends StatefulWidget {
+class MagicPotionsScreen extends ConsumerStatefulWidget {
   const MagicPotionsScreen({super.key});
 
   @override
-  State<MagicPotionsScreen> createState() => _MagicPotionsScreenState();
+  ConsumerState<MagicPotionsScreen> createState() => _MagicPotionsScreenState();
 }
 
-class _MagicPotionsScreenState extends State<MagicPotionsScreen> with TickerProviderStateMixin {
+class _MagicPotionsScreenState extends ConsumerState<MagicPotionsScreen> with TickerProviderStateMixin {
   int num1 = 0;
   int num2 = 0;
   int get correctAnswer => num1 + num2;
@@ -69,6 +71,9 @@ class _MagicPotionsScreenState extends State<MagicPotionsScreen> with TickerProv
 
   @override
   Widget build(BuildContext context) {
+    final userState = ref.watch(userProvider);
+    final mathsPoints = userState.value?.featurePoints['MagicPotions'] ?? 0;
+
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E), // Dark magical background
       body: Stack(
@@ -111,7 +116,29 @@ class _MagicPotionsScreenState extends State<MagicPotionsScreen> with TickerProv
                           ),
                         ),
                       ),
-                      const SizedBox(width: 48), // Balance
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.star_rounded, color: Color(0xFFFFD700), size: 24),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$mathsPoints',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -185,6 +212,7 @@ class _MagicPotionsScreenState extends State<MagicPotionsScreen> with TickerProv
                     setState(() => _isHovering = false);
                     if (details.data == correctAnswer) {
                       _confettiController.play();
+                      ref.read(userProvider.notifier).addPoints('MagicPotions', 15);
                       Future.delayed(const Duration(seconds: 2), () {
                         if (mounted) setState(() => _generateEquation());
                       });

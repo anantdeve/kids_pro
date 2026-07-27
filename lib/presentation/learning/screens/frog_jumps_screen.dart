@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/providers/user_provider.dart';
 import 'dart:math' as math;
 
-class FrogJumpsScreen extends StatefulWidget {
+class FrogJumpsScreen extends ConsumerStatefulWidget {
   const FrogJumpsScreen({super.key});
 
   @override
-  State<FrogJumpsScreen> createState() => _FrogJumpsScreenState();
+  ConsumerState<FrogJumpsScreen> createState() => _FrogJumpsScreenState();
 }
 
-class _FrogJumpsScreenState extends State<FrogJumpsScreen> with TickerProviderStateMixin {
+class _FrogJumpsScreenState extends ConsumerState<FrogJumpsScreen> with TickerProviderStateMixin {
   int startNum = 3;
   int jumpAmount = 4;
   
@@ -62,6 +64,7 @@ class _FrogJumpsScreenState extends State<FrogJumpsScreen> with TickerProviderSt
   void _showWinState() {
     setState(() => _showRainbow = true);
     _rainbowController.forward(from: 0.0);
+    ref.read(userProvider.notifier).addPoints('FrogJumps', 20);
     
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
@@ -79,6 +82,9 @@ class _FrogJumpsScreenState extends State<FrogJumpsScreen> with TickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final userState = ref.watch(userProvider);
+    final mathsPoints = userState.value?.featurePoints['FrogJumps'] ?? 0;
+
     return Scaffold(
       backgroundColor: const Color(0xFFDDF6FF), // Sky blue
       body: Stack(
@@ -151,7 +157,31 @@ class _FrogJumpsScreenState extends State<FrogJumpsScreen> with TickerProviderSt
                           ),
                         ),
                       ),
-                      const SizedBox(width: 48), // Balance
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: const [
+                            BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.star_rounded, color: Color(0xFFFFD700), size: 24),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$mathsPoints',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2D3142),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),

@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/providers/user_provider.dart';
 import 'dart:math' as math;
 
-class FeedTheMonsterScreen extends StatefulWidget {
+class FeedTheMonsterScreen extends ConsumerStatefulWidget {
   const FeedTheMonsterScreen({super.key});
 
   @override
-  State<FeedTheMonsterScreen> createState() => _FeedTheMonsterScreenState();
+  ConsumerState<FeedTheMonsterScreen> createState() => _FeedTheMonsterScreenState();
 }
 
-class _FeedTheMonsterScreenState extends State<FeedTheMonsterScreen> with TickerProviderStateMixin {
+class _FeedTheMonsterScreenState extends ConsumerState<FeedTheMonsterScreen> with TickerProviderStateMixin {
   int num1 = 3;
   int num2 = 2;
   int get correctAnswer => num1 + num2;
   
   List<int> options = [4, 5, 6];
+  int? _droppedAnswer;
 
   // Animations
   late ConfettiController _confettiController;
@@ -74,6 +77,9 @@ class _FeedTheMonsterScreenState extends State<FeedTheMonsterScreen> with Ticker
 
   @override
   Widget build(BuildContext context) {
+    final userState = ref.watch(userProvider);
+    final mathsPoints = userState.value?.featurePoints['FeedMonster'] ?? 0;
+
     return Scaffold(
       backgroundColor: const Color(0xFFDDF6FF), // Sky blue
       body: Stack(
@@ -106,14 +112,38 @@ class _FeedTheMonsterScreenState extends State<FeedTheMonsterScreen> with Ticker
                           'Feed the Monster',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 28,
+                            fontSize: 22,
                             fontWeight: FontWeight.w900,
                             color: Colors.white,
                             shadows: [Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
                           ),
                         ),
                       ),
-                      const SizedBox(width: 48), // Balance
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: const [
+                            BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.star_rounded, color: Color(0xFFFFD700), size: 24),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$mathsPoints',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2D3142),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -142,7 +172,7 @@ class _FeedTheMonsterScreenState extends State<FeedTheMonsterScreen> with Ticker
                             ],
                           ),
                           child: Text(
-                            '$num1 + $num2 = ?',
+                            '$num1 + $num2 = ${_droppedAnswer ?? "?"}',
                             style: const TextStyle(fontSize: 56, fontWeight: FontWeight.w900, color: Color(0xFFFF7B9C)),
                           ),
                         ),
@@ -158,15 +188,21 @@ class _FeedTheMonsterScreenState extends State<FeedTheMonsterScreen> with Ticker
                           setState(() => _isMouthOpen = false);
                         },
                         onAcceptWithDetails: (details) {
-                          setState(() => _isMouthOpen = false);
                           if (details.data == correctAnswer) {
+                            setState(() {
+                              _isMouthOpen = false;
+                              _droppedAnswer = details.data;
+                              options.remove(details.data);
+                            });
                             _confettiController.play();
+                            ref.read(userProvider.notifier).addPoints('FeedMonster', 10);
                             // Next level
                             Future.delayed(const Duration(seconds: 2), () {
                               if (mounted) {
                                 setState(() {
                                   num1 = math.Random().nextInt(5) + 1;
                                   num2 = math.Random().nextInt(5) + 1;
+                                  _droppedAnswer = null;
                                   options = [correctAnswer - 1, correctAnswer, correctAnswer + 1];
                                   if (options.contains(0)) {
                                     options = [1, 2, 3];
@@ -176,6 +212,7 @@ class _FeedTheMonsterScreenState extends State<FeedTheMonsterScreen> with Ticker
                               }
                             });
                           } else {
+                            setState(() => _isMouthOpen = false);
                             _shakeMonster();
                           }
                         },
