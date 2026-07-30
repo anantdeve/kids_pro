@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
 import 'package:lottie/lottie.dart';
+import '../../../core/providers/user_provider.dart';
 import '../services/learning_tts_service.dart';
 
 class GrammarQuestion {
@@ -94,6 +95,7 @@ class _FillInTheBlanksScreenState extends ConsumerState<FillInTheBlanksScreen> {
 
     if (index == currentQuestion.correctIndex) {
       // Correct!
+      ref.read(userProvider.notifier).addPoints('Grammar', 10);
       tts.playFeedback("Great job! ${currentQuestion.fullSentence}");
       _confettiController.play();
       setState(() {

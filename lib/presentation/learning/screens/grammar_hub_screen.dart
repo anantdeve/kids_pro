@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math' as math;
+import '../../../core/providers/user_provider.dart';
 
-class GrammarHubScreen extends StatefulWidget {
+class GrammarHubScreen extends ConsumerStatefulWidget {
   const GrammarHubScreen({super.key});
 
   @override
-  State<GrammarHubScreen> createState() => _GrammarHubScreenState();
+  ConsumerState<GrammarHubScreen> createState() => _GrammarHubScreenState();
 }
 
-class _GrammarHubScreenState extends State<GrammarHubScreen> with SingleTickerProviderStateMixin {
+class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with SingleTickerProviderStateMixin {
   late AnimationController _backgroundController;
 
   @override
@@ -29,17 +31,20 @@ class _GrammarHubScreenState extends State<GrammarHubScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    final userState = ref.watch(userProvider);
+    final grammarPoints = userState.value?.featurePoints['Grammar'] ?? 0;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF0F5), // Light pink/purple theme for grammar
+      backgroundColor: const Color(0xFFCAF0F8), // Fresh sky blue theme for grammar
       body: Stack(
         children: [
           // Magical Sky Gradient Background
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFE0C3FC), Color(0xFFFFF0F5)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF48CAE4), Color(0xFF90E0EF), Color(0xFFCAF0F8)],
               ),
             ),
           ),
@@ -87,6 +92,37 @@ class _GrammarHubScreenState extends State<GrammarHubScreen> with SingleTickerPr
                           ],
                         ),
                       ),
+                      // Points Badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFD166),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.star_rounded, color: Color(0xFFFF9F1C), size: 24),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$grammarPoints',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF073B4C),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -106,6 +142,27 @@ class _GrammarHubScreenState extends State<GrammarHubScreen> with SingleTickerPr
                         icon: '📝',
                         colors: [const Color(0xFFFF9A9E), const Color(0xFFFECFEF)],
                         route: '/fill-in-the-blanks',
+                      ),
+                      _buildGameCard(
+                        context: context,
+                        title: 'Sentence\nBuilder',
+                        icon: '🧩',
+                        colors: [const Color(0xFF06D6A0), const Color(0xFF80ED99)],
+                        route: '/sentence-builder',
+                      ),
+                      _buildGameCard(
+                        context: context,
+                        title: 'Find the\nMistake',
+                        icon: '🔍',
+                        colors: [const Color(0xFF118AB2), const Color(0xFF48CAE4)],
+                        route: '/find-mistake',
+                      ),
+                      _buildGameCard(
+                        context: context,
+                        title: 'Picture\nGrammar',
+                        icon: '🖼️',
+                        colors: [const Color(0xFFFFB703), const Color(0xFFFFD166)],
+                        route: '/picture-grammar',
                       ),
                     ],
                   ),
@@ -147,9 +204,17 @@ class _GrammarHubScreenState extends State<GrammarHubScreen> with SingleTickerPr
     return Positioned(
       top: topOffset,
       left: leftPos,
-      child: Opacity(
-        opacity: 0.8,
-        child: Icon(Icons.cloud_rounded, color: Colors.white, size: 100 * scale),
+      child: Icon(
+        Icons.cloud_rounded,
+        color: Colors.white.withValues(alpha: 0.95), // Highly visible white
+        size: 150 * scale, // Make clouds slightly larger
+        shadows: [
+          Shadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
     );
   }

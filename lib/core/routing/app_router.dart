@@ -39,6 +39,9 @@ import '../../presentation/learning/screens/frog_jumps_screen.dart';
 import '../../presentation/learning/screens/magic_potions_screen.dart';
 import '../../presentation/learning/screens/grammar_hub_screen.dart';
 import '../../presentation/learning/screens/fill_in_the_blanks_screen.dart';
+import '../../presentation/learning/screens/sentence_builder_screen.dart';
+import '../../presentation/learning/screens/find_mistake_screen.dart';
+import '../../presentation/learning/screens/picture_grammar_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -206,6 +209,18 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/fill-in-the-blanks',
       builder: (context, state) => const FillInTheBlanksScreen(),
+    ),
+    GoRoute(
+      path: '/sentence-builder',
+      builder: (context, state) => const SentenceBuilderScreen(),
+    ),
+    GoRoute(
+      path: '/find-mistake',
+      builder: (context, state) => const FindMistakeScreen(),
+    ),
+    GoRoute(
+      path: '/picture-grammar',
+      builder: (context, state) => const PictureGrammarScreen(),
     ),
     // TODO: Add other routes here (numbers, colors, animals, etc.)
   ],
