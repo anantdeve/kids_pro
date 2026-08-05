@@ -127,42 +127,122 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
                   ),
                 ),
                 
-                // Grid of Games
+                // Content Sections
                 Expanded(
-                  child: GridView.count(
-                    crossAxisCount: 2,
+                  child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 20,
-                    childAspectRatio: 0.85,
                     children: [
-                      _buildGameCard(
-                        context: context,
-                        title: 'Fill in the\nBlanks',
-                        icon: '📝',
-                        colors: [const Color(0xFFFF9A9E), const Color(0xFFFECFEF)],
-                        route: '/fill-in-the-blanks',
+                      // Learn the Basics Section
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 16.0, left: 8.0),
+                        child: Text(
+                          'Learn the Basics',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF073B4C),
+                            shadows: [Shadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
+                          ),
+                        ),
                       ),
-                      _buildGameCard(
-                        context: context,
-                        title: 'Sentence\nBuilder',
-                        icon: '🧩',
-                        colors: [const Color(0xFF06D6A0), const Color(0xFF80ED99)],
-                        route: '/sentence-builder',
+                      SizedBox(
+                        height: 170, // Increased height to prevent overflow
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          clipBehavior: Clip.none,
+                          children: [
+                            _buildBasicsCard(
+                              context: context,
+                              title: 'Nouns',
+                              subtitle: 'Naming Words',
+                              icon: '🏷️',
+                              color: const Color(0xFFFF9A9E),
+                              topic: 'nouns',
+                            ),
+                            const SizedBox(width: 16),
+                            _buildBasicsCard(
+                              context: context,
+                              title: 'Verbs',
+                              subtitle: 'Action Words',
+                              icon: '🏃‍♂️',
+                              color: const Color(0xFF06D6A0),
+                              topic: 'verbs',
+                            ),
+                            const SizedBox(width: 16),
+                            _buildBasicsCard(
+                              context: context,
+                              title: 'Adjectives',
+                              subtitle: 'Describing Words',
+                              icon: '✨',
+                              color: const Color(0xFF118AB2),
+                              topic: 'adjectives',
+                            ),
+                          ],
+                        ),
                       ),
-                      _buildGameCard(
-                        context: context,
-                        title: 'Find the\nMistake',
-                        icon: '🔍',
-                        colors: [const Color(0xFF118AB2), const Color(0xFF48CAE4)],
-                        route: '/find-mistake',
+                      const SizedBox(height: 32),
+                      
+                      // Play & Practice Section
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 16.0, left: 8.0),
+                        child: Text(
+                          'Play & Practice',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF073B4C),
+                            shadows: [Shadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
+                          ),
+                        ),
                       ),
-                      _buildGameCard(
-                        context: context,
-                        title: 'Picture\nGrammar',
-                        icon: '🖼️',
-                        colors: [const Color(0xFFFFB703), const Color(0xFFFFD166)],
-                        route: '/picture-grammar',
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          int crossAxisCount = 2;
+                          if (constraints.maxWidth > 1000) {
+                            crossAxisCount = 4;
+                          } else if (constraints.maxWidth > 600) {
+                            crossAxisCount = 3;
+                          }
+                          
+                          return GridView.count(
+                            crossAxisCount: crossAxisCount,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            mainAxisSpacing: 20,
+                            crossAxisSpacing: 20,
+                            childAspectRatio: 0.85,
+                            children: [
+                          _buildGameCard(
+                            context: context,
+                            title: 'Fill in the\nBlanks',
+                            icon: '📝',
+                            colors: [const Color(0xFFFF9A9E), const Color(0xFFFECFEF)],
+                            route: '/fill-in-the-blanks',
+                          ),
+                          _buildGameCard(
+                            context: context,
+                            title: 'Sentence\nBuilder',
+                            icon: '🧩',
+                            colors: [const Color(0xFF06D6A0), const Color(0xFF80ED99)],
+                            route: '/sentence-builder',
+                          ),
+                          _buildGameCard(
+                            context: context,
+                            title: 'Find the\nMistake',
+                            icon: '🔍',
+                            colors: [const Color(0xFF118AB2), const Color(0xFF48CAE4)],
+                            route: '/find-mistake',
+                          ),
+                          _buildGameCard(
+                            context: context,
+                            title: 'Picture\nGrammar',
+                            icon: '🖼️',
+                            colors: [const Color(0xFFFFB703), const Color(0xFFFFD166)],
+                            route: '/picture-grammar',
+                          ),
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -243,6 +323,68 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
         onTap: () {
           context.push(route);
         },
+      ),
+    );
+  }
+
+  Widget _buildBasicsCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required String icon,
+    required Color color,
+    required String topic,
+  }) {
+    return GestureDetector(
+      onTap: () => context.push('/grammar-basics/$topic'),
+      child: Container(
+        width: 150, // slightly wider
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+          border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(icon, style: const TextStyle(fontSize: 32)),
+            const SizedBox(height: 8),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: color,
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Expanded(
+              child: Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black54,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -344,41 +486,50 @@ class _BouncingCardState extends State<_BouncingCard> with SingleTickerProviderS
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5)),
-                  ],
-                ),
-                child: widget.icon.endsWith('.png')
-                    ? ClipOval(
-                        child: Image.asset(
-                          widget.icon,
-                          width: 45,
-                          height: 45,
-                          fit: BoxFit.cover,
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5)),
+                    ],
+                  ),
+                  child: widget.icon.endsWith('.png')
+                      ? ClipOval(
+                          child: Image.asset(
+                            widget.icon,
+                            width: 45,
+                            height: 45,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            widget.icon,
+                            style: const TextStyle(fontSize: 40),
+                          ),
                         ),
-                      )
-                    : Text(
-                        widget.icon,
-                        style: const TextStyle(fontSize: 40),
-                      ),
+                ),
               ),
-              const SizedBox(height: 16),
-              Text(
-                widget.title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  height: 1.2,
-                  letterSpacing: 0.5,
-                  shadows: [Shadow(color: Colors.black26, blurRadius: 5, offset: Offset(0, 2))],
+              const SizedBox(height: 12),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  widget.title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    height: 1.2,
+                    letterSpacing: 0.5,
+                    shadows: [Shadow(color: Colors.black26, blurRadius: 5, offset: Offset(0, 2))],
+                  ),
                 ),
               ),
             ],

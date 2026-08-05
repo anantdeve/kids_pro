@@ -42,6 +42,7 @@ import '../../presentation/learning/screens/fill_in_the_blanks_screen.dart';
 import '../../presentation/learning/screens/sentence_builder_screen.dart';
 import '../../presentation/learning/screens/find_mistake_screen.dart';
 import '../../presentation/learning/screens/picture_grammar_screen.dart';
+import '../../presentation/learning/screens/grammar_basics_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -221,6 +222,13 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/picture-grammar',
       builder: (context, state) => const PictureGrammarScreen(),
+    ),
+    GoRoute(
+      path: '/grammar-basics/:topic',
+      builder: (context, state) {
+        final topic = state.pathParameters['topic'] ?? 'nouns';
+        return GrammarBasicsScreen(topic: topic);
+      },
     ),
     // TODO: Add other routes here (numbers, colors, animals, etc.)
   ],
