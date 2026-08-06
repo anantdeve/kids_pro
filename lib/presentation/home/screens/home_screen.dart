@@ -4,8 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../widgets/home_header.dart';
 import '../widgets/featured_banner.dart';
 import '../widgets/home_card.dart';
-import '../../../core/providers/child_standard_provider.dart';
-import '../../../domain/entities/child_standard.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});

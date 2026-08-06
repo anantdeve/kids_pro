@@ -71,7 +71,9 @@ class _DrumsScreenState extends State<DrumsScreen> {
 
   @override
   void dispose() {
-    for (var player in _players) player.dispose();
+    for (var player in _players) {
+      player.dispose();
+    }
     super.dispose();
   }
 
@@ -242,7 +244,7 @@ class _DrumPadState extends State<_DrumPad> with SingleTickerProviderStateMixin 
                     shape: BoxShape.circle,
                     border: Border.all(color: widget.data['color'], width: 10),
                     boxShadow: [
-                      BoxShadow(color: widget.data['color'].withOpacity(0.4), blurRadius: 15, spreadRadius: 2, offset: const Offset(0, 4)),
+                      BoxShadow(color: widget.data['color'].withValues(alpha: 0.4), blurRadius: 15, spreadRadius: 2, offset: const Offset(0, 4)),
                     ],
                   ),
                   padding: const EdgeInsets.all(12),
@@ -257,7 +259,7 @@ class _DrumPadState extends State<_DrumPad> with SingleTickerProviderStateMixin 
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
           decoration: BoxDecoration(
-            color: widget.data['color'].withOpacity(0.12),
+            color: widget.data['color'].withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -265,7 +267,7 @@ class _DrumPadState extends State<_DrumPad> with SingleTickerProviderStateMixin 
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: widget.data['color'].withOpacity(0.9),
+              color: widget.data['color'].withValues(alpha: 0.9),
             ),
           ),
         ),

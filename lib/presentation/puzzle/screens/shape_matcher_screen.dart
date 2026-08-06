@@ -137,8 +137,8 @@ class _ShapeMatcherScreenState extends ConsumerState<ShapeMatcherScreen> with Ti
                           height: screenWidth * 0.25,
                           decoration: BoxDecoration(
                             color: isPlaced 
-                                ? shape['color'].withOpacity(0.2) 
-                                : Colors.black.withOpacity(0.05),
+                                ? shape['color'].withValues(alpha: 0.2) 
+                                : Colors.black.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
                               color: candidateData.isNotEmpty 
@@ -153,7 +153,7 @@ class _ShapeMatcherScreenState extends ConsumerState<ShapeMatcherScreen> with Ti
                               size: screenWidth * 0.15,
                               color: isPlaced 
                                   ? shape['color'] 
-                                  : Colors.black.withOpacity(0.1),
+                                  : Colors.black.withValues(alpha: 0.1),
                             ),
                           ),
                         );
@@ -220,7 +220,7 @@ class _ShapeMatcherScreenState extends ConsumerState<ShapeMatcherScreen> with Ti
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: shape['color'].withOpacity(0.4),
+            color: shape['color'].withValues(alpha: 0.4),
             blurRadius: isDragging ? 20 : 10,
             offset: Offset(0, isDragging ? 10 : 4),
           ),

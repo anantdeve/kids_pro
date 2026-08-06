@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'dart:math' as math;
 
 class GrammarBasicsScreen extends ConsumerStatefulWidget {
   final String topic;
@@ -150,6 +149,105 @@ class _GrammarBasicsScreenState extends ConsumerState<GrammarBasicsScreen> with 
             'emoji': '🌸',
           },
         ];
+      case 'adverbs':
+        return [
+          {
+            'type': 'learning',
+            'title': 'What is an Adverb?',
+            'description': 'An adverb describes how, when, or where an action happens.',
+            'emoji': '🚀',
+            'example': 'Quickly, Loudly, Yesterday, Here',
+          },
+          {
+            'type': 'learning',
+            'title': 'How Words',
+            'description': 'Words like quickly, softly, and happily tell us HOW something happens.',
+            'emoji': '🐢🏃',
+            'example': 'The turtle walks **slowly**.',
+          },
+          {
+            'type': 'practice',
+            'question': 'Fill in the blank with a "How" word (adverb)!',
+            'sentence': 'She sang the song ___.',
+            'options': ['beautifully', 'song', 'She', 'blue'],
+            'correctAnswer': 'beautifully',
+            'emoji': '🎵',
+          },
+          {
+            'type': 'practice',
+            'question': 'Which word tells us HOW he ran?',
+            'sentence': 'He ran fast.',
+            'options': ['fast', 'He', 'ran', 'red'],
+            'correctAnswer': 'fast',
+            'emoji': '🏃‍♂️',
+          },
+        ];
+      case 'prepositions':
+        return [
+          {
+            'type': 'learning',
+            'title': 'What is a Preposition?',
+            'description': 'A preposition tells us where something is! It\'s a position word.',
+            'emoji': '📍',
+            'example': 'On, In, Under, Behind',
+          },
+          {
+            'type': 'learning',
+            'title': 'Where is it?',
+            'description': 'Words like on, under, and next to are prepositions.',
+            'emoji': '📦🐈',
+            'example': 'The cat is **in** the box.',
+          },
+          {
+            'type': 'practice',
+            'question': 'Fill in the blank with a position word!',
+            'sentence': 'The ball rolled ___ the table.',
+            'options': ['under', 'rolled', 'ball', 'happy'],
+            'correctAnswer': 'under',
+            'emoji': '⚽️',
+          },
+          {
+            'type': 'practice',
+            'question': 'Fill in the blank with a position word!',
+            'sentence': 'The bird is sitting ___ the tree.',
+            'options': ['in', 'is', 'bird', 'run'],
+            'correctAnswer': 'in',
+            'emoji': '🐦',
+          },
+        ];
+      case 'pronouns':
+        return [
+          {
+            'type': 'learning',
+            'title': 'What is a Pronoun?',
+            'description': 'A pronoun takes the place of a noun. It saves us from saying the same name over and over!',
+            'emoji': '👤',
+            'example': 'He, She, It, They',
+          },
+          {
+            'type': 'learning',
+            'title': 'Replacing Names',
+            'description': 'Instead of "Tom runs", we can say "He runs".',
+            'emoji': '👦➡️🧑',
+            'example': 'Mia is happy. **She** is smiling.',
+          },
+          {
+            'type': 'practice',
+            'question': 'Replace "The dog" with a pronoun!',
+            'sentence': '___ is barking loud.',
+            'options': ['It', 'Barking', 'Dog', 'Very'],
+            'correctAnswer': 'It',
+            'emoji': '🐶',
+          },
+          {
+            'type': 'practice',
+            'question': 'Replace "Sam and Alex" with a pronoun!',
+            'sentence': '___ are playing games.',
+            'options': ['They', 'Sam', 'Playing', 'Games'],
+            'correctAnswer': 'They',
+            'emoji': '🎮',
+          },
+        ];
       default:
         return [];
     }
@@ -160,6 +258,9 @@ class _GrammarBasicsScreenState extends ConsumerState<GrammarBasicsScreen> with 
       case 'nouns': return 'Learn Nouns';
       case 'verbs': return 'Learn Verbs';
       case 'adjectives': return 'Learn Adjectives';
+      case 'adverbs': return 'Learn Adverbs';
+      case 'prepositions': return 'Learn Prepositions';
+      case 'pronouns': return 'Learn Pronouns';
       default: return 'Learn Grammar';
     }
   }
@@ -169,6 +270,9 @@ class _GrammarBasicsScreenState extends ConsumerState<GrammarBasicsScreen> with 
       case 'nouns': return const Color(0xFFFF9A9E);
       case 'verbs': return const Color(0xFF06D6A0);
       case 'adjectives': return const Color(0xFF118AB2);
+      case 'adverbs': return const Color(0xFFFF9F1C);
+      case 'prepositions': return const Color(0xFF8338EC);
+      case 'pronouns': return const Color(0xFFFF006E);
       default: return const Color(0xFF48CAE4);
     }
   }

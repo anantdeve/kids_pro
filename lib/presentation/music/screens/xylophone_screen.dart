@@ -139,7 +139,7 @@ class _XylophoneScreenState extends State<XylophoneScreen> {
                 color: Theme.of(context).cardTheme.color ?? Colors.white,
                 shape: BoxShape.circle,
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
                 ],
               ),
               child: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68), size: 24),
@@ -204,17 +204,17 @@ class _XylophoneBar extends StatelessWidget {
           height: (screenWidth * 0.12).clamp(45.0, 65.0),
           transform: isActive ? (Matrix4.identity()..scale(0.98)) : Matrix4.identity(),
           decoration: BoxDecoration(
-            color: isActive ? data['color'].withOpacity(0.8) : data['color'],
+            color: isActive ? data['color'].withValues(alpha: 0.8) : data['color'],
             borderRadius: BorderRadius.circular(15),
             boxShadow: [
               BoxShadow(
-                color: data['color'].withOpacity(0.4),
+                color: data['color'].withValues(alpha: 0.4),
                 blurRadius: isActive ? 4 : 12,
                 offset: isActive ? const Offset(0, 2) : const Offset(0, 6),
               ),
               // Highlights for "3D" effect
               BoxShadow(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 blurRadius: 0,
                 offset: const Offset(0, -3),
               ),
@@ -240,7 +240,7 @@ class _BarScrew extends StatelessWidget {
       child: Container(
         width: 12, height: 12,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.5),
+          color: Colors.white.withValues(alpha: 0.5),
           shape: BoxShape.circle,
           border: Border.all(color: Colors.black12),
         ),
@@ -258,7 +258,7 @@ class _DecorativeCloud extends StatelessWidget {
   Widget build(BuildContext context) {
     return Opacity(
       opacity: opacity,
-      child: Icon(Icons.cloud, size: size, color: Colors.blue.withOpacity(0.1)),
+      child: Icon(Icons.cloud, size: size, color: Colors.blue.withValues(alpha: 0.1)),
     );
   }
 }

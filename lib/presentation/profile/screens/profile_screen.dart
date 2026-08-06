@@ -83,7 +83,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                               elevation: 4,
-                              shadowColor: const Color(0xFF4CAF50).withOpacity(0.4),
+                              shadowColor: const Color(0xFF4CAF50).withValues(alpha: 0.4),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -113,7 +113,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                               elevation: 4,
-                              shadowColor: const Color(0xFFFF8B66).withOpacity(0.4),
+                              shadowColor: const Color(0xFFFF8B66).withValues(alpha: 0.4),
                             ),
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -213,7 +213,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         const Spacer(),
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFF79F6F).withOpacity(0.1),
+            color: const Color(0xFFF79F6F).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
@@ -229,7 +229,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         const SizedBox(width: 12),
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFF79F6F).withOpacity(0.1),
+            color: const Color(0xFFF79F6F).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
@@ -263,7 +263,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFF8DA1).withOpacity(0.4),
+                      color: const Color(0xFFFF8DA1).withValues(alpha: 0.4),
                       blurRadius: 16,
                       offset: const Offset(0, 8),
                     ),
@@ -295,7 +295,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       border: Border.all(color: Colors.white, width: 3),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -381,7 +381,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         border: Border.all(color: bgColor, width: 2),
         boxShadow: [
           BoxShadow(
-            color: bgColor.withOpacity(0.5),
+            color: bgColor.withValues(alpha: 0.5),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -468,7 +468,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: isLocked ? [] : [
               BoxShadow(
-                color: (achievement['color'] as Color).withOpacity(0.4),
+                color: (achievement['color'] as Color).withValues(alpha: 0.4),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -541,7 +541,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         onChanged: (val) {
                           ref.read(settingsProvider.notifier).toggleMagicalSounds();
                         },
-                        activeColor: AppColors.primaryPink,
+                        activeThumbColor: AppColors.primaryPink,
                       ),
                     ),
                     const Divider(height: 1, indent: 24, endIndent: 24, color: Color(0xFFF3F4F6)),
@@ -572,7 +572,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Icon(icon, color: color, size: 24),
@@ -713,7 +713,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 30),
                   leading: Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: AppColors.primaryBlue.withOpacity(0.1), borderRadius: BorderRadius.circular(14)),
+                    decoration: BoxDecoration(color: AppColors.primaryBlue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
                     child: const Icon(Icons.photo_library_rounded, color: AppColors.primaryBlue),
                   ),
                   title: Text('From Gallery', style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.w800, fontSize: 16)),
@@ -724,7 +724,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 30),
                   leading: Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: AppColors.primaryGreen.withOpacity(0.1), borderRadius: BorderRadius.circular(14)),
+                    decoration: BoxDecoration(color: AppColors.primaryGreen.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
                     child: const Icon(Icons.camera_alt_rounded, color: AppColors.primaryGreen),
                   ),
                   title: Text('From Camera', style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.w800, fontSize: 16)),

@@ -39,7 +39,7 @@ class HomeHeader extends ConsumerWidget {
                       border: Border.all(color: Colors.white, width: 2),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.orangePrimary.withOpacity(0.2),
+                          color: AppColors.orangePrimary.withValues(alpha: 0.2),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -104,7 +104,7 @@ class HomeHeader extends ConsumerWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFFF9F1C).withOpacity(0.3),
+                  color: const Color(0xFFFF9F1C).withValues(alpha: 0.3),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:ui';
 import '../../../core/providers/user_provider.dart';
 import '../../../core/widgets/magical_blob.dart';
 import '../../../data/services/quiz_api_service.dart';
@@ -128,8 +127,8 @@ class _ApiQuizScreenState extends ConsumerState<ApiQuizScreen> {
             Positioned.fill(
               child: Container(color: const Color(0xFFFCE4EC)), // Light pinkish for GK
             ),
-          MagicalBlob(size: 300, color: const Color(0xFFF8BBD0).withOpacity(0.4), top: 100, left: -50),
-          MagicalBlob(size: 350, color: const Color(0xFFE1BEE7).withOpacity(0.5), top: -50, right: -50),
+          MagicalBlob(size: 300, color: const Color(0xFFF8BBD0).withValues(alpha: 0.4), top: 100, left: -50),
+          MagicalBlob(size: 350, color: const Color(0xFFE1BEE7).withValues(alpha: 0.5), top: -50, right: -50),
 
           SafeArea(
             child: Column(
@@ -165,7 +164,7 @@ class _ApiQuizScreenState extends ConsumerState<ApiQuizScreen> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Theme.of(context).cardTheme.color?.withOpacity(0.6) ?? Colors.white.withOpacity(0.6),
+                color: Theme.of(context).cardTheme.color?.withValues(alpha: 0.6) ?? Colors.white.withValues(alpha: 0.6),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.close, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF2D3142), size: 24),
@@ -200,7 +199,7 @@ class _ApiQuizScreenState extends ConsumerState<ApiQuizScreen> {
                   borderRadius: BorderRadius.circular(10),
                   child: LinearProgressIndicator(
                     value: questions.isEmpty ? 0 : (currentQuestionIndex + 1) / questions.length,
-                    backgroundColor: Colors.grey.withOpacity(0.1),
+                    backgroundColor: Colors.grey.withValues(alpha: 0.1),
                     valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFF06292)),
                     minHeight: 8,
                   ),
@@ -263,10 +262,10 @@ class _ApiQuizScreenState extends ConsumerState<ApiQuizScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(30),
             decoration: BoxDecoration(
-              color: Theme.of(context).cardTheme.color?.withOpacity(0.8) ?? Colors.white.withOpacity(0.8),
+              color: Theme.of(context).cardTheme.color?.withValues(alpha: 0.8) ?? Colors.white.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(40),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10)),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 10)),
               ],
             ),
             child: Column(
@@ -315,7 +314,7 @@ class _ApiQuizScreenState extends ConsumerState<ApiQuizScreen> {
                           width: 4,
                         ),
                         boxShadow: [
-                          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 15, offset: const Offset(0, 8)),
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 15, offset: const Offset(0, 8)),
                         ],
                       ),
                       child: Center(

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/providers/child_standard_provider.dart';
 import '../../../../core/providers/user_provider.dart';
 import '../../learning/widgets/success_overlay.dart';
 
@@ -34,11 +33,11 @@ class _AsmrColoringScreenState extends ConsumerState<AsmrColoringScreen> with Si
   Color _selectedColor = const Color(0xFFFF4757);
   
   // Scrubbing logic
-  List<Offset?> _colorStrokes = [];
+  final List<Offset?> _colorStrokes = [];
   
   // Advanced Visual Fill Detection (Grid-based)
   Set<int> _validPathCells = {};
-  Set<int> _coloredCells = {};
+  final Set<int> _coloredCells = {};
   Rect _currentBounds = Rect.zero;
   
   // Dynamic Pen tracking

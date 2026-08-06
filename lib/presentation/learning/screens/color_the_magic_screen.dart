@@ -260,8 +260,8 @@ class _ColorTheMagicScreenState extends ConsumerState<ColorTheMagicScreen> {
                 ),
                 borderRadius: BorderRadius.circular(40),
                 boxShadow: [
-                  BoxShadow(color: Colors.orangeAccent.withOpacity(0.6), blurRadius: 30, spreadRadius: 10, offset: const Offset(0, 15)),
-                  BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 10, spreadRadius: 2, offset: const Offset(-3, -3)),
+                  BoxShadow(color: Colors.orangeAccent.withValues(alpha: 0.6), blurRadius: 30, spreadRadius: 10, offset: const Offset(0, 15)),
+                  BoxShadow(color: Colors.white.withValues(alpha: 0.4), blurRadius: 10, spreadRadius: 2, offset: const Offset(-3, -3)),
                 ],
                 border: Border.all(color: Colors.white, width: 4),
               ),
@@ -293,7 +293,7 @@ class _ColorTheMagicScreenState extends ConsumerState<ColorTheMagicScreen> {
                   const SizedBox(height: 40),
                   Container(
                     decoration: BoxDecoration(
-                      boxShadow: [BoxShadow(color: Colors.deepOrange.withOpacity(0.4), blurRadius: 15, offset: const Offset(0, 8))],
+                      boxShadow: [BoxShadow(color: Colors.deepOrange.withValues(alpha: 0.4), blurRadius: 15, offset: const Offset(0, 8))],
                       borderRadius: BorderRadius.circular(40),
                     ),
                     child: ElevatedButton.icon(

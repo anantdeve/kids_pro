@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kids_pro/core/widgets/magical_blob.dart';
 import 'dart:math';
-import 'dart:ui';
 import '../services/learning_tts_service.dart';
 import '../widgets/tts_animated_speaker.dart';
 import '../widgets/success_overlay.dart';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import '../../../core/widgets/magical_blob.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../learning/widgets/success_overlay.dart';
 
 enum ArrowDirection { up, down, left, right }

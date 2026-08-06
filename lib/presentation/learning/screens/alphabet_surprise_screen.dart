@@ -146,10 +146,10 @@ class _AlphabetSurpriseScreenState extends ConsumerState<AlphabetSurpriseScreen>
             Positioned.fill(
               child: Container(color: const Color(0xFFFFF9F5)),
             ),
-            MagicalBlob(size: 300, color: const Color(0xFFFFD1E1).withOpacity(0.4), top: 100, left: -50),
-            MagicalBlob(size: 350, color: const Color(0xFFE1F5FE).withOpacity(0.5), top: -50, right: -50),
-            MagicalBlob(size: 400, color: const Color(0xFFF3E5F5).withOpacity(0.4), bottom: 100, right: -80),
-            MagicalBlob(size: 300, color: const Color(0xFFFFF9C4).withOpacity(0.3), bottom: -50, left: -20),
+            MagicalBlob(size: 300, color: const Color(0xFFFFD1E1).withValues(alpha: 0.4), top: 100, left: -50),
+            MagicalBlob(size: 350, color: const Color(0xFFE1F5FE).withValues(alpha: 0.5), top: -50, right: -50),
+            MagicalBlob(size: 400, color: const Color(0xFFF3E5F5).withValues(alpha: 0.4), bottom: 100, right: -80),
+            MagicalBlob(size: 300, color: const Color(0xFFFFF9C4).withValues(alpha: 0.3), bottom: -50, left: -20),
           ],
 
           SafeArea(
@@ -284,7 +284,7 @@ class _AlphabetSurpriseScreenState extends ConsumerState<AlphabetSurpriseScreen>
                     child: Column(
                       children: [
                         Text(
-                          '${currentLetter} is for',
+                          '$currentLetter is for',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w600,
@@ -353,7 +353,7 @@ class _AlphabetSurpriseScreenState extends ConsumerState<AlphabetSurpriseScreen>
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFFF9F1C).withOpacity(0.3),
+                  color: const Color(0xFFFF9F1C).withValues(alpha: 0.3),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

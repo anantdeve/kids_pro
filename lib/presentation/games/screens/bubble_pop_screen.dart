@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:ui';
 import 'dart:async';
 import 'dart:math';
 import '../../learning/widgets/success_overlay.dart';
@@ -153,7 +152,7 @@ class _BubblePopScreenState extends State<BubblePopScreen> with TickerProviderSt
                 child: BubbleWidget(bubble: bubble),
               ),
             );
-          }).toList(),
+          }),
           SuccessOverlay(
             isVisible: _isGameOverState,
             showBadge: false,

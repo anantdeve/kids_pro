@@ -61,8 +61,8 @@ class _MusicActivityCardState extends State<MusicActivityCard> with SingleTicker
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              widget.themeColor.withOpacity(0.4),
-              widget.themeColor.withOpacity(0.05),
+              widget.themeColor.withValues(alpha: 0.4),
+              widget.themeColor.withValues(alpha: 0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -70,7 +70,7 @@ class _MusicActivityCardState extends State<MusicActivityCard> with SingleTicker
           borderRadius: BorderRadius.circular(40),
           boxShadow: [
             BoxShadow(
-              color: widget.themeColor.withOpacity(0.1),
+              color: widget.themeColor.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -100,7 +100,7 @@ class _MusicActivityCardState extends State<MusicActivityCard> with SingleTicker
                         color: Theme.of(context).cardTheme.color ?? Colors.white,
                         boxShadow: [
                           BoxShadow(
-                            color: widget.themeColor.withOpacity(0.15),
+                            color: widget.themeColor.withValues(alpha: 0.15),
                             blurRadius: 15,
                             spreadRadius: 2,
                           ),
@@ -157,12 +157,12 @@ class _MusicActivityCardState extends State<MusicActivityCard> with SingleTicker
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: widget.themeColor.withOpacity(0.1),
+                        color: widget.themeColor.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.arrow_forward_ios_rounded,
-                        color: widget.themeColor.withOpacity(0.6),
+                        color: widget.themeColor.withValues(alpha: 0.6),
                         size: 18,
                       ),
                     ),

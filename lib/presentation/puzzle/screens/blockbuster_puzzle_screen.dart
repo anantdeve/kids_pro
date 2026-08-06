@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../core/widgets/magical_blob.dart';
-import '../../../core/constants/app_colors.dart';
 import 'dart:math';
 import '../../learning/widgets/success_overlay.dart';
 

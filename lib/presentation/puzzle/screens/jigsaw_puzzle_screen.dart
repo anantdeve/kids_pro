@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'package:go_router/go_router.dart';
-import 'dart:math' as math;
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:lottie/lottie.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/user_provider.dart';
 
@@ -124,7 +120,7 @@ class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.4),
+      barrierColor: Colors.black.withValues(alpha: 0.4),
       transitionDuration: const Duration(milliseconds: 600),
       pageBuilder: (context, animation, secondaryAnimation) => const SizedBox(),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
@@ -142,9 +138,9 @@ class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
                   width: 290, 
                   padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20), 
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(35),
-                    border: Border.all(color: Colors.white.withOpacity(0.6), width: 2),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.6), width: 2),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -164,7 +160,7 @@ class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
                             child: Icon(
                               Icons.star_rounded,
                               size: index == 1 ? 70 : 55, 
-                              color: isEarned ? Colors.amberAccent : Colors.white.withOpacity(0.3),
+                              color: isEarned ? Colors.amberAccent : Colors.white.withValues(alpha: 0.3),
                               shadows: isEarned 
                                   ? [const Shadow(color: Colors.black45, blurRadius: 10, offset: Offset(2, 3))] 
                                   : null,
@@ -194,7 +190,7 @@ class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
                     style: TextStyle(
                       fontSize: 16, 
                       fontWeight: FontWeight.bold, 
-                      color: Colors.white.withOpacity(0.95),
+                      color: Colors.white.withValues(alpha: 0.95),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -203,7 +199,7 @@ class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
                     decoration: BoxDecoration(
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.deepOrange.withOpacity(0.35),
+                          color: Colors.deepOrange.withValues(alpha: 0.35),
                           blurRadius: 12,
                           offset: const Offset(0, 6),
                         ),
@@ -277,7 +273,7 @@ class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
                       height: puzzleSize,
                       clipBehavior: Clip.antiAlias,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.white.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: Colors.white, width: 4),
                       ),
@@ -343,7 +339,7 @@ class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
 
   Widget _buildTargetSlot(int index, double pieceSize, int row, int col) {
     bool isFilled = _placedPieces[index] != null;
-    Color borderColor = isFilled ? Colors.transparent : Colors.grey.withOpacity(0.6);
+    Color borderColor = isFilled ? Colors.transparent : Colors.grey.withValues(alpha: 0.6);
     
     return DragTarget<int>(
       onWillAcceptWithDetails: (details) => details.data == index && !isFilled,
@@ -351,7 +347,7 @@ class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
       builder: (context, candidateData, rejectedData) {
         return Container(
           decoration: BoxDecoration(
-            color: isFilled ? Colors.transparent : Colors.white.withOpacity(0.4),
+            color: isFilled ? Colors.transparent : Colors.white.withValues(alpha: 0.4),
             border: Border(
               top: row == 0 ? BorderSide.none : BorderSide(color: borderColor, width: 1.5),
               left: col == 0 ? BorderSide.none : BorderSide(color: borderColor, width: 1.5),
@@ -362,7 +358,7 @@ class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
           child: isFilled
               ? _buildPuzzlePiece(index, pieceSize, false)
               : candidateData.isNotEmpty
-                  ? Container(color: Colors.lightBlueAccent.withOpacity(0.5))
+                  ? Container(color: Colors.lightBlueAccent.withValues(alpha: 0.5))
                   : null,
         );
       },
@@ -384,7 +380,7 @@ class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          boxShadow: isDragging ? [BoxShadow(color: Colors.black.withOpacity(0.24), blurRadius: 10, offset: const Offset(0, 5))] : null,
+          boxShadow: isDragging ? [BoxShadow(color: Colors.black.withValues(alpha: 0.24), blurRadius: 10, offset: const Offset(0, 5))] : null,
         ),
         child: ClipPath(
           clipper: _PuzzlePieceClipper(row: row, col: col, gridSize: _gridSize),
@@ -439,7 +435,7 @@ class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2)),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5, offset: const Offset(0, 2)),
               ],
             ),
             child: Row(

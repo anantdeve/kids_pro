@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../music/widgets/music_activity_card.dart';
 import 'jigsaw_puzzle_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';

@@ -327,7 +327,7 @@ class _TangleMasterScreenState extends State<TangleMasterScreen> with SingleTick
           if (_isLevelComplete)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 child: Center(
                   child: TweenAnimationBuilder<double>(
                     duration: const Duration(milliseconds: 600),
@@ -346,7 +346,7 @@ class _TangleMasterScreenState extends State<TangleMasterScreen> with SingleTick
                         borderRadius: BorderRadius.circular(32),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 20,
                             spreadRadius: 5,
                           ),
@@ -432,7 +432,7 @@ class _TangleMasterScreenState extends State<TangleMasterScreen> with SingleTick
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.white.withValues(alpha: 0.6),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.arrow_back, color: Color(0xFF2D3142), size: 24),
@@ -441,7 +441,7 @@ class _TangleMasterScreenState extends State<TangleMasterScreen> with SingleTick
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -502,7 +502,7 @@ class _TanglePainter extends CustomPainter {
       
       // Inner rim highlight
       final rim = Paint()
-        ..color = Colors.black.withOpacity(0.3)
+        ..color = Colors.black.withValues(alpha: 0.3)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
       canvas.drawCircle(pos, 20, rim);
@@ -579,7 +579,7 @@ class _TanglePainter extends CustomPainter {
 
       // Shadow
       final shadowPaint = Paint()
-        ..color = Colors.black.withOpacity(0.25)
+        ..color = Colors.black.withValues(alpha: 0.25)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 16
         ..strokeCap = StrokeCap.round;
@@ -613,13 +613,13 @@ class _TanglePainter extends CustomPainter {
       // Braided Texture
       final metrics = path.computeMetrics();
       final braidDark = Paint()
-        ..color = Colors.black.withOpacity(0.25)
+        ..color = Colors.black.withValues(alpha: 0.25)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.5
         ..strokeCap = StrokeCap.round;
         
       final braidLight = Paint()
-        ..color = Colors.white.withOpacity(0.3)
+        ..color = Colors.white.withValues(alpha: 0.3)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5
         ..strokeCap = StrokeCap.round;
@@ -648,7 +648,7 @@ class _TanglePainter extends CustomPainter {
       
       // Rope highlight (3D shine)
       final highlightPaint = Paint()
-        ..color = Colors.white.withOpacity(0.6)
+        ..color = Colors.white.withValues(alpha: 0.6)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 4
         ..strokeCap = StrokeCap.round;
@@ -668,7 +668,7 @@ class _TanglePainter extends CustomPainter {
       
       // Plug shadow
       final nodeShadow = Paint()
-        ..color = Colors.black.withOpacity(isBeingDragged ? 0.4 : 0.2)
+        ..color = Colors.black.withValues(alpha: isBeingDragged ? 0.4 : 0.2)
         ..style = PaintingStyle.fill;
       canvas.drawCircle(topPos + Offset(0, isBeingDragged ? 12 : 6), plugRadius, nodeShadow);
 

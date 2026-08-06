@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'dart:math';
 import '../widgets/success_overlay.dart';
 import '../services/learning_tts_service.dart';
-import '../services/learning_tts_service.dart';
 import '../widgets/tts_animated_speaker.dart';
 import 'package:lottie/lottie.dart';
 import '../../../core/providers/user_provider.dart';
@@ -219,7 +218,7 @@ class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> w
                             left: obj.position.dx * constraints.maxWidth - 45,
                             top: obj.position.dy * constraints.maxHeight - 45,
                             child: _GameObjectWidget(
-                              key: ValueKey('obj_${obj.id}_${level}'),
+                              key: ValueKey('obj_${obj.id}_$level'),
                               object: obj,
                               onTap: () => _onObjectTap(obj),
                               tappedIndex: obj.isTarget && obj.isTapped 
@@ -368,7 +367,7 @@ class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> w
       child: Row(
         children: [
           Text(
-            '$targetIcon',
+            targetIcon,
             style: const TextStyle(fontSize: 24),
           ),
           const SizedBox(width: 12),

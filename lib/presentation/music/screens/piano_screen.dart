@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/providers/user_provider.dart';
 
 class PianoScreen extends ConsumerStatefulWidget {
@@ -209,7 +208,7 @@ class _PianoScreenState extends ConsumerState<PianoScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).cardTheme.color?.withOpacity(0.5) ?? Colors.white.withOpacity(0.5),
+                            color: Theme.of(context).cardTheme.color?.withValues(alpha: 0.5) ?? Colors.white.withValues(alpha: 0.5),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF334E68), size: 22),
@@ -330,16 +329,16 @@ class _WhiteKey extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 1),
       decoration: BoxDecoration(
-        color: isPressed ? color.withOpacity(0.5) : Colors.white,
+        color: isPressed ? color.withValues(alpha: 0.5) : Colors.white,
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 5,
             offset: const Offset(0, 5),
           ),
         ],
-        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
       ),
     );
   }
@@ -375,7 +374,7 @@ class _BlackKey extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.4),
+            color: Colors.black.withValues(alpha: 0.4),
             blurRadius: 8,
             offset: const Offset(2, 4),
           ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../music/screens/music_screen.dart';
 import '../../puzzle/screens/puzzle_hub_screen.dart';
 import '../../profile/screens/profile_screen.dart';
