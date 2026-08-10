@@ -22,7 +22,7 @@ class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
     {'word': 'DOG', 'picture': '🐶'},
     {'word': 'ELEPHANT', 'picture': '🐘'},
     {'word': 'FROG', 'picture': '🐸'},
-    {'word': 'GRAPE', 'picture': '🍇'},
+    {'word': 'GRAPES', 'picture': '🍇'},
     {'word': 'HOUSE', 'picture': '🏠'},
     {'word': 'SUN', 'picture': '☀️'},
     {'word': 'CAR', 'picture': '🚗'},
@@ -71,7 +71,8 @@ class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
   }
 
   void _playAudio() {
-    ref.read(learningTtsServiceProvider.notifier).playInstruction(_correctWord.toLowerCase());
+    // Just the word, with a period at the end to help the TTS engine articulate it as a complete thought.
+    ref.read(learningTtsServiceProvider.notifier).playInstruction('${_correctWord.toLowerCase()}.');
   }
 
   void _onOptionSelected(String selectedWord) {

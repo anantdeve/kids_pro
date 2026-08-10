@@ -44,11 +44,30 @@ class LearningTtsNotifier extends Notifier<LearningTtsState> {
 
   Future<void> _initTts() async {
     // Setup for fallback Flutter TTS
-    await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.35); // Slower speech rate
-    await flutterTts.setVolume(1.0);
-    await flutterTts.setPitch(1.9); // Higher pitch to sound more like a child
+    // Forcing Google TTS engine on Android. OEM engines (like Samsung TTS) often have terrible pronunciation.
+    if (Platform.isAndroid) {
+      await flutterTts.setEngine("com.google.android.tts");
+    }
+    
+    await flutterTts.setLanguage("en-IN"); // Indian English
+    await flutterTts.setSpeechRate(0.4); // Slower rate (0.4) is crucial for making the voice more articulate and clearly audible
+    await flutterTts.setVolume(1.0); // Maximum volume
+    await flutterTts.setPitch(1.0); // Natural pitch
     await flutterTts.awaitSpeakCompletion(true);
+    
+    // iOS specific setup to ensure the voice uses the main speaker at high quality and doesn't get muffled by other audio
+    if (Platform.isIOS) {
+      await flutterTts.setSharedInstance(true);
+      await flutterTts.setIosAudioCategory(
+        IosTextToSpeechAudioCategory.playback,
+        [
+          IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+          IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+          IosTextToSpeechAudioCategoryOptions.mixWithOthers,
+          IosTextToSpeechAudioCategoryOptions.defaultToSpeaker
+        ],
+      );
+    }
 
     flutterTts.setStartHandler(() {
       state = state.copyWith(isSpeaking: true);
