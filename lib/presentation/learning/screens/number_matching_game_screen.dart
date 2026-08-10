@@ -17,6 +17,7 @@ class NumberMatchingGameScreen extends ConsumerStatefulWidget {
 class _NumberMatchingGameScreenState extends ConsumerState<NumberMatchingGameScreen> {
   late final LearningTtsNotifier _ttsNotifier;
   bool _isMuted = false;
+  bool _isFirstLoad = true;
   final Random random = Random();
   late int targetNumber;
   late List<int> options;
@@ -58,8 +59,9 @@ class _NumberMatchingGameScreenState extends ConsumerState<NumberMatchingGameScr
       options.shuffle();
     });
 
-    if (!_isMuted) {
+    if (!_isMuted && _isFirstLoad) {
       ref.read(learningTtsServiceProvider.notifier).playInstruction('Drag the number to match');
+      _isFirstLoad = false;
     }
   }
 
@@ -275,15 +277,16 @@ class _NumberMatchingGameScreenState extends ConsumerState<NumberMatchingGameScr
         }
       },
       builder: (context, candidateData, rejectedData) {
+        final isHovered = candidateData.isNotEmpty; // True when the correct number is dragged over this target
         return Container(
           width: 100,
           height: 140,
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isHovered ? const Color(0xFFE8F5E9) : Colors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white,
+              color: isHovered ? const Color(0xFF4CAF50) : Colors.white,
               width: 3,
             ),
             boxShadow: [

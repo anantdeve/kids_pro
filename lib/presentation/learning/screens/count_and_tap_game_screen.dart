@@ -36,6 +36,7 @@ class CountAndTapGameScreen extends ConsumerStatefulWidget {
 class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> with TickerProviderStateMixin {
   late final LearningTtsNotifier _ttsNotifier;
   bool _isMuted = false;
+  bool _isFirstLoad = true;
   final Random random = Random();
   
   // Game State
@@ -145,8 +146,9 @@ class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> w
       gameObjects.shuffle();
     });
 
-    if (!_isMuted) {
+    if (!_isMuted && _isFirstLoad) {
       ref.read(learningTtsServiceProvider.notifier).playInstruction('Tap $targetNumber $targetCategory');
+      _isFirstLoad = false;
     }
   }
 

@@ -19,6 +19,7 @@ class LookAndMatchGameScreen extends ConsumerStatefulWidget {
 class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen> {
   late final LearningTtsNotifier _ttsNotifier;
   bool _isMuted = false;
+  bool _isFirstLoad = true;
   late List<MatchItem> leftItems;
   late List<MatchItem> rightItems;
 
@@ -73,8 +74,9 @@ class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen>
       }
       _isSuccess = false;
     });
-    if (!_isMuted) {
+    if (!_isMuted && _isFirstLoad) {
       ref.read(learningTtsServiceProvider.notifier).playInstruction('Match the words to the numbers');
+      _isFirstLoad = false;
     }
   }
 

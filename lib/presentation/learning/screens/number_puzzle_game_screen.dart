@@ -26,6 +26,7 @@ class NumberPuzzleGameScreen extends ConsumerStatefulWidget {
 class _NumberPuzzleGameScreenState extends ConsumerState<NumberPuzzleGameScreen> with TickerProviderStateMixin {
   late final LearningTtsNotifier _ttsNotifier;
   bool _isMuted = false;
+  bool _isFirstLoad = true;
   final Random random = Random();
   late int targetNumber;
   List<PuzzlePart> placedParts = [];
@@ -83,8 +84,9 @@ class _NumberPuzzleGameScreenState extends ConsumerState<NumberPuzzleGameScreen>
     });
     _successController.reset();
 
-    if (!_isMuted) {
+    if (!_isMuted && _isFirstLoad) {
       ref.read(learningTtsServiceProvider.notifier).playInstruction('Assemble the number $targetNumber');
+      _isFirstLoad = false;
     }
   }
 

@@ -17,6 +17,7 @@ class MissingNumberGameScreen extends ConsumerStatefulWidget {
 class _MissingNumberGameScreenState extends ConsumerState<MissingNumberGameScreen> {
   late final LearningTtsNotifier _ttsNotifier;
   bool _isMuted = false;
+  bool _isFirstLoad = true;
   final Random random = Random();
   late List<int> sequence;
   late int missingIndex;
@@ -58,8 +59,9 @@ class _MissingNumberGameScreenState extends ConsumerState<MissingNumberGameScree
       options.shuffle();
     });
     
-    if (!_isMuted) {
+    if (!_isMuted && _isFirstLoad) {
       ref.read(learningTtsServiceProvider.notifier).playInstruction('Find the missing number');
+      _isFirstLoad = false;
     }
   }
 
