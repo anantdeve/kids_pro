@@ -155,7 +155,7 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
                               context: context,
                               title: 'Nouns',
                               subtitle: 'Naming Words',
-                              icon: '🏷️',
+                              icon: 'assets/images/grammar_nouns.png',
                               color: const Color(0xFFFF9A9E),
                               topic: 'nouns',
                             ),
@@ -164,7 +164,7 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
                               context: context,
                               title: 'Verbs',
                               subtitle: 'Action Words',
-                              icon: '🏃‍♂️',
+                              icon: 'assets/images/grammar_verbs.png',
                               color: const Color(0xFF06D6A0),
                               topic: 'verbs',
                             ),
@@ -173,7 +173,7 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
                               context: context,
                               title: 'Adjectives',
                               subtitle: 'Describing Words',
-                              icon: '✨',
+                              icon: 'assets/images/grammar_adjectives.png',
                               color: const Color(0xFF118AB2),
                               topic: 'adjectives',
                             ),
@@ -182,7 +182,7 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
                               context: context,
                               title: 'Adverbs',
                               subtitle: 'How & When Words',
-                              icon: '🚀',
+                              icon: 'assets/images/grammar_adverbs.png',
                               color: const Color(0xFFFF9F1C),
                               topic: 'adverbs',
                             ),
@@ -191,7 +191,7 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
                               context: context,
                               title: 'Prepositions',
                               subtitle: 'Position Words',
-                              icon: '📍',
+                              icon: 'assets/images/grammar_prepositions.png',
                               color: const Color(0xFF8338EC),
                               topic: 'prepositions',
                             ),
@@ -200,7 +200,7 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
                               context: context,
                               title: 'Pronouns',
                               subtitle: 'Replacement Words',
-                              icon: '👤',
+                              icon: 'assets/images/grammar_pronouns.png',
                               color: const Color(0xFFFF006E),
                               topic: 'pronouns',
                             ),
@@ -289,7 +289,7 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -383,7 +383,17 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(icon, style: const TextStyle(fontSize: 32)),
+            icon.endsWith('.png')
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(
+                      icon, 
+                      width: 48, 
+                      height: 48, 
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Text(icon, style: const TextStyle(fontSize: 32)),
             const SizedBox(height: 8),
             FittedBox(
               fit: BoxFit.scaleDown,
