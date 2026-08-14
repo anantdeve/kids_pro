@@ -46,7 +46,7 @@ class HomeHeader extends ConsumerWidget {
                       ],
                     ),
                     child: ClipOval(
-                      child: user.avatarPath != null
+                      child: (user.avatarPath != null && File(user.avatarPath!).existsSync())
                           ? Image.file(File(user.avatarPath!), fit: BoxFit.cover)
                           : Image.asset('assets/images/avatar.png', fit: BoxFit.cover),
                     ),

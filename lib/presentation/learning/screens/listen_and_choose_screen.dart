@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:math';
 import '../widgets/success_overlay.dart';
 import '../widgets/failure_overlay.dart';
-import '../../../core/providers/user_provider.dart';
+import '../providers/listen_and_choose_provider.dart';
 import '../services/learning_tts_service.dart';
 
 class ListenAndChooseScreen extends ConsumerStatefulWidget {
@@ -15,87 +14,18 @@ class ListenAndChooseScreen extends ConsumerStatefulWidget {
 }
 
 class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
-  final List<Map<String, String>> _wordsAndPictures = [
-    {'word': 'APPLE', 'picture': '🍎'},
-    {'word': 'BANANA', 'picture': '🍌'},
-    {'word': 'CAT', 'picture': '🐱'},
-    {'word': 'DOG', 'picture': '🐶'},
-    {'word': 'ELEPHANT', 'picture': '🐘'},
-    {'word': 'FROG', 'picture': '🐸'},
-    {'word': 'GRAPES', 'picture': '🍇'},
-    {'word': 'HOUSE', 'picture': '🏠'},
-    {'word': 'SUN', 'picture': '☀️'},
-    {'word': 'CAR', 'picture': '🚗'},
-    {'word': 'BIRD', 'picture': '🐦'},
-    {'word': 'TREE', 'picture': '🌳'},
-    {'word': 'FISH', 'picture': '🐟'},
-  ];
-
-  late String _correctWord;
-  late List<Map<String, String>> _options;
-  bool _isSuccess = false;
-  bool _isFailure = false;
-  final Map<String, bool> _attemptedOptions = {};
-
   @override
   void initState() {
     super.initState();
     // Use addPostFrameCallback to play sound after build
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _generateLevel();
+      ref.read(listenAndChooseProvider.notifier).generateLevel();
     });
-  }
-
-  void _generateLevel() {
-    final random = Random();
-    
-    // Pick correct word object
-    final correctItem = _wordsAndPictures[random.nextInt(_wordsAndPictures.length)];
-    _correctWord = correctItem['word']!;
-
-    // Pick 3 wrong words
-    final otherItems = _wordsAndPictures.where((item) => item['word'] != _correctWord).toList();
-    otherItems.shuffle(random);
-    final incorrectOptions = otherItems.take(3).toList();
-
-    _options = [...incorrectOptions, correctItem];
-    _options.shuffle(random);
-
-    setState(() {
-      _isSuccess = false;
-      _isFailure = false;
-      _attemptedOptions.clear();
-    });
-
-    _playAudio();
-  }
-
-  void _playAudio() {
-    // Just the word, with a period at the end to help the TTS engine articulate it as a complete thought.
-    ref.read(learningTtsServiceProvider.notifier).playInstruction('${_correctWord.toLowerCase()}.');
-  }
-
-  void _onOptionSelected(String selectedWord) {
-    if (_isSuccess || _isFailure) return;
-
-    if (selectedWord == _correctWord) {
-      setState(() {
-        _isSuccess = true;
-        _attemptedOptions[selectedWord] = true;
-      });
-      ref.read(userProvider.notifier).addPoints('Learning', 20);
-    } else {
-      setState(() {
-        _isFailure = true;
-        _attemptedOptions[selectedWord] = false;
-      });
-      // Play a bump or 'try again' sound (could use TTS for try again)
-      ref.read(learningTtsServiceProvider.notifier).playInstruction('Try again');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(listenAndChooseProvider);
     final ttsState = ref.watch(learningTtsServiceProvider);
     
     return Scaffold(
@@ -114,7 +44,7 @@ class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
                       children: [
                         // Play Audio Button
                         GestureDetector(
-                          onTap: _playAudio,
+                          onTap: () => ref.read(listenAndChooseProvider.notifier).playAudioAgain(),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.all(40),
@@ -160,11 +90,11 @@ class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
                             mainAxisSpacing: 16,
                             physics: const NeverScrollableScrollPhysics(),
                             childAspectRatio: 1.2,
-                            children: _options.map((item) {
+                            children: state.options.map((item) {
                               Color borderColor = Colors.transparent;
                               double borderWidth = 0.0;
-                              if (_attemptedOptions.containsKey(item['word']!)) {
-                                borderColor = _attemptedOptions[item['word']!]! ? Colors.green : Colors.red;
+                              if (state.attemptedOptions.containsKey(item['word']!)) {
+                                borderColor = state.attemptedOptions[item['word']!]! ? Colors.green : Colors.red;
                                 borderWidth = 4.0;
                               }
 
@@ -178,7 +108,7 @@ class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
                                     side: BorderSide(color: borderColor, width: borderWidth),
                                   ),
                                 ),
-                                onPressed: () => _onOptionSelected(item['word']!),
+                                onPressed: () => ref.read(listenAndChooseProvider.notifier).onOptionSelected(item['word']!),
                                 child: FittedBox(
                                   fit: BoxFit.scaleDown,
                                   child: Text(
@@ -202,19 +132,15 @@ class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
           
           // Success Overlay
           SuccessOverlay(
-            isVisible: _isSuccess,
+            isVisible: state.isSuccess,
             lottieUrl: 'https://assets9.lottiefiles.com/packages/lf20_obhph3sh.json',
-            onFinished: _generateLevel,
+            onFinished: () => ref.read(listenAndChooseProvider.notifier).generateLevel(),
           ),
           
           // Failure Overlay
           FailureOverlay(
-            isVisible: _isFailure,
-            onFinished: () {
-              setState(() {
-                _isFailure = false;
-              });
-            },
+            isVisible: state.isFailure,
+            onFinished: () => ref.read(listenAndChooseProvider.notifier).resetFailure(),
           ),
         ],
       ),
