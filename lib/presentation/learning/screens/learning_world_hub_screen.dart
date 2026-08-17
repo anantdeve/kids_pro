@@ -15,7 +15,7 @@ class LearningWorldHubScreen extends StatelessWidget {
       LearningHubCard(
         title: 'Maths fun',
         subtitle: 'Fun math games and puzzles!',
-        titleEmoji: '🔢',
+        titleEmoji: '',
         imagePath: 'assets/images/number_magic.png', // reusing an existing asset
         fallbackIcon: Icons.calculate_rounded,
         titleColor: const Color(0xFFF06292), // Pink
@@ -40,7 +40,7 @@ class LearningWorldHubScreen extends StatelessWidget {
       LearningHubCard(
         title: 'Alphabet Fun',
         subtitle: 'Discover letters and surprises!',
-        titleEmoji: '🎁',
+        titleEmoji: '',
         imagePath: 'assets/images/alphabet_fun.png',
         fallbackIcon: Icons.abc_rounded,
         titleColor: const Color(0xFFFF7B9C), // Pink
@@ -49,7 +49,7 @@ class LearningWorldHubScreen extends StatelessWidget {
       LearningHubCard(
         title: 'Word Match',
         subtitle: 'Match words to pictures!',
-        titleEmoji: '🧩',
+        titleEmoji: '',
         imagePath: 'assets/images/word_matching.png',
         fallbackIcon: Icons.image_search_rounded,
         titleColor: const Color(0xFF8C52FF), // Purple
@@ -58,7 +58,7 @@ class LearningWorldHubScreen extends StatelessWidget {
       LearningHubCard(
         title: 'Listen & Choose',
         subtitle: 'Hear the word, find the match!',
-        titleEmoji: '👂',
+        titleEmoji: '',
         imagePath: 'assets/images/listen_and_choose.png',
         fallbackIcon: Icons.hearing_rounded,
         titleColor: const Color(0xFFFF914D), // Orange
@@ -67,7 +67,7 @@ class LearningWorldHubScreen extends StatelessWidget {
       LearningHubCard(
         title: 'Word Builder',
         subtitle: 'Drag letters to build words!',
-        titleEmoji: '🏗️',
+        titleEmoji: '',
         imagePath: 'assets/images/alphabet_fun.png',
         fallbackIcon: Icons.extension_rounded,
         titleColor: const Color(0xFF00BF63), // Green
@@ -76,7 +76,7 @@ class LearningWorldHubScreen extends StatelessWidget {
       LearningHubCard(
         title: 'Learn Grammar',
         subtitle: 'Master words and sentences!',
-        titleEmoji: '📝',
+        titleEmoji: '',
         imagePath: 'assets/images/grammar.png',
         fallbackIcon: Icons.menu_book_rounded,
         titleColor: const Color(0xFFFF66B2), // Bright Pink
