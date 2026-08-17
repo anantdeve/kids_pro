@@ -5,12 +5,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/providers/user_provider.dart';
-import '../../../core/providers/child_standard_provider.dart';
 import '../../../core/providers/theme_provider.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/navigation_provider.dart';
 import '../../../data/models/user_model.dart';
-import '../../../domain/entities/child_standard.dart';
 import '../../../core/providers/settings_provider.dart';
 import 'dart:math';
 
@@ -43,12 +41,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final userState = ref.watch(userProvider);
-    final standardAsync = ref.watch(childStandardProvider);
-    final standard = standardAsync.value ?? ChildStandard.standard1;
-    
-    String standardName = 'Standard 1';
-    if (standard == ChildStandard.standard2) standardName = 'Standard 2';
-    if (standard == ChildStandard.standard3) standardName = 'Standard 3';
 
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.white : Theme.of(context).scaffoldBackgroundColor,
@@ -74,36 +66,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         const SizedBox(height: 32),
                         _buildStatsRow(user),
                         const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () => context.push('/standard-selection'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF4CAF50),
-                              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                              elevation: 4,
-                              shadowColor: const Color(0xFF4CAF50).withValues(alpha: 0.4),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.school_rounded, color: Colors.white),
-                                const SizedBox(width: 8),
-                                Flexible(
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      'Level: $standardName',
-                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
@@ -511,6 +473,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         builder: (context, ref, child) {
           final settingsState = ref.watch(settingsProvider);
           final isSoundsEnabled = settingsState.value?.magicalSoundsEnabled ?? true;
+          final isBgmEnabled = settingsState.value?.backgroundMusicEnabled ?? true;
 
           return Container(
             decoration: BoxDecoration(
@@ -542,6 +505,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ref.read(settingsProvider.notifier).toggleMagicalSounds();
                         },
                         activeThumbColor: AppColors.primaryPink,
+                      ),
+                    ),
+                    const Divider(height: 1, indent: 24, endIndent: 24, color: Color(0xFFF3F4F6)),
+                    _buildSettingsTile(
+                      'Background Music', 
+                      Icons.music_note_rounded, 
+                      AppColors.primaryGreen,
+                      trailing: Switch(
+                        value: isBgmEnabled,
+                        onChanged: (val) {
+                          ref.read(settingsProvider.notifier).toggleBackgroundMusic();
+                        },
+                        activeThumbColor: AppColors.primaryGreen,
                       ),
                     ),
                     const Divider(height: 1, indent: 24, endIndent: 24, color: Color(0xFFF3F4F6)),

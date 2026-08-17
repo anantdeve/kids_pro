@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../../../core/providers/user_provider.dart';
 import 'dart:math' as math;
 
@@ -25,10 +26,16 @@ class _MagicPotionsScreenState extends ConsumerState<MagicPotionsScreen> with Ti
   late AnimationController _shakeController;
 
   bool _isHovering = false;
+  final AudioPlayer _bgmPlayer = AudioPlayer();
 
   @override
   void initState() {
     super.initState();
+    
+    // Start background music
+    _bgmPlayer.setReleaseMode(ReleaseMode.loop);
+    _bgmPlayer.play(AssetSource('audio/Sounds/feature bk sound.mp3'));
+
     _confettiController = ConfettiController(duration: const Duration(milliseconds: 1500));
     
     // Continuous bubbling effect
@@ -66,6 +73,7 @@ class _MagicPotionsScreenState extends ConsumerState<MagicPotionsScreen> with Ti
     _bubbleController.dispose();
     _smokeController.dispose();
     _shakeController.dispose();
+    _bgmPlayer.dispose();
     super.dispose();
   }
 

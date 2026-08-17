@@ -80,6 +80,7 @@ flutter:
   assets:
     - assets/images/
     - assets/audio/drums/
+    - assets/audio/Sounds/
     - assets/audio/xylophone/
     - assets/piano/
 

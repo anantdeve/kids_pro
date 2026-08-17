@@ -6,6 +6,7 @@ import '../widgets/success_overlay.dart';
 import '../services/learning_tts_service.dart';
 import '../widgets/tts_animated_speaker.dart';
 import 'package:lottie/lottie.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class ColorQuestScreen extends ConsumerStatefulWidget {
   const ColorQuestScreen({super.key});
@@ -17,6 +18,7 @@ class ColorQuestScreen extends ConsumerStatefulWidget {
 class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with TickerProviderStateMixin {
   late final LearningTtsNotifier _ttsNotifier;
   bool _isMuted = false;
+  final AudioPlayer _bgmPlayer = AudioPlayer();
   final List<GameColor> allColors = [
     GameColor(name: 'YELLOW', color: const Color(0xFFFFD166)),
     GameColor(name: 'PINK', color: const Color(0xFFFF7B9C)),
@@ -58,7 +60,7 @@ class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with Ticker
       CurvedAnimation(parent: _floatController, curve: Curves.easeInOut),
     );
     
-    _generateNewLevel();
+    _generateNewLevel(isFirstLoad: true);
   }
 
   @override
@@ -66,10 +68,11 @@ class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with Ticker
     _shakeController.dispose();
     _floatController.dispose();
     _ttsNotifier.stop();
+    _bgmPlayer.dispose();
     super.dispose();
   }
 
-  void _generateNewLevel() {
+  void _generateNewLevel({bool isFirstLoad = false}) {
     setState(() {
       // Pick a new color that is not the same as the last one
       final availableColors = allColors.where((c) => c.name != _lastTargetColor?.name).toList();
@@ -85,8 +88,20 @@ class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with Ticker
     });
     
     // Automatically speak the target color when a new level is generated
-    if (!_isMuted) {
-      ref.read(learningTtsServiceProvider.notifier).playInstruction('Tap the ${targetColor.name.toLowerCase()}');
+    if (isFirstLoad) {
+      Future.microtask(() async {
+        if (!_isMuted && mounted) {
+          await ref.read(learningTtsServiceProvider.notifier).playInstruction('Tap the ${targetColor.name.toLowerCase()}');
+        }
+        if (mounted) {
+          _bgmPlayer.setReleaseMode(ReleaseMode.loop);
+          _bgmPlayer.play(AssetSource('audio/Sounds/feature bk sound.mp3'));
+        }
+      });
+    } else {
+      if (!_isMuted) {
+        ref.read(learningTtsServiceProvider.notifier).playInstruction('Tap the ${targetColor.name.toLowerCase()}');
+      }
     }
   }
 
@@ -161,20 +176,14 @@ class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with Ticker
           }),
 
           SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // Header
-                        Padding(
+            child: Column(
+              children: [
+                // Header
+                Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                           child: Row(
                             children: [
+                              // Left: Back Button
                               Container(
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).cardTheme.color ?? Colors.white,
@@ -192,81 +201,91 @@ class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with Ticker
                                   icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87),
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              
+                              // Center: Title
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        'COLOR QUEST',
-                                        maxLines: 1,
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w900,
-                                          color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF4A4A4A),
-                                          letterSpacing: -0.5,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                child: Text(
+                                  'COLOR QUEST',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w900,
+                                    color: Theme.of(context).textTheme.displayLarge?.color ?? const Color(0xFF4A4A4A),
+                                    letterSpacing: -0.5,
+                                  ),
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFD166),
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFFFFD166).withValues(alpha: 0.4),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.star_rounded, color: Colors.white, size: 24),
-                                    const SizedBox(width: 4),
-                                    AnimatedSwitcher(
-                                      duration: const Duration(milliseconds: 300),
-                                      transitionBuilder: (Widget child, Animation<double> animation) {
-                                        return ScaleTransition(scale: animation, child: child);
-                                      },
-                                      child: Text(
-                                        '$_points',
-                                        key: ValueKey<int>(_points),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
+
+                              // Right: Points and TTS
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFD166),
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(0xFFFFD166).withValues(alpha: 0.4),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 4),
                                         ),
-                                      ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              TtsAnimatedSpeaker(
-                                isMuted: _isMuted,
-                                onTap: () {
-                                  setState(() {
-                                    _isMuted = !_isMuted;
-                                    if (_isMuted) {
-                                      ref.read(learningTtsServiceProvider.notifier).stop();
-                                    }
-                                  });
-                                },
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.star_rounded, color: Colors.white, size: 24),
+                                        const SizedBox(width: 4),
+                                        AnimatedSwitcher(
+                                          duration: const Duration(milliseconds: 300),
+                                          transitionBuilder: (Widget child, Animation<double> animation) {
+                                            return ScaleTransition(scale: animation, child: child);
+                                          },
+                                          child: Text(
+                                            '$_points',
+                                            key: ValueKey<int>(_points),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  TtsAnimatedSpeaker(
+                                    isMuted: _isMuted,
+                                    onTap: () {
+                                      setState(() {
+                                        _isMuted = !_isMuted;
+                                        if (_isMuted) {
+                                          ref.read(learningTtsServiceProvider.notifier).stop();
+                                        }
+                                      });
+                                    },
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
 
-                        // Target Card
+                        // Rest of the content (Scrollable)
+                        Expanded(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              return SingleChildScrollView(
+                                physics: const BouncingScrollPhysics(),
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      // Target Card
                         AnimatedBuilder(
                           animation: _floatAnimation,
                           builder: (context, child) {
@@ -398,14 +417,17 @@ class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with Ticker
                             ),
                           ),
                         ),
-                      ],
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-          ),
-          SuccessOverlay(
+                  SuccessOverlay(
             isVisible: _isSuccess,
             onFinished: () {
               setState(() {

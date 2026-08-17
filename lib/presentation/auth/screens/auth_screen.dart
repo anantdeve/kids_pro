@@ -75,15 +75,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
       }
       
       if (mounted) {
-        final prefs = await SharedPreferences.getInstance();
-        final hasStandard = prefs.containsKey('child_standard_selection');
-        if (mounted) {
-          if (hasStandard) {
-            context.go('/home');
-          } else {
-            context.go('/standard-selection');
-          }
-        }
+        context.go('/home');
       }
     } catch (e) {
       if (mounted) {
@@ -119,15 +111,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
       }
       
       if (success && mounted) {
-        final prefs = await SharedPreferences.getInstance();
-        final hasStandard = prefs.containsKey('child_standard_selection');
-        if (mounted) {
-          if (hasStandard) {
-            context.go('/home');
-          } else {
-            context.go('/standard-selection');
-          }
-        }
+        context.go('/home');
       }
     } catch (e) {
       if (mounted) {

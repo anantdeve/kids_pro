@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../widgets/success_overlay.dart';
 import '../services/learning_tts_service.dart';
 import '../widgets/tts_animated_speaker.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 
 class ColorMatchScreen extends ConsumerStatefulWidget {
@@ -18,6 +19,7 @@ class _ColorMatchScreenState extends ConsumerState<ColorMatchScreen> {
   late final LearningTtsNotifier _ttsNotifier;
   bool _isSuccess = false;
   bool _isMuted = false;
+  final AudioPlayer _bgmPlayer = AudioPlayer();
 
   
   final Map<String, List<String>> emojiPool = {
@@ -59,6 +61,17 @@ class _ColorMatchScreenState extends ConsumerState<ColorMatchScreen> {
     super.initState();
     _ttsNotifier = ref.read(learningTtsServiceProvider.notifier);
     _setupGame();
+    
+    // Play intro voice immediately
+    Future.microtask(() async {
+      if (!_isMuted && mounted) {
+        await _ttsNotifier.playFeedback('Color Match');
+      }
+      if (mounted) {
+        _bgmPlayer.setReleaseMode(ReleaseMode.loop);
+        _bgmPlayer.play(AssetSource('audio/Sounds/feature bk sound.mp3'));
+      }
+    });
   }
 
   void _setupGame() {
@@ -97,6 +110,7 @@ class _ColorMatchScreenState extends ConsumerState<ColorMatchScreen> {
   @override
   void dispose() {
     _ttsNotifier.stop();
+    _bgmPlayer.dispose();
     super.dispose();
   }
 

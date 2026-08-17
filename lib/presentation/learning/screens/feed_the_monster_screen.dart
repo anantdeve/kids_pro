@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../../../core/providers/user_provider.dart';
+import '../services/learning_tts_service.dart';
 import 'dart:math' as math;
 
 class FeedTheMonsterScreen extends ConsumerStatefulWidget {
@@ -25,14 +27,23 @@ class _FeedTheMonsterScreenState extends ConsumerState<FeedTheMonsterScreen> wit
   late AnimationController _shakeController;
   late AnimationController _blinkController;
   late AnimationController _eyeMovementController;
+  
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  final AudioPlayer _bgmPlayer = AudioPlayer();
 
   bool _isMouthOpen = false;
+  bool _isSmiling = false;
   double _eyeOffsetX = 0;
   double _eyeOffsetY = 0;
 
   @override
   void initState() {
     super.initState();
+    
+    // Start background music
+    _bgmPlayer.setReleaseMode(ReleaseMode.loop);
+    _bgmPlayer.play(AssetSource('audio/Sounds/feature bk sound.mp3'));
+
     _confettiController = ConfettiController(duration: const Duration(seconds: 2));
     
     // Shake Animation (Wrong Answer)
@@ -72,6 +83,8 @@ class _FeedTheMonsterScreenState extends ConsumerState<FeedTheMonsterScreen> wit
     _shakeController.dispose();
     _blinkController.dispose();
     _eyeMovementController.dispose();
+    _audioPlayer.dispose();
+    _bgmPlayer.dispose();
     super.dispose();
   }
 
@@ -191,10 +204,12 @@ class _FeedTheMonsterScreenState extends ConsumerState<FeedTheMonsterScreen> wit
                           if (details.data == correctAnswer) {
                             setState(() {
                               _isMouthOpen = false;
+                              _isSmiling = true;
                               _droppedAnswer = details.data;
                               options.remove(details.data);
                             });
                             _confettiController.play();
+                            _audioPlayer.play(AssetSource('audio/Sounds/mixkit-fairy-arcade-sparkle-866.wav'));
                             ref.read(userProvider.notifier).addPoints('FeedMonster', 10);
                             // Next level
                             Future.delayed(const Duration(seconds: 2), () {
@@ -203,6 +218,7 @@ class _FeedTheMonsterScreenState extends ConsumerState<FeedTheMonsterScreen> wit
                                   num1 = math.Random().nextInt(5) + 1;
                                   num2 = math.Random().nextInt(5) + 1;
                                   _droppedAnswer = null;
+                                  _isSmiling = false;
                                   options = [correctAnswer - 1, correctAnswer, correctAnswer + 1];
                                   if (options.contains(0)) {
                                     options = [1, 2, 3];
@@ -283,19 +299,42 @@ class _FeedTheMonsterScreenState extends ConsumerState<FeedTheMonsterScreen> wit
       builder: (context, scale, child) {
         return Transform.scale(scale: scale, child: child);
       },
-      child: Container(
-        width: 200,
-        height: 220,
-        decoration: BoxDecoration(
-          color: const Color(0xFF4FACFE), // Blue monster
-          borderRadius: BorderRadius.circular(100),
-          boxShadow: [
-            BoxShadow(color: const Color(0xFF4FACFE).withValues(alpha: 0.5), blurRadius: 20, offset: const Offset(0, 10)),
-          ],
-        ),
-        child: Stack(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOutCubic,
+        transform: Matrix4.translationValues(0, _isSmiling ? -20 : 0, 0),
+        child: Container(
+          width: 200,
+          height: 220,
+          decoration: BoxDecoration(
+            color: const Color(0xFF4FACFE), // Blue monster
+            borderRadius: BorderRadius.circular(100),
+            boxShadow: [
+              BoxShadow(color: const Color(0xFF4FACFE).withValues(alpha: 0.5), blurRadius: 20, offset: const Offset(0, 10)),
+            ],
+          ),
+          child: Stack(
           alignment: Alignment.center,
           children: [
+            // Cheeks (visible when smiling)
+            AnimatedOpacity(
+              duration: const Duration(milliseconds: 300),
+              opacity: _isSmiling ? 1.0 : 0.0,
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 80,
+                    left: 25,
+                    child: Container(width: 25, height: 15, decoration: BoxDecoration(color: Colors.pink.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(20))),
+                  ),
+                  Positioned(
+                    top: 80,
+                    right: 25,
+                    child: Container(width: 25, height: 15, decoration: BoxDecoration(color: Colors.pink.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(20))),
+                  ),
+                ],
+              ),
+            ),
             // Eyes
             Positioned(
               top: 50,
@@ -310,41 +349,67 @@ class _FeedTheMonsterScreenState extends ConsumerState<FeedTheMonsterScreen> wit
             ),
             // Mouth
             Positioned(
-              bottom: 40,
+              bottom: _isSmiling ? 45 : 40,
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOutBack,
-                width: _isMouthOpen ? 120 : 80,
-                height: _isMouthOpen ? 80 : 20,
+                duration: const Duration(milliseconds: 600),
+                curve: Curves.elasticOut,
+                width: _isMouthOpen ? 120 : (_isSmiling ? 100 : 80),
+                height: _isMouthOpen ? 80 : (_isSmiling ? 40 : 20),
+                clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
                   color: const Color(0xFF2D3142), // Dark mouth interior
-                  borderRadius: BorderRadius.circular(_isMouthOpen ? 40 : 10),
+                  borderRadius: _isSmiling 
+                      ? const BorderRadius.vertical(bottom: Radius.circular(40), top: Radius.circular(10))
+                      : BorderRadius.circular(_isMouthOpen ? 40 : 10),
                 ),
                 child: _isMouthOpen
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Teeth top
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: List.generate(4, (index) => _buildTooth(isTop: true)),
-                          ),
-                          // Tongue
-                          Container(
-                            width: 60,
-                            height: 20,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFFF7B9C),
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                    ? OverflowBox(
+                        minHeight: 80,
+                        maxHeight: 80,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Teeth top
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: List.generate(4, (index) => _buildTooth(isTop: true)),
                             ),
-                          ),
-                        ],
+                            // Tongue
+                            Container(
+                              width: 60,
+                              height: 20,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFFF7B9C),
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                              ),
+                            ),
+                          ],
+                        ),
                       )
-                    : null, // Closed mouth
+                    : _isSmiling
+                        ? OverflowBox(
+                            minHeight: 40,
+                            maxHeight: 40,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                              Container(
+                                width: 50,
+                                height: 15,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFF7B9C),
+                                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : null, // Closed mouth
               ),
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -368,26 +433,31 @@ class _FeedTheMonsterScreenState extends ConsumerState<FeedTheMonsterScreen> wit
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Transform.translate(
-                  offset: Offset(_eyeOffsetX, _eyeOffsetY),
-                  child: Container(
-                    width: 15,
-                    height: 15,
-                    decoration: const BoxDecoration(
-                      color: Colors.black,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Container(
-                        margin: const EdgeInsets.all(2),
-                        width: 5,
-                        height: 5,
-                        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                child: _isSmiling
+                    ? const Padding(
+                        padding: EdgeInsets.only(top: 8.0),
+                        child: Icon(Icons.keyboard_arrow_up_rounded, color: Colors.black, size: 36),
+                      )
+                    : Transform.translate(
+                        offset: Offset(_eyeOffsetX, _eyeOffsetY),
+                        child: Container(
+                          width: 15,
+                          height: 15,
+                          decoration: const BoxDecoration(
+                            color: Colors.black,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Container(
+                              margin: const EdgeInsets.all(2),
+                              width: 5,
+                              height: 5,
+                              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
               ),
             ),
           ),

@@ -60,17 +60,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     Future.delayed(const Duration(milliseconds: 4500), () async {
       if (!mounted) return;
       
-      final prefs = await SharedPreferences.getInstance();
-      final hasStandard = prefs.containsKey('child_standard_selection');
       final currentUser = FirebaseAuth.instance.currentUser;
       
       if (mounted) {
         if (currentUser == null) {
           context.go('/auth');
-        } else if (hasStandard) {
-          context.go('/home');
         } else {
-          context.go('/standard-selection');
+          context.go('/home');
         }
       }
     });

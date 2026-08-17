@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/theme_provider.dart';
+import 'core/providers/background_music_provider.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -46,6 +47,7 @@ class TinyLearnersApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
+    ref.watch(backgroundMusicProvider); // Initialize and keep background music alive
 
     return MaterialApp.router(
       title: 'Learners',

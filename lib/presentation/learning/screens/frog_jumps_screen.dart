@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:confetti/confetti.dart';
 import '../../../core/providers/user_provider.dart';
 import 'dart:math' as math;
 
@@ -22,11 +24,18 @@ class _FrogJumpsScreenState extends ConsumerState<FrogJumpsScreen> with TickerPr
   late AnimationController _jumpController;
   late AnimationController _rippleController;
   late AnimationController _rainbowController;
+  late ConfettiController _confettiController;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  final AudioPlayer _bgmPlayer = AudioPlayer();
 
   @override
   void initState() {
     super.initState();
     currentNum = startNum;
+
+    // Start background music
+    _bgmPlayer.setReleaseMode(ReleaseMode.loop);
+    _bgmPlayer.play(AssetSource('audio/Sounds/feature bk sound.mp3'));
 
     // Jump Animation (Squash and Stretch + Parabola)
     _jumpController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
@@ -36,6 +45,9 @@ class _FrogJumpsScreenState extends ConsumerState<FrogJumpsScreen> with TickerPr
 
     // Rainbow Animation
     _rainbowController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    
+    // Confetti Controller
+    _confettiController = ConfettiController(duration: const Duration(seconds: 2));
   }
 
   @override
@@ -43,6 +55,9 @@ class _FrogJumpsScreenState extends ConsumerState<FrogJumpsScreen> with TickerPr
     _jumpController.dispose();
     _rippleController.dispose();
     _rainbowController.dispose();
+    _confettiController.dispose();
+    _audioPlayer.dispose();
+    _bgmPlayer.dispose();
     super.dispose();
   }
 
@@ -64,6 +79,8 @@ class _FrogJumpsScreenState extends ConsumerState<FrogJumpsScreen> with TickerPr
   void _showWinState() {
     setState(() => _showRainbow = true);
     _rainbowController.forward(from: 0.0);
+    _confettiController.play();
+    _audioPlayer.play(AssetSource('audio/Sounds/mixkit-fairy-arcade-sparkle-866.wav'));
     ref.read(userProvider.notifier).addPoints('FrogJumps', 20);
     
     Future.delayed(const Duration(seconds: 3), () {
@@ -308,6 +325,17 @@ class _FrogJumpsScreenState extends ConsumerState<FrogJumpsScreen> with TickerPr
                 ),
                 const SizedBox(height: 40),
               ],
+            ),
+          ),
+          
+          // Confetti
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirectionality: BlastDirectionality.explosive,
+              shouldLoop: false,
+              colors: const [Colors.green, Colors.blue, Colors.pink, Colors.orange, Colors.purple],
             ),
           ),
         ],

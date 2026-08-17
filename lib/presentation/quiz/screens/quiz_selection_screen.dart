@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/providers/child_standard_provider.dart';
 import '../../../core/providers/user_provider.dart';
-import '../../../domain/entities/child_standard.dart';
 import '../../../data/repositories/local_quiz_repository.dart';
 
 class QuizSelectionScreen extends ConsumerWidget {
@@ -11,39 +9,24 @@ class QuizSelectionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final standardAsync = ref.watch(childStandardProvider);
-    final standard = standardAsync.value ?? ChildStandard.standard1;
-    
     final userAsync = ref.watch(userProvider);
     final currentPoints = userAsync.value?.featurePoints['Quiz'] ?? 0;
 
-    List<Map<String, dynamic>> categories = [];
-    if (standard == ChildStandard.standard1) {
-      categories = [
-        {'id': LocalQuizRepository.catAnimals, 'name': 'Animals', 'emoji': '🐶', 'requiredPoints': 0, 'level': 1, 'color': const Color(0xFF4FC3F7)},
-        {'id': LocalQuizRepository.catShapesColors, 'name': 'Shapes & Colors', 'emoji': '🔴', 'requiredPoints': 100, 'level': 2, 'color': const Color(0xFF4DB6AC)},
-        {'id': LocalQuizRepository.catFruitsVeggies, 'name': 'Fruits & Veggies', 'emoji': '🍎', 'requiredPoints': 200, 'level': 3, 'color': const Color(0xFF9575CD)},
-        {'id': LocalQuizRepository.catToys, 'name': 'Toys & Play', 'emoji': '🧸', 'requiredPoints': 400, 'level': 4, 'color': const Color(0xFFFFB74D)},
-        {'id': LocalQuizRepository.catFarmFriends, 'name': 'Farm Friends', 'emoji': '🐄', 'requiredPoints': 600, 'level': 5, 'color': const Color(0xFF81C784)},
-        {'id': 9, 'name': 'MCQ', 'emoji': '🧠', 'requiredPoints': 800, 'level': 6, 'color': const Color(0xFFF06292), 'isApi': true},
-      ];
-    } else if (standard == ChildStandard.standard2) {
-      categories = [
-        {'id': LocalQuizRepository.catAnimals, 'name': 'Animals', 'emoji': '🦁', 'requiredPoints': 0, 'level': 1, 'color': const Color(0xFF4FC3F7)},
-        {'id': LocalQuizRepository.catVehicles, 'name': 'Vehicles', 'emoji': '🚗', 'requiredPoints': 100, 'level': 2, 'color': const Color(0xFF4DB6AC)},
-        {'id': LocalQuizRepository.catEverydayObjects, 'name': 'Everyday Objects', 'emoji': '⏰', 'requiredPoints': 200, 'level': 3, 'color': const Color(0xFF9575CD)},
-        {'id': LocalQuizRepository.catWeather, 'name': 'Weather', 'emoji': '🌦️', 'requiredPoints': 400, 'level': 4, 'color': const Color(0xFFFFB74D)},
-        {'id': LocalQuizRepository.catDinosaurs, 'name': 'Dinosaurs', 'emoji': '🦖', 'requiredPoints': 600, 'level': 5, 'color': const Color(0xFF81C784)},
-      ];
-    } else {
-      categories = [
-        {'id': LocalQuizRepository.catVehicles, 'name': 'Vehicles', 'emoji': '🚀', 'requiredPoints': 0, 'level': 1, 'color': const Color(0xFF4FC3F7)},
-        {'id': LocalQuizRepository.catEverydayObjects, 'name': 'Everyday Objects', 'emoji': '🎸', 'requiredPoints': 100, 'level': 2, 'color': const Color(0xFF4DB6AC)},
-        {'id': LocalQuizRepository.catPlanetsSpace, 'name': 'Planets & Space', 'emoji': '🪐', 'requiredPoints': 200, 'level': 3, 'color': const Color(0xFF9575CD)},
-        {'id': LocalQuizRepository.catOccupations, 'name': 'Occupations', 'emoji': '👨‍⚕️', 'requiredPoints': 400, 'level': 4, 'color': const Color(0xFFFFB74D)},
-        {'id': LocalQuizRepository.catHealthyFoods, 'name': 'Healthy Foods', 'emoji': '🥗', 'requiredPoints': 600, 'level': 5, 'color': const Color(0xFF81C784)},
-      ];
-    }
+    final List<Map<String, dynamic>> categories = [
+      {'id': LocalQuizRepository.catAnimals, 'name': 'Animals', 'emoji': '🐶', 'requiredPoints': 0, 'level': 1, 'color': const Color(0xFF4FC3F7)},
+      {'id': LocalQuizRepository.catShapesColors, 'name': 'Shapes & Colors', 'emoji': '🔴', 'requiredPoints': 100, 'level': 2, 'color': const Color(0xFF4DB6AC)},
+      {'id': LocalQuizRepository.catFruitsVeggies, 'name': 'Fruits & Veggies', 'emoji': '🍎', 'requiredPoints': 200, 'level': 3, 'color': const Color(0xFF9575CD)},
+      {'id': LocalQuizRepository.catToys, 'name': 'Toys & Play', 'emoji': '🧸', 'requiredPoints': 400, 'level': 4, 'color': const Color(0xFFFFB74D)},
+      {'id': LocalQuizRepository.catFarmFriends, 'name': 'Farm Friends', 'emoji': '🐄', 'requiredPoints': 600, 'level': 5, 'color': const Color(0xFF81C784)},
+      {'id': LocalQuizRepository.catVehicles, 'name': 'Vehicles', 'emoji': '🚗', 'requiredPoints': 800, 'level': 6, 'color': const Color(0xFF4FC3F7)},
+      {'id': LocalQuizRepository.catEverydayObjects, 'name': 'Everyday Objects', 'emoji': '⏰', 'requiredPoints': 1000, 'level': 7, 'color': const Color(0xFF9575CD)},
+      {'id': LocalQuizRepository.catWeather, 'name': 'Weather', 'emoji': '🌦️', 'requiredPoints': 1200, 'level': 8, 'color': const Color(0xFFFFB74D)},
+      {'id': LocalQuizRepository.catDinosaurs, 'name': 'Dinosaurs', 'emoji': '🦖', 'requiredPoints': 1400, 'level': 9, 'color': const Color(0xFF81C784)},
+      {'id': LocalQuizRepository.catPlanetsSpace, 'name': 'Planets & Space', 'emoji': '🪐', 'requiredPoints': 1600, 'level': 10, 'color': const Color(0xFF9575CD)},
+      {'id': LocalQuizRepository.catOccupations, 'name': 'Occupations', 'emoji': '👨‍⚕️', 'requiredPoints': 1800, 'level': 11, 'color': const Color(0xFFFFB74D)},
+      {'id': LocalQuizRepository.catHealthyFoods, 'name': 'Healthy Foods', 'emoji': '🥗', 'requiredPoints': 2000, 'level': 12, 'color': const Color(0xFF81C784)},
+      {'id': 9, 'name': 'MCQ', 'emoji': '🧠', 'requiredPoints': 2200, 'level': 13, 'color': const Color(0xFFF06292), 'isApi': true},
+    ];
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
