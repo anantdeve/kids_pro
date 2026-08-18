@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'dart:math';
 import '../widgets/success_overlay.dart';
 import '../services/learning_tts_service.dart';
@@ -8,7 +9,8 @@ import '../widgets/tts_animated_speaker.dart';
 import '../../../core/providers/user_provider.dart';
 
 class NumberMatchingGameScreen extends ConsumerStatefulWidget {
-  const NumberMatchingGameScreen({super.key});
+  final String bgmPath;
+  const NumberMatchingGameScreen({super.key, this.bgmPath = 'audio/Sounds/feature bk sound.mp3'});
 
   @override
   ConsumerState<NumberMatchingGameScreen> createState() => _NumberMatchingGameScreenState();
@@ -16,6 +18,7 @@ class NumberMatchingGameScreen extends ConsumerStatefulWidget {
 
 class _NumberMatchingGameScreenState extends ConsumerState<NumberMatchingGameScreen> {
   late final LearningTtsNotifier _ttsNotifier;
+  final AudioPlayer _bgmPlayer = AudioPlayer();
   bool _isMuted = false;
   bool _isFirstLoad = true;
   final Random random = Random();
@@ -37,11 +40,18 @@ class _NumberMatchingGameScreenState extends ConsumerState<NumberMatchingGameScr
   void initState() {
     super.initState();
     _ttsNotifier = ref.read(learningTtsServiceProvider.notifier);
+    _initBgm();
     _generateLevel();
+  }
+
+  Future<void> _initBgm() async {
+    _bgmPlayer.setReleaseMode(ReleaseMode.loop);
+    await _bgmPlayer.play(AssetSource(widget.bgmPath));
   }
 
   @override
   void dispose() {
+    _bgmPlayer.dispose();
     _ttsNotifier.stop();
     super.dispose();
   }
@@ -116,6 +126,9 @@ class _NumberMatchingGameScreenState extends ConsumerState<NumberMatchingGameScr
                             _isMuted = !_isMuted;
                             if (_isMuted) {
                               _ttsNotifier.stop();
+                              _bgmPlayer.pause();
+                            } else {
+                              _bgmPlayer.resume();
                             }
                           });
                         },

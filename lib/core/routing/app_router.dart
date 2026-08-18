@@ -76,23 +76,38 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/number-matching-game',
-      builder: (context, state) => const NumberMatchingGameScreen(),
+      builder: (context, state) {
+        final bgmPath = state.uri.queryParameters['bgmPath'] ?? 'audio/Sounds/feature bk sound.mp3';
+        return NumberMatchingGameScreen(bgmPath: bgmPath);
+      },
     ),
     GoRoute(
       path: '/count-and-tap-game',
-      builder: (context, state) => const CountAndTapGameScreen(),
+      builder: (context, state) {
+        final bgmPath = state.uri.queryParameters['bgmPath'] ?? 'audio/Sounds/feature bk sound.mp3';
+        return CountAndTapGameScreen(bgmPath: bgmPath);
+      },
     ),
     GoRoute(
       path: '/missing-number-game',
-      builder: (context, state) => const MissingNumberGameScreen(),
+      builder: (context, state) {
+        final bgmPath = state.uri.queryParameters['bgmPath'] ?? 'audio/Sounds/feature bk sound.mp3';
+        return MissingNumberGameScreen(bgmPath: bgmPath);
+      },
     ),
     GoRoute(
       path: '/number-puzzle-game',
-      builder: (context, state) => const NumberPuzzleGameScreen(),
+      builder: (context, state) {
+        final bgmPath = state.uri.queryParameters['bgmPath'] ?? 'audio/Sounds/feature bk sound.mp3';
+        return NumberPuzzleGameScreen(bgmPath: bgmPath);
+      },
     ),
     GoRoute(
       path: '/look-and-match-game',
-      builder: (context, state) => const LookAndMatchGameScreen(),
+      builder: (context, state) {
+        final bgmPath = state.uri.queryParameters['bgmPath'] ?? 'audio/Sounds/feature bk sound.mp3';
+        return LookAndMatchGameScreen(bgmPath: bgmPath);
+      },
     ),
     GoRoute(
       path: '/color-match',

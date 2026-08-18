@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'dart:ui';
 import 'dart:math';
 import '../widgets/success_overlay.dart';
@@ -10,7 +11,8 @@ import '../services/learning_tts_service.dart';
 import '../widgets/tts_animated_speaker.dart';
 
 class LookAndMatchGameScreen extends ConsumerStatefulWidget {
-  const LookAndMatchGameScreen({super.key});
+  final String bgmPath;
+  const LookAndMatchGameScreen({super.key, this.bgmPath = 'audio/Sounds/feature bk sound.mp3'});
 
   @override
   ConsumerState<LookAndMatchGameScreen> createState() => _LookAndMatchGameScreenState();
@@ -18,6 +20,7 @@ class LookAndMatchGameScreen extends ConsumerStatefulWidget {
 
 class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen> {
   late final LearningTtsNotifier _ttsNotifier;
+  final AudioPlayer _bgmPlayer = AudioPlayer();
   bool _isMuted = false;
   bool _isFirstLoad = true;
   late List<MatchItem> leftItems;
@@ -48,7 +51,13 @@ class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen>
   void initState() {
     super.initState();
     _ttsNotifier = ref.read(learningTtsServiceProvider.notifier);
+    _initBgm();
     _generateLevel();
+  }
+
+  Future<void> _initBgm() async {
+    _bgmPlayer.setReleaseMode(ReleaseMode.loop);
+    await _bgmPlayer.play(AssetSource(widget.bgmPath));
   }
 
   void _generateLevel() {
@@ -92,6 +101,7 @@ class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen>
 
   @override
   void dispose() {
+    _bgmPlayer.dispose();
     _ttsNotifier.stop();
     super.dispose();
   }
@@ -298,6 +308,9 @@ class _LookAndMatchGameScreenState extends ConsumerState<LookAndMatchGameScreen>
                 _isMuted = !_isMuted;
                 if (_isMuted) {
                   _ttsNotifier.stop();
+                  _bgmPlayer.pause();
+                } else {
+                  _bgmPlayer.resume();
                 }
               });
             },

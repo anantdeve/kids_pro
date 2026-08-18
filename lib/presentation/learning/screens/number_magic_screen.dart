@@ -113,35 +113,35 @@ class NumberMagicScreen extends StatelessWidget {
                           subtitle: 'Match numbers to sets of objects!',
                           imagePath: 'assets/images/number_matching.png',
                           themeColor: const Color(0xFF67E1F5), // Blue
-                          onTap: () => context.push('/number-matching-game'),
+                          onTap: () => context.push(Uri(path: '/number-matching-game', queryParameters: {'bgmPath': 'audio/Sounds/feature bk sound.mp3'}).toString()),
                         ),
                         ColorActivityCard(
                           title: 'Count and Tap',
                           subtitle: 'Tap the correct number of stars!',
                           imagePath: 'assets/images/count_and_tap.png',
                           themeColor: const Color(0xFFFF7B9C), // Pink
-                          onTap: () => context.push('/count-and-tap-game'),
+                          onTap: () => context.push(Uri(path: '/count-and-tap-game', queryParameters: {'bgmPath': 'audio/Sounds/background_music.mp3'}).toString()),
                         ),
                         ColorActivityCard(
                           title: 'Missing Number',
                           subtitle: 'Find the hidden number in the line!',
                           imagePath: 'assets/images/missing_number.png',
                           themeColor: const Color(0xFFB497FF), // Purple
-                          onTap: () => context.push('/missing-number-game'),
+                          onTap: () => context.push(Uri(path: '/missing-number-game', queryParameters: {'bgmPath': 'audio/Sounds/feature bk sound.mp3'}).toString()),
                         ),
                         ColorActivityCard(
                           title: 'Number Puzzle',
                           subtitle: 'Build the numbers piece by piece!',
                           imagePath: 'assets/images/number_puzzle.png',
                           themeColor: const Color(0xFF5CD6A1), // Green
-                          onTap: () => context.push('/number-puzzle-game'),
+                          onTap: () => context.push(Uri(path: '/number-puzzle-game', queryParameters: {'bgmPath': 'audio/Sounds/background_music.mp3'}).toString()),
                         ),
                         ColorActivityCard(
                           title: 'Look and Match',
                           subtitle: 'Match the numbers to their names!',
                           imagePath: 'assets/images/look_and_match.png',
                           themeColor: const Color(0xFFFF8B66), // Orange
-                          onTap: () => context.push('/look-and-match-game'),
+                          onTap: () => context.push(Uri(path: '/look-and-match-game', queryParameters: {'bgmPath': 'audio/Sounds/feature bk sound.mp3'}).toString()),
                         ),
                       ];
 

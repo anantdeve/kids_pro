@@ -57,6 +57,10 @@ class BackgroundMusicController {
   }
 
   Future<void> _init() async {
+    await AudioPlayer.global.setAudioContext(AudioContextConfig(
+      respectSilence: false,
+      focus: AudioContextConfigFocus.mixWithOthers,
+    ).build());
     await _audioPlayer.setReleaseMode(ReleaseMode.loop);
     
     // Listen to changes in settings

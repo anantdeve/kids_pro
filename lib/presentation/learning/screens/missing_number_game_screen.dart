@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'dart:math';
 import '../services/learning_tts_service.dart';
 import '../widgets/tts_animated_speaker.dart';
@@ -8,7 +9,8 @@ import '../widgets/success_overlay.dart';
 import '../../../core/providers/user_provider.dart';
 
 class MissingNumberGameScreen extends ConsumerStatefulWidget {
-  const MissingNumberGameScreen({super.key});
+  final String bgmPath;
+  const MissingNumberGameScreen({super.key, this.bgmPath = 'audio/Sounds/feature bk sound.mp3'});
 
   @override
   ConsumerState<MissingNumberGameScreen> createState() => _MissingNumberGameScreenState();
@@ -16,6 +18,7 @@ class MissingNumberGameScreen extends ConsumerStatefulWidget {
 
 class _MissingNumberGameScreenState extends ConsumerState<MissingNumberGameScreen> {
   late final LearningTtsNotifier _ttsNotifier;
+  final AudioPlayer _bgmPlayer = AudioPlayer();
   bool _isMuted = false;
   bool _isFirstLoad = true;
   final Random random = Random();
@@ -30,11 +33,18 @@ class _MissingNumberGameScreenState extends ConsumerState<MissingNumberGameScree
   void initState() {
     super.initState();
     _ttsNotifier = ref.read(learningTtsServiceProvider.notifier);
+    _initBgm();
     _generateLevel();
+  }
+
+  Future<void> _initBgm() async {
+    _bgmPlayer.setReleaseMode(ReleaseMode.loop);
+    await _bgmPlayer.play(AssetSource(widget.bgmPath));
   }
 
   @override
   void dispose() {
+    _bgmPlayer.dispose();
     _ttsNotifier.stop();
     super.dispose();
   }
@@ -150,6 +160,9 @@ class _MissingNumberGameScreenState extends ConsumerState<MissingNumberGameScree
                             _isMuted = !_isMuted;
                             if (_isMuted) {
                               _ttsNotifier.stop();
+                              _bgmPlayer.pause();
+                            } else {
+                              _bgmPlayer.resume();
                             }
                           });
                         },

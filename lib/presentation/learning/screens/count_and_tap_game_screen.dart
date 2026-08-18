@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'dart:math';
 import '../widgets/success_overlay.dart';
 import '../services/learning_tts_service.dart';
@@ -27,7 +28,8 @@ class GameObject {
 }
 
 class CountAndTapGameScreen extends ConsumerStatefulWidget {
-  const CountAndTapGameScreen({super.key});
+  final String bgmPath;
+  const CountAndTapGameScreen({super.key, this.bgmPath = 'audio/Sounds/feature bk sound.mp3'});
 
   @override
   ConsumerState<CountAndTapGameScreen> createState() => _CountAndTapGameScreenState();
@@ -35,6 +37,7 @@ class CountAndTapGameScreen extends ConsumerStatefulWidget {
 
 class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> with TickerProviderStateMixin {
   late final LearningTtsNotifier _ttsNotifier;
+  final AudioPlayer _bgmPlayer = AudioPlayer();
   bool _isMuted = false;
   bool _isFirstLoad = true;
   final Random random = Random();
@@ -63,11 +66,18 @@ class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> w
   void initState() {
     super.initState();
     _ttsNotifier = ref.read(learningTtsServiceProvider.notifier);
+    _initBgm();
     _generateLevel();
+  }
+
+  Future<void> _initBgm() async {
+    _bgmPlayer.setReleaseMode(ReleaseMode.loop);
+    await _bgmPlayer.play(AssetSource(widget.bgmPath));
   }
 
   @override
   void dispose() {
+    _bgmPlayer.dispose();
     _ttsNotifier.stop();
     super.dispose();
   }
@@ -283,6 +293,9 @@ class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> w
                 _isMuted = !_isMuted;
                 if (_isMuted) {
                   _ttsNotifier.stop();
+                  _bgmPlayer.pause();
+                } else {
+                  _bgmPlayer.resume();
                 }
               });
             },
