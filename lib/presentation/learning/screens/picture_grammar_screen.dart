@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
@@ -187,7 +188,7 @@ class _PictureGrammarScreenState extends ConsumerState<PictureGrammarScreen> wit
                         ),
                         child: IconButton(
                           icon: const Icon(Icons.arrow_back_rounded, color: Colors.black87),
-                          onPressed: () => context.pop(),
+                          onPressed: () => context.popWithSound(),
                         ),
                       ),
                       const Expanded(

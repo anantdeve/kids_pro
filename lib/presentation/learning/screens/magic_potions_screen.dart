@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -110,7 +111,7 @@ class _MagicPotionsScreenState extends ConsumerState<MagicPotionsScreen> with Ti
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 32),
-                        onPressed: () => context.pop(),
+                        onPressed: () => context.popWithSound(),
                       ),
                       const Expanded(
                         child: Text(

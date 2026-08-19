@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -114,7 +115,7 @@ class _NumberMatchingGameScreenState extends ConsumerState<NumberMatchingGameScr
                           ],
                         ),
                         child: IconButton(
-                          onPressed: () => context.pop(),
+                          onPressed: () => context.popWithSound(),
                           icon: const Icon(Icons.arrow_back, color: Colors.black87),
                         ),
                       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/providers/user_provider.dart';
@@ -145,7 +146,7 @@ class _ApiQuizScreenState extends ConsumerState<ApiQuizScreen> {
                 setState(() {
                   _isSuccess = false;
                 });
-                context.pop();
+                context.popWithSound();
               }
             },
           ),
@@ -160,7 +161,7 @@ class _ApiQuizScreenState extends ConsumerState<ApiQuizScreen> {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => context.pop(),
+            onTap: () => context.popWithSound(),
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(

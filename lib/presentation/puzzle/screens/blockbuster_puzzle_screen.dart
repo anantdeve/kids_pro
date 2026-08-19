@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import '../../../core/widgets/magical_blob.dart';
 import 'dart:math';
 import '../../learning/widgets/success_overlay.dart';
@@ -219,7 +220,7 @@ class _BlockBusterPuzzleScreenState extends State<BlockBusterPuzzleScreen> with 
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Navigator.pop(context),
+            onTap: () => context.popWithSound(),
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(

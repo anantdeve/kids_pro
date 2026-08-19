@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
 import '../../learning/widgets/success_overlay.dart';
@@ -96,7 +97,7 @@ class _ShadowMatcherScreenState extends State<ShadowMatcherScreen> {
       child: Row(
         children: [
           IconButton(
-            onPressed: () => context.pop(),
+            onPressed: () => context.popWithSound(),
             icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF2D3142), size: 32),
           ),
           Expanded(

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -566,7 +567,7 @@ class _AsmrColoringScreenState extends ConsumerState<AsmrColoringScreen> with Si
       child: Row(
         children: [
           IconButton(
-            onPressed: () => context.pop(),
+            onPressed: () => context.popWithSound(),
             icon: const Icon(Icons.arrow_back, size: 28, color: Color(0xFF2D3436)),
             style: IconButton.styleFrom(
               backgroundColor: Colors.white,

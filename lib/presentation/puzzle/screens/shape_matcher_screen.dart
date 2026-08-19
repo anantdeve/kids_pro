@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:math';
@@ -242,7 +243,7 @@ class _ShapeMatcherScreenState extends ConsumerState<ShapeMatcherScreen> with Ti
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Navigator.pop(context),
+            onTap: () => context.popWithSound(),
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(color: Theme.of(context).cardTheme.color ?? Colors.white, shape: BoxShape.circle),

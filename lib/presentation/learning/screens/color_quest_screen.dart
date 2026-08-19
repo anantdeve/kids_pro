@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
@@ -197,7 +198,7 @@ class _ColorQuestScreenState extends ConsumerState<ColorQuestScreen> with Ticker
                                   ],
                                 ),
                                 child: IconButton(
-                                  onPressed: () => context.pop(),
+                                  onPressed: () => context.popWithSound(),
                                   icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87),
                                 ),
                               ),

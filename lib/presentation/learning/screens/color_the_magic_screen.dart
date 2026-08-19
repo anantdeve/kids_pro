@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -305,7 +306,7 @@ class _ColorTheMagicScreenState extends ConsumerState<ColorTheMagicScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
                       ),
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        context.popWithSound();
                         _generateNewObject();
                       },
                       icon: const Icon(Icons.play_arrow_rounded, size: 30),
@@ -333,11 +334,11 @@ class _ColorTheMagicScreenState extends ConsumerState<ColorTheMagicScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () => context.popWithSound(false),
             child: const Text('Cancel', style: TextStyle(color: Colors.grey, fontSize: 16)),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () => context.popWithSound(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFFF8B66),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -427,7 +428,7 @@ class _ColorTheMagicScreenState extends ConsumerState<ColorTheMagicScreen> {
                           ],
                         ),
                         child: IconButton(
-                          onPressed: () => context.pop(),
+                          onPressed: () => context.popWithSound(),
                           icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87),
                         ),
                       ),

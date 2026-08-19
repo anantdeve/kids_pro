@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import '../../music/widgets/music_activity_card.dart';
 import 'jigsaw_puzzle_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -117,7 +118,7 @@ class _AnimalJigsawListScreenState extends State<AnimalJigsawListScreen> {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Navigator.pop(context),
+            onTap: () => context.popWithSound(),
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(color: Theme.of(context).cardTheme.color ?? Colors.white, shape: BoxShape.circle),

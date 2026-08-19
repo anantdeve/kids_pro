@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -198,7 +199,7 @@ class _NumberPuzzleGameScreenState extends ConsumerState<NumberPuzzleGameScreen>
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => context.pop(),
+            onTap: () => context.popWithSound(),
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(

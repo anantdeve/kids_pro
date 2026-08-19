@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,7 +26,7 @@ class SavedArtGalleryScreen extends ConsumerWidget {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: AppColors.pinkPrimary),
-          onPressed: () => context.pop(),
+          onPressed: () => context.popWithSound(),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,

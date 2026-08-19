@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
@@ -167,7 +168,7 @@ class _MagicStorySelectionScreenState extends State<MagicStorySelectionScreen> {
       child: Row(
         children: [
           IconButton(
-            onPressed: () => context.pop(),
+            onPressed: () => context.popWithSound(),
             icon: const Icon(Icons.arrow_back, size: 24),
             style: IconButton.styleFrom(
               backgroundColor: const Color(0xFFFFE8E0),
@@ -340,7 +341,7 @@ class StoryReaderScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => context.popWithSound(),
                       icon: const Icon(Icons.close, size: 28),
                       style: IconButton.styleFrom(
                         backgroundColor: const Color(0xFFFFE8E0),

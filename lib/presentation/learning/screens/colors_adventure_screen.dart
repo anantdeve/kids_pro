@@ -1,9 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:go_router/go_router.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../widgets/color_activity_card.dart';
 
-class ColorsAdventureScreen extends StatelessWidget {
+class ColorsAdventureScreen extends StatefulWidget {
   const ColorsAdventureScreen({super.key});
+
+  @override
+  State<ColorsAdventureScreen> createState() => _ColorsAdventureScreenState();
+}
+
+class _ColorsAdventureScreenState extends State<ColorsAdventureScreen> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  void _playPopSound() {
+    _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +87,7 @@ class ColorsAdventureScreen extends StatelessWidget {
                           ],
                         ),
                         child: IconButton(
-                          onPressed: () => context.pop(),
+                          onPressed: () => context.popWithSound(),
                           icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87, size: 24),
                           constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                         ),
@@ -115,21 +134,30 @@ class ColorsAdventureScreen extends StatelessWidget {
                           subtitle: 'Match colors to objects!',
                           imagePath: 'assets/images/draw_and_match.png',
                           themeColor: const Color(0xFFFF8B66), // Salmon/Orange
-                          onTap: () => context.push('/color-match'),
+                          onTap: () {
+                            _playPopSound();
+                            context.push('/color-match');
+                          },
                         ),
                         ColorActivityCard(
                           title: 'Tap the Color',
                           subtitle: 'Can you find the right color?',
                           imagePath: 'assets/images/tap_the_color.png',
                           themeColor: const Color(0xFF67E1F5), // Blue
-                          onTap: () => context.push('/color-quest'),
+                          onTap: () {
+                            _playPopSound();
+                            context.push('/color-quest');
+                          },
                         ),
                         ColorActivityCard(
                           title: 'Color the Object',
                           subtitle: 'Paint the world with colors!',
                           imagePath: 'assets/images/color_the_object.png',
                           themeColor: const Color(0xFF5CD6A1), // Green
-                          onTap: () => context.push('/color-the-magic'),
+                          onTap: () {
+                            _playPopSound();
+                            context.push('/color-the-magic');
+                          },
                         ),
                       ];
 

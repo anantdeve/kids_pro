@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'dart:math' as math;
 import '../../../core/providers/user_provider.dart';
 
@@ -13,6 +15,12 @@ class GrammarHubScreen extends ConsumerStatefulWidget {
 
 class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with SingleTickerProviderStateMixin {
   late AnimationController _backgroundController;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  void _playFeatureSound() {
+    _audioPlayer.setReleaseMode(ReleaseMode.loop);
+    _audioPlayer.play(AssetSource('audio/Sounds/feature bk sound.mp3'));
+  }
 
   @override
   void initState() {
@@ -26,6 +34,7 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
   @override
   void dispose() {
     _backgroundController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -284,7 +293,7 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
 
   Widget _buildBackButton(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.pop(),
+      onTap: () => context.popWithSound(),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -347,8 +356,10 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
         title: title,
         icon: icon,
         colors: colors,
-        onTap: () {
-          context.push(route);
+        onTap: () async {
+          _playFeatureSound();
+          await context.push(route);
+          _audioPlayer.stop();
         },
       ),
     );
@@ -363,7 +374,11 @@ class _GrammarHubScreenState extends ConsumerState<GrammarHubScreen> with Single
     required String topic,
   }) {
     return GestureDetector(
-      onTap: () => context.push('/grammar-basics/$topic'),
+      onTap: () async {
+        _playFeatureSound();
+        await context.push('/grammar-basics/$topic');
+        _audioPlayer.stop();
+      },
       child: Container(
         width: 150, // slightly wider
         decoration: BoxDecoration(

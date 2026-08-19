@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -428,7 +429,7 @@ class _TangleMasterScreenState extends State<TangleMasterScreen> with SingleTick
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () => context.pop(),
+            onTap: () => context.popWithSound(),
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(

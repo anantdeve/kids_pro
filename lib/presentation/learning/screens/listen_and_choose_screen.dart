@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/success_overlay.dart';
@@ -155,7 +156,7 @@ class _ListenAndChooseScreenState extends ConsumerState<ListenAndChooseScreen> {
           GestureDetector(
             onTap: () {
               ref.read(learningTtsServiceProvider.notifier).stop();
-              context.pop();
+              context.popWithSound();
             },
             child: Container(
               padding: const EdgeInsets.all(10),

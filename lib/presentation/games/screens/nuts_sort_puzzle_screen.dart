@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'dart:math';
@@ -310,7 +311,7 @@ class _NutsSortPuzzleScreenState extends ConsumerState<NutsSortPuzzleScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF3E2723)),
-          onPressed: () => context.pop(),
+          onPressed: () => context.popWithSound(),
         ),
         title: Text(
           'Level $level',

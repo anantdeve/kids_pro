@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -491,7 +492,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     Text('MAGIC SETTINGS', style: TextStyle(color: Theme.of(context).textTheme.displayLarge?.color, fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 1)),
                     const SizedBox(height: 24),
                     _buildSettingsTile('Change Explorer Name', Icons.edit_rounded, AppColors.orangePrimary, onTap: () {
-                      Navigator.pop(context);
+                      context.popWithSound();
                       _showEditNameDialog(user.name);
                     }),
                     const Divider(height: 1, indent: 24, endIndent: 24, color: Color(0xFFF3F4F6)),
@@ -522,12 +523,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ),
                     const Divider(height: 1, indent: 24, endIndent: 24, color: Color(0xFFF3F4F6)),
                     _buildSettingsTile('Parental Control', Icons.lock_rounded, AppColors.primaryBlue, onTap: () {
-                      Navigator.pop(context);
+                      context.popWithSound();
                       _showMathGate();
                     }),
                     const Divider(height: 1, indent: 24, endIndent: 24, color: Color(0xFFF3F4F6)),
                     _buildSettingsTile('Delete Profile', Icons.delete_forever_rounded, Colors.red, onTap: () {
-                      Navigator.pop(context);
+                      context.popWithSound();
                       _showDeleteProfileDialog();
                     }),
                     const SizedBox(height: 20),
@@ -598,17 +599,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
         actionsPadding: const EdgeInsets.only(right: 20, bottom: 20),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Color(0xFF7F8B9C), fontWeight: FontWeight.w800))),
+          TextButton(onPressed: () => context.popWithSound(), child: const Text('CANCEL', style: TextStyle(color: Color(0xFF7F8B9C), fontWeight: FontWeight.w800))),
           ElevatedButton(
             onPressed: () {
               if (controller.text == correctAnswer.toString()) {
-                Navigator.pop(context);
+                context.popWithSound();
                 _showParentalControls();
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Incorrect answer. Please try again.', style: TextStyle(fontWeight: FontWeight.bold)), backgroundColor: Colors.red),
                 );
-                Navigator.pop(context);
+                context.popWithSound();
               }
             },
             style: ElevatedButton.styleFrom(
@@ -693,7 +694,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     child: const Icon(Icons.photo_library_rounded, color: AppColors.primaryBlue),
                   ),
                   title: Text('From Gallery', style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.w800, fontSize: 16)),
-                  onTap: () { Navigator.pop(context); _pickImage(ImageSource.gallery); },
+                  onTap: () { context.popWithSound(); _pickImage(ImageSource.gallery); },
                 ),
                 const SizedBox(height: 10),
                 ListTile(
@@ -704,7 +705,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     child: const Icon(Icons.camera_alt_rounded, color: AppColors.primaryGreen),
                   ),
                   title: Text('From Camera', style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.w800, fontSize: 16)),
-                  onTap: () { Navigator.pop(context); _pickImage(ImageSource.camera); },
+                  onTap: () { context.popWithSound(); _pickImage(ImageSource.camera); },
                 ),
                 const SizedBox(height: 30),
               ],
@@ -736,12 +737,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
         actionsPadding: const EdgeInsets.only(right: 20, bottom: 20),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Color(0xFF7F8B9C), fontWeight: FontWeight.w800))),
+          TextButton(onPressed: () => context.popWithSound(), child: const Text('CANCEL', style: TextStyle(color: Color(0xFF7F8B9C), fontWeight: FontWeight.w800))),
           ElevatedButton(
             onPressed: () {
               if (controller.text.isNotEmpty) {
                 ref.read(userProvider.notifier).updateName(controller.text);
-                Navigator.pop(context);
+                context.popWithSound();
               }
             },
             style: ElevatedButton.styleFrom(
@@ -770,11 +771,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
         actionsPadding: const EdgeInsets.only(right: 20, bottom: 20),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Color(0xFF7F8B9C), fontWeight: FontWeight.w800))),
+          TextButton(onPressed: () => context.popWithSound(), child: const Text('CANCEL', style: TextStyle(color: Color(0xFF7F8B9C), fontWeight: FontWeight.w800))),
           ElevatedButton(
             onPressed: () {
               ref.read(userProvider.notifier).resetProfile();
-              Navigator.pop(context);
+              context.popWithSound();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Profile reset successfully.', style: TextStyle(fontWeight: FontWeight.bold)), backgroundColor: Colors.red),
               );

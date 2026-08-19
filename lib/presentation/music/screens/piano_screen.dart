@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -203,7 +204,7 @@ class _PianoScreenState extends ConsumerState<PianoScreen> {
                             DeviceOrientation.portraitUp,
                             DeviceOrientation.portraitDown,
                           ]);
-                          Navigator.pop(context);
+                          context.popWithSound();
                         },
                         child: Container(
                           padding: const EdgeInsets.all(10),

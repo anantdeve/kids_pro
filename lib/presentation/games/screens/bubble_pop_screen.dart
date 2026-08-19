@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'dart:math';
@@ -174,7 +175,7 @@ class _BubblePopScreenState extends State<BubblePopScreen> with TickerProviderSt
       child: Row(
         children: [
           IconButton(
-            onPressed: () => context.pop(),
+            onPressed: () => context.popWithSound(),
             icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF2D3142), size: 32),
           ),
           const Expanded(

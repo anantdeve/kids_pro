@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
 import 'dart:math' as math;
@@ -149,8 +150,8 @@ class _BalloonPopMathScreenState extends State<BalloonPopMathScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              context.pop(); // close dialog
-              context.pop(); // close screen
+              context.popWithSound(); // close dialog
+              context.popWithSound(); // close screen
             },
             child: const Text('Back to Hub', style: TextStyle(fontSize: 18, color: Colors.grey)),
           ),
@@ -160,7 +161,7 @@ class _BalloonPopMathScreenState extends State<BalloonPopMathScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
             onPressed: () {
-              context.pop();
+              context.popWithSound();
               setState(() {
                 score = 0;
                 timeLeft = 60;
@@ -237,7 +238,7 @@ class _BalloonPopMathScreenState extends State<BalloonPopMathScreen> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 32),
-                        onPressed: () => context.pop(),
+                        onPressed: () => context.popWithSound(),
                       ),
                       
                       // Timer

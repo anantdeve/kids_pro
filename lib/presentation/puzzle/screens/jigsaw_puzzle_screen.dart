@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -215,8 +216,8 @@ class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                       ),
                       onPressed: () {
-                        Navigator.of(context).pop(); // close dialog
-                        Navigator.of(context).pop(); // go back to list
+                        context.popWithSound(); // close dialog
+                        context.popWithSound(); // go back to list
                       },
                       icon: const Icon(Icons.play_arrow_rounded, size: 30),
                       label: const Text(
@@ -415,7 +416,7 @@ class _JigsawPuzzleScreenState extends ConsumerState<JigsawPuzzleScreen> {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Navigator.pop(context),
+            onTap: () => context.popWithSound(),
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),

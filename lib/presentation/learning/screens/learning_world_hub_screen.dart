@@ -1,10 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:go_router/go_router.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../widgets/learning_hub_card.dart';
 import '../../../core/widgets/custom_banner_ad.dart';
 
-class LearningWorldHubScreen extends StatelessWidget {
+class LearningWorldHubScreen extends StatefulWidget {
   const LearningWorldHubScreen({super.key});
+
+  @override
+  State<LearningWorldHubScreen> createState() => _LearningWorldHubScreenState();
+}
+
+class _LearningWorldHubScreenState extends State<LearningWorldHubScreen> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  void _playPopSound() {
+    _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +38,10 @@ class LearningWorldHubScreen extends StatelessWidget {
         imagePath: 'assets/images/number_magic.png', // reusing an existing asset
         fallbackIcon: Icons.calculate_rounded,
         titleColor: const Color(0xFFF06292), // Pink
-        onTap: () => context.push('/arithmetic-hub'),
+        onTap: () {
+          _playPopSound();
+          context.push('/arithmetic-hub');
+        },
       ),
       LearningHubCard(
         title: 'Colors Adventure',
@@ -27,7 +49,10 @@ class LearningWorldHubScreen extends StatelessWidget {
         imagePath: 'assets/images/colors_adventure.png',
         fallbackIcon: Icons.palette_rounded,
         titleColor: const Color(0xFFFF8B66), // Salmon
-        onTap: () => context.push('/colors-adventure'),
+        onTap: () {
+          _playPopSound();
+          context.push('/colors-adventure');
+        },
       ),
       LearningHubCard(
         title: 'Number Magic',
@@ -35,7 +60,10 @@ class LearningWorldHubScreen extends StatelessWidget {
         imagePath: 'assets/images/number_magic.png',
         fallbackIcon: Icons.calculate_rounded,
         titleColor: const Color(0xFF4ECDC4), // Teal
-        onTap: () => context.push('/number-magic'),
+        onTap: () {
+          _playPopSound();
+          context.push('/number-magic');
+        },
       ),
       LearningHubCard(
         title: 'Alphabet Fun',
@@ -44,7 +72,10 @@ class LearningWorldHubScreen extends StatelessWidget {
         imagePath: 'assets/images/alphabet_fun.png',
         fallbackIcon: Icons.abc_rounded,
         titleColor: const Color(0xFFFF7B9C), // Pink
-        onTap: () => context.push('/alphabet-surprise'),
+        onTap: () {
+          _playPopSound();
+          context.push('/alphabet-surprise');
+        },
       ),
       LearningHubCard(
         title: 'Word Match',
@@ -53,7 +84,10 @@ class LearningWorldHubScreen extends StatelessWidget {
         imagePath: 'assets/images/word_matching.png',
         fallbackIcon: Icons.image_search_rounded,
         titleColor: const Color(0xFF8C52FF), // Purple
-        onTap: () => context.push('/match-word'),
+        onTap: () {
+          _playPopSound();
+          context.push('/match-word');
+        },
       ),
       LearningHubCard(
         title: 'Listen & Choose',
@@ -62,7 +96,10 @@ class LearningWorldHubScreen extends StatelessWidget {
         imagePath: 'assets/images/listen_and_choose.png',
         fallbackIcon: Icons.hearing_rounded,
         titleColor: const Color(0xFFFF914D), // Orange
-        onTap: () => context.push('/listen-word'),
+        onTap: () {
+          _playPopSound();
+          context.push('/listen-word');
+        },
       ),
       LearningHubCard(
         title: 'Word Builder',
@@ -71,7 +108,10 @@ class LearningWorldHubScreen extends StatelessWidget {
         imagePath: 'assets/images/alphabet_fun.png',
         fallbackIcon: Icons.extension_rounded,
         titleColor: const Color(0xFF00BF63), // Green
-        onTap: () => context.push('/drag-letters'),
+        onTap: () {
+          _playPopSound();
+          context.push('/drag-letters');
+        },
       ),
       LearningHubCard(
         title: 'Learn Grammar',
@@ -80,7 +120,10 @@ class LearningWorldHubScreen extends StatelessWidget {
         imagePath: 'assets/images/grammar.png',
         fallbackIcon: Icons.menu_book_rounded,
         titleColor: const Color(0xFFFF66B2), // Bright Pink
-        onTap: () => context.push('/grammar-hub'),
+        onTap: () {
+          _playPopSound();
+          context.push('/grammar-hub');
+        },
       ),
     ];
 
@@ -130,7 +173,7 @@ class LearningWorldHubScreen extends StatelessWidget {
                           ],
                         ),
                         child: IconButton(
-                          onPressed: () => context.pop(),
+                          onPressed: () => context.popWithSound(),
                           icon: Icon(Icons.arrow_back, color: Theme.of(context).textTheme.displayLarge?.color ?? Colors.black87),
                           iconSize: isTablet ? 28 : 24,
                         ),
