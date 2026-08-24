@@ -69,10 +69,12 @@ class HomeHeader extends ConsumerWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          children: [
+                            Text(
                               'Hi, ${user.name}!',
                               style: TextStyle(
                                 fontSize: isSmallScreen ? 18 : 22, 
@@ -80,13 +82,11 @@ class HomeHeader extends ConsumerWidget {
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: -0.5,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text('👋', style: TextStyle(fontSize: isSmallScreen ? 16 : 20)),
-                        ],
+                            const SizedBox(width: 4),
+                            Text('👋', style: TextStyle(fontSize: isSmallScreen ? 16 : 20)),
+                          ],
+                        ),
                       ),
                     ],
                   ),
