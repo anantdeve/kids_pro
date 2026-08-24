@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
+import 'package:audioplayers/audioplayers.dart';
 import '../../learning/widgets/success_overlay.dart';
 
 class ShadowMatcherScreen extends StatefulWidget {
@@ -18,6 +19,8 @@ class _ShadowMatcherScreenState extends State<ShadowMatcherScreen> {
   int round = 1;
   final Random random = Random();
   bool _isSuccess = false;
+  final List<AudioPlayer> _audioPlayers = List.generate(4, (_) => AudioPlayer());
+  int _currentPlayerIndex = 0;
 
   final Map<String, List<String>> gameData = {
     'Animals': ['🦊', '🐢', '🐘', '🐨', '🦁', '🦒', '🦓', '🐸', '🐼', '🐯', '🐧', '🦉'],
@@ -30,6 +33,14 @@ class _ShadowMatcherScreenState extends State<ShadowMatcherScreen> {
   void initState() {
     super.initState();
     _startNewGame();
+  }
+
+  @override
+  void dispose() {
+    for (var player in _audioPlayers) {
+      player.dispose();
+    }
+    super.dispose();
   }
 
   void _startNewGame({bool incrementRound = false}) {
@@ -154,6 +165,8 @@ class _ShadowMatcherScreenState extends State<ShadowMatcherScreen> {
           return DragTarget<AnimalItem>(
             onAcceptWithDetails: (details) {
               if (details.data.id == item.id) {
+                _audioPlayers[_currentPlayerIndex].play(AssetSource('audio/Sounds/MatchingSound.mp3'));
+                _currentPlayerIndex = (_currentPlayerIndex + 1) % _audioPlayers.length;
                 setState(() {
                   matches[item.id] = true;
                 });

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'dart:math';
 import '../../learning/widgets/success_overlay.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class BubblePopScreen extends StatefulWidget {
   const BubblePopScreen({super.key});
@@ -13,6 +14,8 @@ class BubblePopScreen extends StatefulWidget {
 }
 
 class _BubblePopScreenState extends State<BubblePopScreen> with TickerProviderStateMixin {
+  final List<AudioPlayer> _audioPlayers = List.generate(5, (_) => AudioPlayer());
+  int _currentPlayerIndex = 0;
   final List<Bubble> bubbles = [];
   int score = 0;
   late Timer spawnTimer;
@@ -106,13 +109,22 @@ class _BubblePopScreenState extends State<BubblePopScreen> with TickerProviderSt
       score++;
       bubbles.removeAt(index);
     });
-    // Add pop effect here if desired
+    
+    try {
+      _audioPlayers[_currentPlayerIndex].play(AssetSource('audio/Sounds/pop click.mp3'));
+      _currentPlayerIndex = (_currentPlayerIndex + 1) % _audioPlayers.length;
+    } catch (e) {
+      debugPrint('Error playing pop sound: $e');
+    }
   }
 
   @override
   void dispose() {
     spawnTimer.cancel();
     updateTimer.cancel();
+    for (var player in _audioPlayers) {
+      player.dispose();
+    }
     super.dispose();
   }
 

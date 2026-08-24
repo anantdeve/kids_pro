@@ -1,10 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:kids_pro/core/utils/navigation_utils.dart';
 import 'package:go_router/go_router.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../../../core/widgets/custom_banner_ad.dart';
 
-class FunGamesHubScreen extends StatelessWidget {
+class FunGamesHubScreen extends StatefulWidget {
   const FunGamesHubScreen({super.key});
+
+  @override
+  State<FunGamesHubScreen> createState() => _FunGamesHubScreenState();
+}
+
+class _FunGamesHubScreenState extends State<FunGamesHubScreen> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  void _playPopSound() {
+    _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +64,10 @@ class FunGamesHubScreen extends StatelessWidget {
                           emoji: '🌟',
                           color: const Color(0xFF64B5F6),
                           imagePath: 'assets/images/memory_match_icon.png',
-                          onTap: () => context.push('/memory-match'),
+                          onTap: () {
+                            _playPopSound();
+                            context.push('/memory-match');
+                          },
                         ),
                         _GameCard(
                           title: 'Bubble Pop',
@@ -54,7 +75,10 @@ class FunGamesHubScreen extends StatelessWidget {
                           emoji: '🫧',
                           color: const Color(0xFFFFB74D),
                           imagePath: 'assets/images/bubble_pop_icon.png',
-                          onTap: () => context.push('/bubble-pop'),
+                          onTap: () {
+                            _playPopSound();
+                            context.push('/bubble-pop');
+                          },
                         ),
                         _GameCard(
                           title: 'Shadow Matcher',
@@ -62,7 +86,10 @@ class FunGamesHubScreen extends StatelessWidget {
                           emoji: '🕵️',
                           color: const Color(0xFFF06292),
                           imagePath: 'assets/images/shadow_matcher_icon.png',
-                          onTap: () => context.push('/shadow-matcher'),
+                          onTap: () {
+                            _playPopSound();
+                            context.push('/shadow-matcher');
+                          },
                         ),
                         _GameCard(
                           title: 'Nuts Sort',
@@ -70,7 +97,10 @@ class FunGamesHubScreen extends StatelessWidget {
                           emoji: '🔩',
                           color: const Color(0xFF8D6E63),
                           imagePath: 'assets/images/nuts_sort_icon.png',
-                          onTap: () => context.push('/nuts-sort'),
+                          onTap: () {
+                            _playPopSound();
+                            context.push('/nuts-sort');
+                          },
                         ),
                         _GameCard(
                           title: 'Tangle Master',
@@ -78,7 +108,10 @@ class FunGamesHubScreen extends StatelessWidget {
                           emoji: '🪢',
                           color: const Color(0xFF4DB6AC),
                           imagePath: 'assets/images/tangle_master_icon.png',
-                          onTap: () => context.push('/tangle-master'),
+                          onTap: () {
+                            _playPopSound();
+                            context.push('/tangle-master');
+                          },
                         ),
                       ];
 
