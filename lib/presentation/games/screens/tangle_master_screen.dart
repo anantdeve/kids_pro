@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class Rope {
   final int id;
@@ -23,6 +24,8 @@ class TangleMasterScreen extends StatefulWidget {
 
 class _TangleMasterScreenState extends State<TangleMasterScreen> with SingleTickerProviderStateMixin {
   late ConfettiController _confettiController;
+  final List<AudioPlayer> _audioPlayers = List.generate(3, (_) => AudioPlayer());
+  int _currentPlayerIndex = 0;
   
   List<Offset> _topSockets = [];
   List<Offset> _bottomAnchors = [];
@@ -51,6 +54,9 @@ class _TangleMasterScreenState extends State<TangleMasterScreen> with SingleTick
 
   @override
   void dispose() {
+    for (var player in _audioPlayers) {
+      player.dispose();
+    }
     _confettiController.dispose();
     super.dispose();
   }
@@ -210,6 +216,12 @@ class _TangleMasterScreenState extends State<TangleMasterScreen> with SingleTick
           _socketOccupants[_draggedSocketIndex!] = null;
           
           HapticFeedback.mediumImpact();
+          try {
+            _audioPlayers[_currentPlayerIndex].play(AssetSource('audio/Sounds/MatchingSound.mp3'));
+            _currentPlayerIndex = (_currentPlayerIndex + 1) % _audioPlayers.length;
+          } catch (e) {
+            debugPrint('Error playing sound: $e');
+          }
         } else {
           // Snap back
           HapticFeedback.lightImpact();
