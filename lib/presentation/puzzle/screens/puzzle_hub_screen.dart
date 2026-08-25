@@ -5,9 +5,23 @@ import 'shape_matcher_screen.dart';
 import 'animal_jigsaw_list_screen.dart';
 import 'blockbuster_puzzle_screen.dart';
 import 'arrow_escape_difficulty_screen.dart';
+import 'package:audioplayers/audioplayers.dart';
 
-class PuzzleHubScreen extends StatelessWidget {
+class PuzzleHubScreen extends StatefulWidget {
   const PuzzleHubScreen({super.key});
+
+  @override
+  State<PuzzleHubScreen> createState() => _PuzzleHubScreenState();
+}
+
+class _PuzzleHubScreenState extends State<PuzzleHubScreen> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +74,7 @@ class PuzzleHubScreen extends StatelessWidget {
                           imagePath: 'assets/images/number_puzzle.png',
                           themeColor: Colors.orangeAccent,
                           onTap: () {
+                            _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const ShapeMatcherScreen()),
@@ -72,6 +87,7 @@ class PuzzleHubScreen extends StatelessWidget {
                           imagePath: 'assets/images/number_puzzle.png',
                           themeColor: Colors.greenAccent,
                           onTap: () {
+                            _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const AnimalJigsawListScreen()),
@@ -84,6 +100,7 @@ class PuzzleHubScreen extends StatelessWidget {
                           imagePath: 'assets/images/number_puzzle.png',
                           themeColor: Colors.blueAccent,
                           onTap: () {
+                            _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const BlockBusterPuzzleScreen()),
@@ -96,6 +113,7 @@ class PuzzleHubScreen extends StatelessWidget {
                           imagePath: 'assets/images/number_puzzle.png',
                           themeColor: Colors.purpleAccent,
                           onTap: () {
+                            _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const ArrowEscapeDifficultyScreen()),

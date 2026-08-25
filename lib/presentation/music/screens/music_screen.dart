@@ -4,9 +4,23 @@ import '../widgets/music_activity_card.dart';
 import 'piano_screen.dart';
 import 'drums_screen.dart';
 import 'xylophone_screen.dart';
+import 'package:audioplayers/audioplayers.dart';
 
-class MusicScreen extends StatelessWidget {
+class MusicScreen extends StatefulWidget {
   const MusicScreen({super.key});
+
+  @override
+  State<MusicScreen> createState() => _MusicScreenState();
+}
+
+class _MusicScreenState extends State<MusicScreen> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +74,7 @@ class MusicScreen extends StatelessWidget {
                           imagePath: 'assets/images/piano.png',
                           themeColor: Colors.lightBlue,
                           onTap: () {
+                            _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const PianoScreen()),
@@ -71,6 +86,7 @@ class MusicScreen extends StatelessWidget {
                           imagePath: 'assets/images/drums.png',
                           themeColor: Colors.lightGreen,
                           onTap: () {
+                            _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const DrumsScreen()),
@@ -82,6 +98,7 @@ class MusicScreen extends StatelessWidget {
                           imagePath: 'assets/images/xylophone.png',
                           themeColor: Colors.pinkAccent,
                           onTap: () {
+                            _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const XylophoneScreen()),

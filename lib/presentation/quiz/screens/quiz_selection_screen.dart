@@ -4,12 +4,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/providers/user_provider.dart';
 import '../../../data/repositories/local_quiz_repository.dart';
+import 'package:audioplayers/audioplayers.dart';
 
-class QuizSelectionScreen extends ConsumerWidget {
+class QuizSelectionScreen extends ConsumerStatefulWidget {
   const QuizSelectionScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<QuizSelectionScreen> createState() => _QuizSelectionScreenState();
+}
+
+class _QuizSelectionScreenState extends ConsumerState<QuizSelectionScreen> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final userAsync = ref.watch(userProvider);
     final currentPoints = userAsync.value?.featurePoints['Quiz'] ?? 0;
 
@@ -86,6 +100,7 @@ class QuizSelectionScreen extends ConsumerWidget {
                             isLocked: isLocked,
                             requiredPoints: cat['requiredPoints'],
                             onTap: () {
+                              _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
                               if (cat['isApi'] == true) {
                                 context.push('/api-quiz?categoryId=${cat['id']}&difficulty=easy');
                               } else {

@@ -1,15 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../widgets/home_header.dart';
 import '../widgets/featured_banner.dart';
 import '../widgets/home_card.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final isTablet = screenWidth > 600;
@@ -32,7 +46,7 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   const FeaturedBanner(),
                   const SizedBox(height: 16),
-                  _buildGrid(context, ref, isTablet, screenWidth),
+                  _buildGrid(context, isTablet, screenWidth),
                   const SizedBox(height: 80), // Padding for Curved Navigation Bar
                 ],
               ),
@@ -43,14 +57,17 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGrid(BuildContext context, WidgetRef ref, bool isTablet, double screenWidth) {
+  Widget _buildGrid(BuildContext context, bool isTablet, double screenWidth) {
     final List<Widget> cards = [
       HomeCard(
         title: 'Learning World',
         subtitle: '',
         imagePath: 'assets/images/learning_world.png',
         shadowColor: const Color(0x2600D4FF),
-        onTap: () => context.push('/learning-hub'),
+        onTap: () {
+          _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
+          context.push('/learning-hub');
+        },
       ),
       HomeCard(
         title: 'Magic Quiz',
@@ -58,6 +75,7 @@ class HomeScreen extends ConsumerWidget {
         imagePath: 'assets/images/magic_quiz.png',
         shadowColor: const Color(0x264CAF50),
         onTap: () {
+          _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
           context.push('/quiz-selection');
         },
       ),
@@ -66,14 +84,20 @@ class HomeScreen extends ConsumerWidget {
         subtitle: '',
         imagePath: 'assets/images/fun_games.png',
         shadowColor: const Color(0x262196F3),
-        onTap: () => context.push('/fun-games'),
+        onTap: () {
+          _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
+          context.push('/fun-games');
+        },
       ),
       HomeCard(
         title: 'Magic Paint',
         subtitle: '',
         imagePath: 'assets/images/magic_paint.png',
         shadowColor: const Color(0x26FF5722),
-        onTap: () => context.push('/magic-paint'),
+        onTap: () {
+          _audioPlayer.play(AssetSource('audio/Sounds/pop click.mp3'));
+          context.push('/magic-paint');
+        },
       ),
     ];
 
