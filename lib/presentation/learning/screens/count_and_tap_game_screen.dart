@@ -158,7 +158,7 @@ class _CountAndTapGameScreenState extends ConsumerState<CountAndTapGameScreen> w
     });
 
     if (!_isMuted && _isFirstLoad) {
-      ref.read(learningTtsServiceProvider.notifier).playInstruction('Tap $targetNumber $targetCategory');
+      ref.read(learningTtsServiceProvider.notifier).playInstruction('Tap $targetNumber ${targetCategory.toLowerCase()}');
       _isFirstLoad = false;
     }
   }
