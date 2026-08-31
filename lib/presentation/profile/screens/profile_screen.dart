@@ -72,11 +72,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           child: ElevatedButton(
                             onPressed: () => context.push('/saved-art'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFF8B66), // Orange
+                              backgroundColor: AppColors.pinkPrimary,
                               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                               elevation: 4,
-                              shadowColor: const Color(0xFFFF8B66).withValues(alpha: 0.4),
+                              shadowColor: AppColors.pinkPrimary.withValues(alpha: 0.4),
                             ),
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -118,21 +118,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ref.read(authControllerProvider.notifier).signOut();
                             },
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Colors.redAccent, width: 2),
+                              side: const BorderSide(color: AppColors.pinkPrimary, width: 2),
                               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                             ),
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.logout_rounded, color: Colors.redAccent),
+                                Icon(Icons.logout_rounded, color: AppColors.pinkPrimary),
                                 SizedBox(width: 8),
                                 Flexible(
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(
                                       'Logout',
-                                      style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16),
+                                      style: TextStyle(color: AppColors.pinkPrimary, fontWeight: FontWeight.bold, fontSize: 16),
                                     ),
                                   ),
                                 ),
@@ -176,13 +176,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         const Spacer(),
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFF79F6F).withValues(alpha: 0.1),
+            color: AppColors.pinkPrimary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
             icon: Icon(
               ref.watch(themeProvider) == ThemeMode.dark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-              color: const Color(0xFFF79F6F),
+              color: AppColors.pinkPrimary,
             ),
             onPressed: () {
               ref.read(themeProvider.notifier).toggleTheme();
@@ -192,13 +192,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         const SizedBox(width: 12),
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFF79F6F).withValues(alpha: 0.1),
+            color: AppColors.pinkPrimary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
             icon: const Icon(
               Icons.settings_rounded,
-              color: Color(0xFFF79F6F),
+              color: AppColors.pinkPrimary,
             ),
             onPressed: () => _showSettingsBottomSheet(user),
           ),
@@ -253,7 +253,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2D3142),
+                      color: AppColors.pinkPrimary,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 3),
                       boxShadow: [
